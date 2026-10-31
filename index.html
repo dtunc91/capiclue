@@ -1230,6 +1230,49 @@ function renderShare(){
   $("shareExtra").innerHTML=extra.map(shareItem).join("");
   $("shareExtra").classList.add("hidden");
   $("shareNote").textContent="";
+  makeScoreCard();   // prepare the Instagram picture now, so the tap can share it instantly
+}
+
+/* ---------- SCORE CARD PICTURE for Instagram (Stories, posts and messages accept images, not text) ---------- */
+let scoreCardFile=null;
+async function makeScoreCard(){
+  scoreCardFile=null;
+  try{ await document.fonts?.ready }catch(e){}
+  const W=1080,H=1920,c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d");
+  const NAVY="#1D2B45",TILE="#2A3C5F",AMBER="#F4B942",SOFT="#B8C4D6",PAPER="#E9EEF2";
+  const display='"Bricolage Grotesque", system-ui, sans-serif', mono='"DM Mono", ui-monospace, monospace';
+  const rr=(x,y,w,h,r,fill)=>{ g.beginPath(); g.roundRect(x,y,w,h,r); g.fillStyle=fill; g.fill() };
+  g.fillStyle=PAPER; g.fillRect(0,0,W,H);
+  rr(90,250,W-180,1420,64,NAVY);
+  // logo: C tile + wordmark
+  g.font=`800 92px ${display}`; const lw=120+28+g.measureText("Capiclue").width, lx=(W-lw)/2;   // centre logo + name
+  rr(lx,370,120,120,28,"#0E1729"); rr(lx+17,387,86,86,16,TILE);
+  g.fillStyle=AMBER; g.font=`500 64px ${mono}`; g.textAlign="center"; g.textBaseline="middle"; g.fillText("C",lx+60,433);
+  g.fillStyle="rgba(0,0,0,.45)"; g.fillRect(lx+17,429,86,3);
+  g.fillStyle="#FFFFFF"; g.font=`800 92px ${display}`; g.textAlign="left"; g.fillText("Capiclue",lx+148,433);
+  // date and level
+  const d=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+  g.textAlign="center"; g.fillStyle=SOFT; g.font=`600 46px ${display}`; g.fillText(`${d} · ${LEVELS[level]}`,W/2,640);
+  // big score
+  g.fillStyle="#FFFFFF"; g.font=`500 300px ${mono}`; const t=String(total()); const tw=g.measureText(t).width;
+  g.font=`500 90px ${mono}`; const sw=g.measureText("/100").width; const x0=W/2-(tw+sw)/2;
+  g.textAlign="left"; g.font=`500 300px ${mono}`; g.fillText(t,x0,900);
+  g.fillStyle=SOFT; g.font=`500 90px ${mono}`; g.fillText("/100",x0+tw+10,960);
+  // five result squares (drawn, so they look the same on every phone)
+  const COL={20:"#2E8B6A",15:"#F4B942",10:"#E8833A",5:"#C2483D"};
+  scores.forEach((sc,i)=>rr(W/2-(5*130-30)/2+i*130,1090,100,100,20,COL[sc]||"#3A4964"));
+  // footer
+  g.textAlign="center"; g.fillStyle="#FFFFFF"; g.font=`700 54px ${display}`; g.fillText("Can you beat it?",W/2,1360);
+  g.fillStyle=AMBER; g.font=`800 64px ${display}`; g.fillText("capiclue.com",W/2,1470);
+  g.fillStyle=NAVY; g.font=`600 38px ${display}`; g.fillText("The capital city guessing game built on fun facts",W/2,1775);
+  const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+  if(blob) scoreCardFile=new File([blob],"capiclue-score.png",{type:"image/png"});
+}
+function saveScoreCard(){   // fallback: save the picture so it can be posted from the camera roll / downloads
+  if(!scoreCardFile) return false;
+  const a=document.createElement("a"); a.href=URL.createObjectURL(scoreCardFile); a.download="capiclue-score.png";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  return true;
 }
 async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()); return true }catch(e){ return false } }
 ["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",async e=>{
@@ -1241,11 +1284,18 @@ async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()
     else $("shareExtra").classList.toggle("hidden");
   }
   else if(act==="instagram"){
-    // Instagram has no way for websites to pre-fill a post, so copy the score and open Instagram to paste it.
-    const ok=await copyScore();
-    note.textContent=ok?"Score copied. Paste it in an Instagram message or story.":"Open Instagram and share capiclue.com.";
-    if(IS_PHONE&&navigator.share){ try{ await navigator.share({text:shareText()}) }catch(err){} }
-    else window.open("https://www.instagram.com/direct/inbox/","_blank","noopener");
+    // Instagram only accepts pictures from websites. Phones: share the score card picture straight to the share
+    // menu, where Instagram (Stories, Feed, Messages) appears. Otherwise: save the picture to post it from Instagram.
+    const files=scoreCardFile?[scoreCardFile]:null;
+    if(files&&navigator.canShare?.({files})){
+      try{ await navigator.share({files}); note.textContent="Pick Instagram in the list to post your score card."; }
+      catch(err){ if(err.name!=="AbortError"){ saveScoreCard(); note.textContent="Score card saved. Open Instagram and add it to your story or a message." } }
+    }else if(saveScoreCard()){
+      note.textContent=IS_PHONE?"Score card saved. Open Instagram and add it to your story or a message."
+                               :"Score card downloaded. Post it on Instagram from your phone, or send it in a message.";
+    }else{
+      note.textContent=await copyScore()?"Score copied. Paste it in an Instagram message.":"Open Instagram and share capiclue.com.";
+    }
   }
 }));
 
