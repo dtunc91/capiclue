@@ -892,12 +892,22 @@ function dailySet(d, level){
   const mix = shuffled(today.length, 3000+d+salt);     // shuffle the order within the day
   const rounds = mix.map(j=>buildRound(today[j], cycle));
   if(level==="easy") rounds.forEach((rd,j)=>{
-    // Easy: 3 wrong answers from the other famous capitals. Two come from the same continent when possible,
-    // so the continent hint helps rule one out without giving the answer away.
+    // Easy: 3 wrong answers from the other famous capitals that look like the answer on the letter tiles,
+    // so counting tiles never gives it away. Best match first:
+    //   0 = identical tile shape (same words, same letters per word)
+    //   1 = same number of words, within 1 letter in total
+    //   2+ = same number of words, closest letter count; then anything closest
+    // Ties prefer the same continent, then a daily random order.
     const region=CITIES[today[mix[j]]][4];
-    const others=shuffled(pool.length, 7000+d*31+j*7).map(k=>pool[k]).filter(i=>CITIES[i][0]!==rd.c);
-    const near=others.filter(i=>CITIES[i][4]===region).slice(0,2);
-    const wrong=[...near, ...others.filter(i=>!near.includes(i))].slice(0,3).map(i=>CITIES[i][0]);
+    const shape=n=>n.toUpperCase().split(" ").map(w=>w.length), letters=n=>shape(n).reduce((a,b)=>a+b,0);
+    const want=shape(rd.c), wantL=letters(rd.c);
+    const rank=n=>{ const sh=shape(n), dl=Math.abs(letters(n)-wantL);
+      if(sh.join()===want.join()) return 0;
+      if(sh.length===want.length) return dl<=1?1:1+dl;
+      return 100+dl; };
+    const order=shuffled(pool.length, 7000+d*31+j*7).map(k=>pool[k]).filter(i=>CITIES[i][0]!==rd.c);
+    const wrong=order.map((i,pos)=>({n:CITIES[i][0], r:rank(CITIES[i][0]), far:CITIES[i][4]===region?0:1, pos}))
+      .sort((x,y)=>x.r-y.r||x.far-y.far||x.pos-y.pos).slice(0,3).map(x=>x.n);
     rd.options=shuffled(4, 8000+d*17+j).map(k=>[rd.c,...wrong][k]);
     rd.region=region;
   });
