@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Capiclue – Daily Capital Cities Quiz Game</title>
-<meta name="description" content="Capiclue is a free daily geography game. Guess five world capital cities a day from clever hints – the earlier you guess, the more points you score. New cities every day.">
+<title>Capiclue – Guess the City from Fun Facts | Daily Geography Game</title>
+<meta name="description" content="Capiclue is a free daily city guessing game built on fun facts. Read surprising trivia about a mystery capital and guess the city – the fewer facts you need, the more points you score. Five new cities every day.">
 <link rel="canonical" href="https://capiclue.com/">
 <meta name="theme-color" content="#1D2B45">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -12,20 +12,20 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Capiclue">
 <meta property="og:url" content="https://capiclue.com/">
-<meta property="og:title" content="Capiclue – Daily Capital Cities Quiz">
-<meta property="og:description" content="Guess five world capitals a day from clever hints. New cities every day.">
+<meta property="og:title" content="Capiclue – Guess the City from Fun Facts">
+<meta property="og:description" content="A daily city guessing game built on surprising fun facts. Five mystery capitals, new every day.">
 <meta property="og:image" content="https://capiclue.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Capiclue logo above the word PARIS spelled out in flip-board tiles">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Capiclue – Daily Capital Cities Quiz">
-<meta name="twitter:description" content="Guess five world capitals a day from clever hints. New cities every day.">
+<meta name="twitter:title" content="Capiclue – Guess the City from Fun Facts">
+<meta name="twitter:description" content="A daily city guessing game built on surprising fun facts. Five mystery capitals, new every day.">
 <meta name="twitter:image" content="https://capiclue.com/og-image.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Capiclue","url":"https://capiclue.com/",
- "applicationCategory":"GameApplication","genre":"Geography quiz","operatingSystem":"Any (web browser)",
- "description":"A free daily geography game: guess five world capital cities a day from hints that get easier as you go.",
+ "applicationCategory":"GameApplication","genre":"Geography trivia","operatingSystem":"Any (web browser)",
+ "description":"A free daily city guessing game: read fun facts about a mystery capital and guess the city. The fewer facts you need, the more points you score.",
  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,11 +126,11 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 <main>
 <section id="home">
   <h1>Capiclue</h1>
-  <p class="intro">Guess five of the world’s capital cities every day. Each hint gets easier, but earns fewer points.</p>
+  <p class="intro">The city guessing game built on fun facts. Every day, five mystery capitals, each one hiding behind surprising trivia.</p>
   <ol class="how">
-    <li>Read a hint about a mystery capital and type your guess.</li>
-    <li>Guess early for more points: 20, 15, 10 or 5.</li>
-    <li>Five new cities every day. The best score is 100.</li>
+    <li>Read a fun fact about a mystery city and type your guess.</li>
+    <li>Stuck? Unlock another fact. Each one is easier, but worth fewer points: 20, 15, 10 or 5.</li>
+    <li>Five new cities every day. Can you score 100?</li>
   </ol>
   <div class="homecard">
     <p class="dayline" id="homeDay">Day 1</p>
@@ -141,7 +141,8 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
   </div>
   <section class="about">
     <h2>About Capiclue</h2>
-    <p>Capiclue is a free daily capital cities quiz. Every day there are five mystery capitals from around the world, from Europe and Asia to Africa, the Americas and Oceania. Each one comes with up to four hints, starting tricky and getting easier, so you can test your geography and learn something new about the world in a few minutes.</p>
+    <p>Capiclue is a free daily city guessing game where every clue is a fun fact. Instead of maps or flags, you get surprising trivia: a city with a Museum of Broken Relationships, a capital whose giant Ferris wheel has turned since 1897, a place nicknamed the “Jerusalem of Europe”. Can you name the city?</p>
+    <p>Each day brings five mystery capitals from Europe, Asia, Africa, the Americas and Oceania, with up to four facts each, starting tricky and getting easier. Even when you miss one, you walk away knowing something new about the world.</p>
     <p>No sign-up, no download: it works on any phone, tablet or computer.</p>
   </section>
 </section>
@@ -170,7 +171,7 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
       <button type="submit">Guess</button>
     </form>
     <p class="wrong" id="wrong"></p>
-    <button class="link" id="skip" type="button">Show the next hint</button>
+    <button class="link" id="skip" type="button">Show another fact</button>
   </div>
 
   <div class="result hidden" id="result">
@@ -687,7 +688,7 @@ function renderHome(){
     $("playBtn").textContent="Continue";
   }else{
     $("homeTitle").textContent="Today’s five capitals";
-    $("homeStatus").textContent="Five new mystery capitals are waiting for you.";
+    $("homeStatus").textContent="Five new mystery cities and their fun facts are waiting.";
     $("playBtn").textContent="Play";
   }
   $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
@@ -756,10 +757,10 @@ function drawTiles(reveal){
 function showClue(){
   const li=document.createElement("li"); li.className="clue";
   const p=POINTS[clueNo];
-  li.innerHTML=`<span class="pts">${p} pts</span><span><strong>Hint ${clueNo+1}:</strong> ${set[idx].clues[clueNo]}</span>`;
+  li.innerHTML=`<span class="pts">${p} pts</span><span><strong>Fact ${clueNo+1}:</strong> ${set[idx].clues[clueNo]}</span>`;
   $("clues").appendChild(li);
   if(clueNo===3)drawTiles(false);
-  $("skip").textContent=`Show the next hint (${POINTS[clueNo+1]??0} pts)`;
+  $("skip").textContent=`Show another fact (${POINTS[clueNo+1]??0} pts)`;
   $("skip").classList.toggle("hidden",clueNo===3);
 }
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
@@ -778,7 +779,7 @@ $("form").addEventListener("submit",e=>{
   const raw=$("guess").value.trim(), g=norm(raw); if(!g)return;
   const city=set[idx];
   if([city.c,...city.alt].some(x=>norm(x)===g)) return finish(true);
-  $("wrong").textContent=clueNo<3?`Not ${raw}. Here’s another hint.`:`Not ${raw}.`;
+  $("wrong").textContent=clueNo<3?`Not ${raw}. Here’s another fact.`:`Not ${raw}.`;
   $("guess").value=""; nextClue();
 });
 $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
