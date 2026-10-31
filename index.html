@@ -222,7 +222,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
       <p class="countdown hidden" id="homeCountdown"></p>
     </div>
     <div class="board teaser">
-      <p class="teaser-label" id="homeDay">Day 1 · Today’s first fact</p>
+      <p class="teaser-label" id="homeDay">Today’s first fact</p>
       <p class="teaser-fact" id="homeFact"></p>
       <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
     </div>
@@ -297,7 +297,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 
   <div class="final hidden" id="final">
     <div class="final-main">
-    <h2 class="final-label" id="finalTitle">Day 1 · Today’s score</h2>
+    <h2 class="final-label" id="finalTitle">Today’s score</h2>
     <div class="bigscore"><span id="finalScore">0</span><small>/100</small></div>
     <div class="summary" id="summary"></div>
     <button id="shareBtn" class="cta" type="button">Share my score</button>
@@ -741,7 +741,7 @@ CITIES.forEach(c=>{const e=EXTRA[c[0]];if(!e)throw new Error("missing "+c[0]);co
 
 
 /* ---------- SETTINGS ---------- */
-const LAUNCH_DATE = "2026-10-31"; // Day 1 of the game. Change this to your real launch day.
+const LAUNCH_DATE = "2026-10-31"; // First day of the game (sets the order of cities; not shown to players).
 const PER_DAY = 5;
 const POINTS = [20, 15, 10, 5];   // per clue; 5 cities x 20 = 100
 
@@ -825,7 +825,7 @@ function renderHome(){
   const n=scores.length, saved=loadSaved(), fact=$("homeFact"), tiles=$("homeTiles");
   fact.classList.remove("big"); tiles.classList.remove("emo");
   if(n>=PER_DAY){
-    $("homeDay").textContent=`Day ${dayIndex+1} · Done`;
+    $("homeDay").textContent="Done for today";
     fact.classList.add("big"); fact.innerHTML=`${total()}<small>/100</small>`;
     tiles.classList.add("emo"); tiles.textContent=emojis();
     $("homeStatus").textContent="Come back tomorrow for five new cities.";
@@ -833,7 +833,7 @@ function renderHome(){
     $("heroTitle").innerHTML="That’s today<br>done. Nice!";
   }else{
     const started=n>0||saved?.clueNo>0, c=set[n];
-    $("homeDay").textContent=started?`Day ${dayIndex+1} · City ${n+1} of ${PER_DAY}`:`Day ${dayIndex+1} · Today’s first fact`;
+    $("homeDay").textContent=started?`City ${n+1} of ${PER_DAY}`:"Today’s first fact";
     fact.textContent=`“${c.clues[0]}”`;
     tiles.innerHTML=blankTiles(c.c); fitTiles(tiles,c.c);
     $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
@@ -886,7 +886,7 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden) tick() }
 
 function loadCity(startClue=0){
   clueNo=0; done=false;
-  $("round").innerHTML=`Day ${dayIndex+1} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
+  $("round").innerHTML=`City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
   $("dots").innerHTML=set.map((_,i)=>`<span class="dot ${i<idx?(scores[i]>0?"win":"lose"):i===idx?"on":""}"></span>`).join("");
   $("wrong").textContent=""; $("guess").value="";
   $("play").classList.remove("hidden"); $("result").classList.add("hidden");
@@ -924,7 +924,7 @@ function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false)
 function finish(won){
   done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save(); renderScorecard();
   drawTiles(true); $("play").classList.add("hidden"); $("result").classList.remove("hidden");
-  $("round").innerHTML=`Day ${dayIndex+1} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
+  $("round").innerHTML=`City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
   $("resTitle").textContent=won?`Yes, it’s ${city.c}. +${pts}`:`It was ${city.c}.`;
   $("resText").textContent=`Capital of ${city.n}.`;
   $("next").textContent=idx<PER_DAY-1?"Next city":"See my score";
@@ -950,7 +950,7 @@ function showFinal(){
   $("clues").innerHTML=""; $("tiles").innerHTML="";
   $("final").classList.remove("hidden"); $("game").classList.add("finalmode");
   $("recap").innerHTML=set.map((c,i)=>`<li class="${scores[i]>0?"win":"lose"}"><span>${c.c} <small class="soft">${c.n}</small></span><b>${scores[i]??0}</b></li>`).join("");
-  $("finalTitle").textContent=`Day ${dayIndex+1} · Today’s score`;
+  $("finalTitle").textContent="Today’s score";
   $("finalScore").textContent=total();
   $("summary").textContent=emojis();
   tick();
@@ -970,7 +970,8 @@ function showFinal(){
 
 /* ---------- SHARING ---------- */
 const SITE = "https://capiclue.com";
-function shareText(){ return `Capiclue Day ${dayIndex+1}: ${total()}/100\n${emojis()}\n${SITE}` }
+/* Share text uses the date (e.g. "31 Oct") rather than a day number, so nobody feels they joined late. */
+function shareText(){ const d=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"}); return `Capiclue ${d}: ${total()}/100\n${emojis()}\n${SITE}` }
 $("shareBtn").addEventListener("click",async()=>{
   try{ await navigator.share({text:shareText()}) }catch(e){}
 });
