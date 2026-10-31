@@ -191,7 +191,17 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .thememenu button:hover{background:var(--paper);filter:none}
 .thememenu button[aria-checked="true"]::after{content:"✓";margin-left:auto;color:var(--good)}
 .thememenu i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}
-.about{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
+.about{margin-top:36px;padding-top:4px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0} .about p{margin:0 0 10px}
+/* Phones: About is folded into one tappable line. Bigger screens: always open. */
+.about summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:14px 0;min-height:44px}
+.about summary::-webkit-details-marker{display:none}
+.about summary:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:6px}
+.chev{width:10px;height:10px;border-right:2px solid var(--soft);border-bottom:2px solid var(--soft);transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s}
+.about[open] .chev{transform:rotate(-135deg) translate(-2px,-2px)}
+.about[open] summary{padding-bottom:8px}
+.about[open]{padding-bottom:12px}
+.about + .foot{margin-top:0}
+@media (min-width:768px){ .about{margin-top:56px;padding-top:20px} .about summary{pointer-events:none;padding:0 0 6px;min-height:0} .chev{display:none} .about + .foot{margin-top:40px} }
 @media (min-width:1024px){
   main{max-width:1080px}
   .desk{display:block}
@@ -260,12 +270,12 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div><b>📅 New every day</b><span>Five fresh capitals from around the world at midnight.</span></div>
   </div>
 
-  <section class="about">
-    <h2>About Capiclue</h2>
+  <details class="about" id="about">
+    <summary><h2>About Capiclue</h2><span class="chev" aria-hidden="true"></span></summary>
     <p>Capiclue is a free daily city guessing game where every clue is a fun fact. Instead of maps or flags, you get surprising trivia: a city with a Museum of Broken Relationships, a capital whose giant Ferris wheel has turned since 1897, a place nicknamed the “Jerusalem of Europe”. Can you name the city?</p>
     <p>Each day brings five mystery capitals from Europe, Asia, Africa, the Americas and Oceania, with up to four facts each, starting tricky and getting easier. Even when you miss one, you walk away knowing something new about the world.</p>
     <p>No sign-up, no download: it works on any phone, tablet or computer.</p>
-  </section>
+  </details>
   <footer class="foot">
     <span class="logo small"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span>
     <p>The city guessing game built on fun facts.</p>
@@ -897,6 +907,11 @@ document.addEventListener("keydown",e=>{   // desktop: press Enter on the home s
   if(e.key==="Enter"&&!$("home").classList.contains("hidden")&&!$("help").open&&!e.target.closest("button,a,input")){ e.preventDefault(); $("playBtn").click() }
 });
 $("help").addEventListener("click",e=>{ if(e.target===$("help")) $("help").close() });   // tap outside to close
+
+/* About: always open on tablets and computers, folded on phones. */
+const aboutWide=matchMedia("(min-width:768px)");
+function syncAbout(){ if(aboutWide.matches) $("about").open=true }
+syncAbout(); aboutWide.addEventListener?.("change",syncAbout);
 
 /* ---------- COLOURS: Classic (default), Bright (white) or Dark. Remembered on this device. ---------- */
 function currentTheme(){ return document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light") }
