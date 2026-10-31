@@ -101,6 +101,14 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 .sharerow a:hover,.sharerow button:hover{border-color:var(--amber);filter:none}
 .sharerow a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .result button.secondary{background:none;color:var(--ink);border:2px solid var(--line);margin-top:4px}
+.promo{display:block;margin-top:14px;padding:18px;border-radius:12px;background:var(--board);color:#E6ECF3;text-decoration:none;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);transition:transform .15s}
+.promo:hover{transform:translateY(-2px)} .promo:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.promo-label{display:block;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:#B8C4D6;margin-bottom:4px}
+.promo-title{display:block;font-size:1.25rem;font-weight:800;margin-bottom:4px}
+.promo-text{display:block;color:#C9D3E1;font-size:.95rem;margin-bottom:12px}
+.promo-cta{display:inline-block;background:var(--amber);color:#1D2B45;font-weight:700;padding:10px 16px;border-radius:10px}
+.promo.hidden{display:none}
 .about{margin-top:32px;color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
 @media (min-width:768px){
   main{max-width:640px;padding-top:56px}
@@ -193,6 +201,13 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
     </div>
     <button id="backHome" class="secondary" type="button">Back to homepage</button>
   </div>
+
+  <a class="promo hidden" id="promo" href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=results_card" target="_blank" rel="noopener">
+    <span class="promo-label">Also from the maker of Capiclue</span>
+    <span class="promo-title">✈️ Get Me Out of Here</span>
+    <span class="promo-text">Loved exploring today’s capitals? Now go see one. No destination needed: tell it where you are and when, and it finds the cheapest flights anywhere.</span>
+    <span class="promo-cta">Find cheap flights →</span>
+  </a>
 </section>
 </main>
 
@@ -707,7 +722,7 @@ function showScreen(name){
 function openGame(){
   showScreen("game");
   const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
-  $("final").classList.add("hidden");
+  $("final").classList.add("hidden"); $("promo").classList.add("hidden");
   if(idx>=PER_DAY) return showFinal();
   loadCity(saved?saved.clueNo:0);
 }
@@ -793,7 +808,7 @@ $("next").addEventListener("click",()=>{
   showFinal();
 });
 function showFinal(){
-  done=true;
+  done=true; $("promo").classList.remove("hidden");
   $("play").classList.add("hidden"); $("result").classList.add("hidden"); $("final").classList.remove("hidden");
   $("round").textContent=`Day ${dayIndex+1} · Done`;
   $("dots").innerHTML=scores.map(s=>`<span class="dot ${s>0?"win":"lose"}"></span>`).join("");
