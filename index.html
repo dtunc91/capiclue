@@ -1286,13 +1286,18 @@ async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()
   else if(act==="instagram"){
     // Instagram only accepts pictures from websites. Phones: share the score card picture straight to the share
     // menu, where Instagram (Stories, Feed, Messages) appears. Otherwise: save the picture to post it from Instagram.
+    // Stories can't receive a tappable link from outside Instagram, so copy the link too:
+    // the player pastes it into Instagram's Link sticker. (Not awaited, so the share menu still opens on iPhone.)
+    let linkCopied=false;
+    try{ navigator.clipboard.writeText(SITE).then(()=>{ linkCopied=true }, ()=>{}) }catch(e){}
+    const STICKER="In your story, tap the sticker icon, choose Link and paste it.";
     const files=scoreCardFile?[scoreCardFile]:null;
     if(files&&navigator.canShare?.({files})){
-      try{ await navigator.share({files}); note.textContent="Pick Instagram in the list to post your score card."; }
-      catch(err){ if(err.name!=="AbortError"){ saveScoreCard(); note.textContent="Score card saved. Open Instagram and add it to your story or a message." } }
+      try{ await navigator.share({files}); note.textContent=linkCopied?`Game link copied. ${STICKER}`:`Pick Instagram, then add a Link sticker with capiclue.com.`; }
+      catch(err){ if(err.name!=="AbortError"){ saveScoreCard(); note.textContent=`Score card saved and game link copied. Add the card to your story. ${STICKER}` } }
     }else if(saveScoreCard()){
-      note.textContent=IS_PHONE?"Score card saved. Open Instagram and add it to your story or a message."
-                               :"Score card downloaded. Post it on Instagram from your phone, or send it in a message.";
+      note.textContent=IS_PHONE?`Score card saved and game link copied. Add the card to your story. ${STICKER}`
+                               :"Score card downloaded and game link copied. Post the card on Instagram and add a Link sticker with capiclue.com.";
     }else{
       note.textContent=await copyScore()?"Score copied. Paste it in an Instagram message.":"Open Instagram and share capiclue.com.";
     }
