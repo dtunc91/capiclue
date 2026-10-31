@@ -663,6 +663,11 @@ let set, idx, clueNo, scores, done;
 /* Progress is saved on this device (keyed by date), so refreshing can't restart today's game. */
 const SAVE_KEY = "capiclue-v2";
 try{ localStorage.removeItem("capiclue-progress") }catch(e){}   // old save format from before the relaunch
+/* Visiting capiclue.com/?reset clears today's progress on this device (handy for testing). */
+if(new URLSearchParams(location.search).has("reset")){
+  try{ localStorage.removeItem(SAVE_KEY) }catch(e){}
+  history.replaceState(null,"",location.pathname);
+}
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo})) }catch(e){} }
 function loadSaved(){ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); return s&&s.date===dayKey?s:null }catch(e){ return null } }
 const total = () => scores.reduce((a,b)=>a+b,0);
