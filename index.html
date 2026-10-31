@@ -3,7 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Capiclue</title>
+<title>Capiclue – Daily Capital Cities Quiz Game</title>
+<meta name="description" content="Capiclue is a free daily geography game. Guess five world capital cities a day from clever hints – the earlier you guess, the more points you score. New cities every day.">
+<link rel="canonical" href="https://capiclue.com/">
+<meta name="theme-color" content="#1D2B45">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Capiclue">
+<meta property="og:url" content="https://capiclue.com/">
+<meta property="og:title" content="Capiclue – Daily Capital Cities Quiz">
+<meta property="og:description" content="Guess five world capitals a day from clever hints. New cities every day.">
+<meta property="og:image" content="https://capiclue.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Capiclue logo above the word PARIS spelled out in flip-board tiles">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Capiclue – Daily Capital Cities Quiz">
+<meta name="twitter:description" content="Guess five world capitals a day from clever hints. New cities every day.">
+<meta name="twitter:image" content="https://capiclue.com/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Capiclue","url":"https://capiclue.com/",
+ "applicationCategory":"GameApplication","genre":"Geography quiz","operatingSystem":"Any (web browser)",
+ "description":"A free daily geography game: guess five world capital cities a day from hints that get easier as you go.",
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -71,6 +95,7 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 .homecard p.status{margin:0 0 16px;color:var(--soft)}
 .countdown{margin:12px 0 0;text-align:center;color:var(--soft);font-size:.95rem}
 .countdown b{font-family:"DM Mono",ui-monospace,monospace;color:var(--ink)}
+.about{margin-top:32px;color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
 @media (min-width:768px){
   main{max-width:640px;padding-top:56px}
   h1{font-size:3.2rem} .intro{font-size:1.1rem}
@@ -108,7 +133,13 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
     <button id="playBtn" type="button">Play</button>
     <p class="countdown hidden" id="homeCountdown"></p>
   </div>
+  <section class="about">
+    <h2>About Capiclue</h2>
+    <p>Capiclue is a free daily capital cities quiz. Every day there are five mystery capitals from around the world, from Europe and Asia to Africa, the Americas and Oceania. Each one comes with up to four hints, starting tricky and getting easier, so you can test your geography and learn something new about the world in a few minutes.</p>
+    <p>No sign-up, no download: it works on any phone, tablet or computer.</p>
+  </section>
 </section>
+<noscript><p style="text-align:center">Capiclue needs JavaScript turned on to play.</p></noscript>
 
 <section id="game" class="hidden">
   <div class="topbar">
