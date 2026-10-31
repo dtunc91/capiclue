@@ -101,7 +101,7 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 .sharerow a:hover,.sharerow button:hover{border-color:var(--amber);filter:none}
 .sharerow a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .result button.secondary{background:none;color:var(--ink);border:2px solid var(--line);margin-top:4px}
-.brandh{margin:0;font-size:1.6rem;font-weight:800;letter-spacing:-.02em;line-height:1}
+.brandh{margin:0;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;line-height:1}
 .topright{display:flex;gap:12px;align-items:center}
 .help{width:36px;height:36px;padding:0;border-radius:50%;background:none;border:2px solid var(--line);color:var(--soft);font-weight:800;font-size:1rem}
 .cta{display:block;width:100%;padding:16px 18px;font-size:1.1rem;background:var(--amber);color:#1D2B45;font-weight:800}
@@ -146,6 +146,24 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .sidetotal{margin:8px 0 0;font-weight:800;font-size:1.1rem}
 .keys{margin:0;color:var(--soft);line-height:2}
 .final-side{display:flex;flex-direction:column;text-align:left}
+/* ---------- BRAND: flip-board "C" tile + wordmark ---------- */
+.logo{display:inline-flex;align-items:center;gap:10px;line-height:1}
+.mark{--m:34px;position:relative;flex:none;width:var(--m);height:var(--m);border-radius:calc(var(--m)*.24);background:#1D2B45;
+  display:grid;place-items:center;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 2px 6px rgba(29,43,69,.18);perspective:200px}
+.mark span{display:grid;place-items:center;width:72%;height:72%;border-radius:calc(var(--m)*.12);background:#2A3C5F;
+  color:#F4B942;font-family:"DM Mono",ui-monospace,monospace;font-weight:500;font-size:calc(var(--m)*.52);transform-origin:50% 50%}
+.mark::after{content:"";position:absolute;left:14%;right:14%;top:50%;height:1px;background:rgba(0,0,0,.45)}
+.word{font-weight:800;letter-spacing:-.03em}
+.brandh .mark{--m:38px}
+.logo.small .mark{--m:26px} .logo.small .word{font-size:1.1rem}
+.brand .mark{--m:32px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mark{background:#0B1222;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 0 0 1px #2C3A52}}
+:root[data-theme="dark"] .mark{background:#0B1222;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 0 0 1px #2C3A52}
+@media (prefers-reduced-motion: no-preference){ .brandh .mark span{animation:markflip .7s .15s ease both} }
+@keyframes markflip{0%{transform:rotateX(90deg)}60%{transform:rotateX(-12deg)}100%{transform:rotateX(0)}}
+.foot{margin-top:40px;padding:24px 0 8px;border-top:1px solid var(--line);color:var(--soft);font-size:.92rem}
+.foot p{margin:8px 0 0} .foot a{color:var(--ink)}
+.foot-meta{font-size:.85rem}
 .about{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
 @media (min-width:1024px){
   main{max-width:1080px}
@@ -193,7 +211,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <main>
 <section id="home">
   <div class="topbar">
-    <h1 class="brandh">Capiclue</h1>
+    <h1 class="brandh"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></h1>
     <button class="help" id="helpBtn" type="button" aria-label="How to play">?</button>
   </div>
   <div class="hero">
@@ -221,6 +239,11 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <p>Each day brings five mystery capitals from Europe, Asia, Africa, the Americas and Oceania, with up to four facts each, starting tricky and getting easier. Even when you miss one, you walk away knowing something new about the world.</p>
     <p>No sign-up, no download: it works on any phone, tablet or computer.</p>
   </section>
+  <footer class="foot">
+    <span class="logo small"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span>
+    <p>The city guessing game built on fun facts.</p>
+    <p class="foot-meta">© <span id="year">2026</span> Capiclue · Also from us: <a href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=footer" target="_blank" rel="noopener">✈️ Get Me Out of Here</a></p>
+  </footer>
 </section>
 
 <dialog id="help" aria-labelledby="helpTitle">
@@ -237,7 +260,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 
 <section id="game" class="hidden">
   <div class="topbar">
-    <button class="brand" id="brand" type="button" aria-label="Capiclue home">Capiclue</button>
+    <button class="brand" id="brand" type="button" aria-label="Capiclue home"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></button>
     <span class="topright"><button class="homebtn" id="homeTop" type="button">← Home</button><button class="help" id="helpBtn2" type="button" aria-label="How to play">?</button></span>
   </div>
 
@@ -824,7 +847,8 @@ function showScreen(name){
   $("home").classList.toggle("hidden",name!=="home");
   $("game").classList.toggle("hidden",name!=="game");
   window.scrollTo(0,0);
-  if(name==="home") renderHome();   // re-measure tiles now that home is visible
+  if(name==="home") renderHome();
+  $("year").textContent=new Date().getFullYear();   // re-measure tiles now that home is visible
 }
 function openGame(){
   showScreen("game");
