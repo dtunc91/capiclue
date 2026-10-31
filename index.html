@@ -130,9 +130,47 @@ dialog .how{list-style:none;padding:0;margin:0 0 18px} dialog .how li{margin:0 0
 .strip-text{min-width:0} .strip-text b{display:block} .strip-text span{display:block;font-size:.88rem;color:#B8C4D6}
 .strip .go{margin-left:auto;flex:none;background:var(--amber);color:#1D2B45;font-weight:800;padding:8px 12px;border-radius:9px}
 .strip.hidden{display:none}
+.hero{display:flex;flex-direction:column}
+.hero .teaser{order:-1}
+.desk{display:none}
+kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;background:var(--card);color:var(--ink)}
+.sidecard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.side{display:none;flex-direction:column;gap:14px;align-self:start}
+.sidelabel{margin:0 0 6px;font-size:.75rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--soft)}
+.scorecard{list-style:none;margin:0;padding:0;font-size:.95rem}
+.scorecard li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.scorecard li:last-child{border-bottom:0}
+.scorecard li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scorecard li.win b{color:var(--good)} .scorecard li.lose b{color:var(--bad)} .scorecard li.todo{color:var(--soft)}
+.scorecard li.now{font-weight:700}
+.sidetotal{margin:8px 0 0;font-weight:800;font-size:1.1rem}
+.keys{margin:0;color:var(--soft);line-height:2}
+.final-side{display:flex;flex-direction:column;text-align:left}
 .about{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
+@media (min-width:1024px){
+  main{max-width:1080px}
+  .desk{display:block}
+  #home .hero{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center;margin-top:48px}
+  #home .hero .teaser{order:0;padding:28px 26px 26px}
+  #home .teaser-fact{font-size:1.6rem}
+  .hero-title{font-size:3.6rem;font-weight:800;line-height:1.02;letter-spacing:-.03em;margin:0 0 16px;text-wrap:balance}
+  #home .teaser-sub{font-size:1.15rem;margin:0 0 24px}
+  .hero-cta{display:flex;align-items:center;gap:14px}
+  #home .cta{width:auto;padding:16px 36px}
+  .enterhint{color:var(--soft)}
+  #home .countdown{text-align:left}
+  .points{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:72px}
+  .points b{display:block;font-size:1.1rem;margin-bottom:4px} .points span{color:var(--soft)}
+  .gamegrid{display:grid;grid-template-columns:210px minmax(0,600px) 210px;gap:32px;justify-content:center}
+  .side{display:flex}
+  #game.finalmode .gamegrid{grid-template-columns:minmax(0,860px)}
+  #game.finalmode .side{display:none}
+  .final:not(.hidden){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start;margin-top:24px}
+  .final-side .strip{margin-top:16px}
+}
+@media (min-width:768px) and (max-width:1023px){ main{max-width:640px} }
 @media (min-width:768px){
-  main{max-width:640px;padding-top:56px}
+  main{padding-top:56px}
   h1{font-size:3.2rem} .intro{font-size:1.1rem}
   .board{padding:24px 22px 22px}
   .clue{font-size:1.1rem;padding:14px 0}
@@ -158,14 +196,24 @@ dialog .how{list-style:none;padding:0;margin:0 0 18px} dialog .how li{margin:0 0
     <h1 class="brandh">Capiclue</h1>
     <button class="help" id="helpBtn" type="button" aria-label="How to play">?</button>
   </div>
-  <div class="board teaser">
-    <p class="teaser-label" id="homeDay">Day 1 · Today’s first fact</p>
-    <p class="teaser-fact" id="homeFact"></p>
-    <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
+  <div class="hero">
+    <div class="hero-text">
+      <p class="hero-title desk" id="heroTitle">Guess the city<br>from fun facts.</p>
+      <p class="teaser-sub" id="homeStatus">Can you name the city? Five mystery capitals, new every day.</p>
+      <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk">or press <kbd>Enter</kbd></span></div>
+      <p class="countdown hidden" id="homeCountdown"></p>
+    </div>
+    <div class="board teaser">
+      <p class="teaser-label" id="homeDay">Day 1 · Today’s first fact</p>
+      <p class="teaser-fact" id="homeFact"></p>
+      <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
+    </div>
   </div>
-  <p class="teaser-sub" id="homeStatus">Can you name the city? Five mystery capitals, new every day.</p>
-  <button id="playBtn" class="cta" type="button">Guess the city</button>
-  <p class="countdown hidden" id="homeCountdown"></p>
+  <div class="points desk">
+    <div><b>💡 Facts, not maps</b><span>Every clue is a surprising piece of trivia about the city.</span></div>
+    <div><b>🏆 Up to 100 points</b><span>20, 15, 10 or 5 per city, depending on how many facts you need.</span></div>
+    <div><b>📅 New every day</b><span>Five fresh capitals from around the world at midnight.</span></div>
+  </div>
 
   <section class="about">
     <h2>About Capiclue</h2>
@@ -193,6 +241,11 @@ dialog .how{list-style:none;padding:0;margin:0 0 18px} dialog .how li{margin:0 0
     <span class="topright"><button class="homebtn" id="homeTop" type="button">← Home</button><button class="help" id="helpBtn2" type="button" aria-label="How to play">?</button></span>
   </div>
 
+  <div class="gamegrid">
+  <aside class="side desk" aria-label="Today’s scorecard">
+    <div class="sidecard"><p class="sidelabel">Today</p><ul class="scorecard" id="scorecard"></ul><p class="sidetotal" id="sideTotal">0 pts</p></div>
+  </aside>
+  <div class="center">
   <section class="board" id="board" aria-label="Answer board">
     <div class="board-top"><span id="round">City 1 of 5</span><div class="dots" id="dots"></div></div>
     <div class="tiles" id="tiles" aria-live="polite"></div>
@@ -220,6 +273,7 @@ dialog .how{list-style:none;padding:0;margin:0 0 18px} dialog .how li{margin:0 0
   </div>
 
   <div class="final hidden" id="final">
+    <div class="final-main">
     <h2 class="final-label" id="finalTitle">Day 1 · Today’s score</h2>
     <div class="bigscore"><span id="finalScore">0</span><small>/100</small></div>
     <div class="summary" id="summary"></div>
@@ -232,12 +286,21 @@ dialog .how{list-style:none;padding:0;margin:0 0 18px} dialog .how li{margin:0 0
     </div>
     <p class="countdown" id="finalNote"></p>
     <button id="backHome" class="link" type="button">Back to homepage</button>
+    </div>
+    <div class="final-side">
+      <div class="sidecard recap desk"><p class="sidelabel">Today’s cities</p><ul class="scorecard" id="recap"></ul></div>
+      <a class="strip" id="promo" target="_blank" rel="noopener" href="https://getmeoutofhere.live/">
+        <span class="strip-text"><b id="promoTitle">✈️ Fancy a trip to one of today’s capitals?</b><span>Cheapest flights from where you are</span></span>
+        <span class="go">Go →</span>
+      </a>
+    </div>
   </div>
-
-  <a class="strip hidden" id="promo" target="_blank" rel="noopener" href="https://getmeoutofhere.live/">
-    <span class="strip-text"><b id="promoTitle">✈️ Fancy a trip to one of today’s capitals?</b><span>Cheapest flights from where you are</span></span>
-    <span class="go">Go →</span>
-  </a>
+  </div>
+  <aside class="side desk" aria-label="Points and keys">
+    <div class="sidecard"><p class="sidelabel">Points</p><ul class="scorecard plain"><li><span>Fact 1</span><b>20</b></li><li><span>Fact 2</span><b>15</b></li><li><span>Fact 3</span><b>10</b></li><li><span>Fact 4</span><b>5</b></li></ul></div>
+    <div class="sidecard"><p class="sidelabel">Keys</p><p class="keys"><kbd>Enter</kbd> guess<br><kbd>↑</kbd> <kbd>↓</kbd> pick a name<br><kbd>Esc</kbd> close the list</p></div>
+  </aside>
+  </div>
 </section>
 </main>
 
@@ -725,6 +788,15 @@ function init(){
   const saved=loadSaved(); scores=saved?saved.scores:[];
   renderHome();
 }
+/* Desktop side panel: one row per city. Finished cities show their name and points. */
+function renderScorecard(){
+  const rows=set.map((c,i)=>{
+    if(i<scores.length) return `<li class="${scores[i]>0?"win":"lose"}"><span>${c.c}</span><b>${scores[i]}</b></li>`;
+    if(i===idx&&!done) return `<li class="now"><span>City ${i+1}</span><b>…</b></li>`;
+    return `<li class="todo"><span>City ${i+1}</span><b>–</b></li>`;
+  });
+  $("scorecard").innerHTML=rows.join(""); $("sideTotal").textContent=`${total()} pts`;
+}
 function blankTiles(name){ return name.toUpperCase().split(" ").map(w=>`<span class="word">${[...w].map(()=>`<span class="tile"></span>`).join("")}</span>`).join("") }
 function renderHome(){
   const n=scores.length, saved=loadSaved(), fact=$("homeFact"), tiles=$("homeTiles");
@@ -735,6 +807,7 @@ function renderHome(){
     tiles.classList.add("emo"); tiles.textContent=emojis();
     $("homeStatus").textContent="Come back tomorrow for five new cities.";
     $("playBtn").textContent="See my results";
+    $("heroTitle").innerHTML="That’s today<br>done. Nice!";
   }else{
     const started=n>0||saved?.clueNo>0, c=set[n];
     $("homeDay").textContent=started?`Day ${dayIndex+1} · City ${n+1} of ${PER_DAY}`:`Day ${dayIndex+1} · Today’s first fact`;
@@ -742,6 +815,7 @@ function renderHome(){
     tiles.innerHTML=blankTiles(c.c); fitTiles(tiles,c.c);
     $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
     $("playBtn").textContent=started?"Continue":"Guess the city";
+    $("heroTitle").innerHTML=started?"Pick up where<br>you left off.":"Guess the city<br>from fun facts.";
   }
   $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
   tick();
@@ -755,7 +829,7 @@ function showScreen(name){
 function openGame(){
   showScreen("game");
   const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
-  $("final").classList.add("hidden"); $("promo").classList.add("hidden"); $("board").classList.remove("hidden");
+  $("final").classList.add("hidden"); $("board").classList.remove("hidden"); $("game").classList.remove("finalmode");
   if(idx>=PER_DAY) return showFinal();
   loadCity(saved?saved.clueNo:0);
 }
@@ -766,6 +840,9 @@ $("playBtn").addEventListener("click",()=>{ history.pushState(null,"","#play"); 
 addEventListener("popstate",()=>location.hash==="#play"?openGame():goHome());
 ["helpBtn","helpBtn2"].forEach(id=>$(id).addEventListener("click",()=>{ hideSuggest(); $("help").showModal() }));
 $("helpClose").addEventListener("click",()=>$("help").close());
+document.addEventListener("keydown",e=>{   // desktop: press Enter on the home screen to play
+  if(e.key==="Enter"&&!$("home").classList.contains("hidden")&&!$("help").open&&!e.target.closest("button,a,input")){ e.preventDefault(); $("playBtn").click() }
+});
 $("help").addEventListener("click",e=>{ if(e.target===$("help")) $("help").close() });   // tap outside to close
 
 /* ---------- DAILY REFRESH: countdown, and a new set at midnight even if the tab stays open ---------- */
@@ -789,7 +866,7 @@ function loadCity(startClue=0){
   $("dots").innerHTML=set.map((_,i)=>`<span class="dot ${i<idx?(scores[i]>0?"win":"lose"):i===idx?"on":""}"></span>`).join("");
   $("wrong").textContent=""; $("guess").value="";
   $("play").classList.remove("hidden"); $("result").classList.add("hidden");
-  $("clues").innerHTML=""; drawTiles(false); showClue();
+  $("clues").innerHTML=""; drawTiles(false); showClue(); renderScorecard();
   while(clueNo<startClue){ clueNo++; showClue() }
   if(finePointer) $("guess").focus({preventScroll:true});
 }
@@ -821,7 +898,7 @@ function showClue(){
 }
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
 function finish(won){
-  done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save();
+  done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save(); renderScorecard();
   drawTiles(true); $("play").classList.add("hidden"); $("result").classList.remove("hidden");
   $("round").innerHTML=`Day ${dayIndex+1} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
   $("resTitle").textContent=won?`Yes, it’s ${city.c}. +${pts}`:`It was ${city.c}.`;
@@ -847,7 +924,8 @@ function showFinal(){
   done=true;
   $("play").classList.add("hidden"); $("result").classList.add("hidden"); $("board").classList.add("hidden");
   $("clues").innerHTML=""; $("tiles").innerHTML="";
-  $("final").classList.remove("hidden");
+  $("final").classList.remove("hidden"); $("game").classList.add("finalmode");
+  $("recap").innerHTML=set.map((c,i)=>`<li class="${scores[i]>0?"win":"lose"}"><span>${c.c} <small class="soft">${c.n}</small></span><b>${scores[i]??0}</b></li>`).join("");
   $("finalTitle").textContent=`Day ${dayIndex+1} · Today’s score`;
   $("finalScore").textContent=total();
   $("summary").textContent=emojis();
@@ -863,7 +941,6 @@ function showFinal(){
   const best=set[scores.indexOf(Math.max(...scores))]||set[0];
   $("promoTitle").textContent=`✈️ Fancy ${best.c} for real?`;
   $("promo").href=`https://getmeoutofhere.live/?utm_source=capiclue&utm_medium=referral&utm_campaign=results_strip&utm_content=${encodeURIComponent(best.c)}`;
-  $("promo").classList.remove("hidden");
   window.scrollTo(0,0);
 }
 
