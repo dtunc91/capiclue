@@ -95,6 +95,12 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 .homecard p.status{margin:0 0 16px;color:var(--soft)}
 .countdown{margin:12px 0 0;text-align:center;color:var(--soft);font-size:.95rem}
 .countdown b{font-family:"DM Mono",ui-monospace,monospace;color:var(--ink)}
+.sharerow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.sharerow a,.sharerow button{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 4px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:.9rem;text-decoration:none;cursor:pointer;width:auto}
+.sharerow a:hover,.sharerow button:hover{border-color:var(--amber);filter:none}
+.sharerow a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.result button.secondary{background:none;color:var(--ink);border:2px solid var(--line);margin-top:4px}
 .about{margin-top:32px;color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
 @media (min-width:768px){
   main{max-width:640px;padding-top:56px}
@@ -177,7 +183,14 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
     <h2 id="finalTitle"></h2>
     <div class="summary" id="summary"></div>
     <p id="finalNote">A new set of five arrives tomorrow.</p>
-    <button id="backHome" type="button">Back to homepage</button>
+    <button id="shareBtn" type="button">Share my score</button>
+    <div class="sharerow" aria-label="Share on">
+      <a id="shWa" target="_blank" rel="noopener">WhatsApp</a>
+      <a id="shX" target="_blank" rel="noopener">X</a>
+      <a id="shFb" target="_blank" rel="noopener">Facebook</a>
+      <button id="shCopy" type="button">Copy</button>
+    </div>
+    <button id="backHome" class="secondary" type="button">Back to homepage</button>
   </div>
 </section>
 </main>
@@ -782,8 +795,25 @@ function showFinal(){
   $("finalTitle").textContent=`Today’s score: ${total()} / 100`;
   $("summary").textContent=emojis();
   tick();
-  $("backHome").focus({preventScroll:true});
+  const t=shareText(), u=encodeURIComponent(SITE), e=encodeURIComponent(t);
+  $("shWa").href=`https://wa.me/?text=${e}`;
+  $("shX").href=`https://twitter.com/intent/tweet?text=${e}`;
+  $("shFb").href=`https://www.facebook.com/sharer/sharer.php?u=${u}`;
+  $("shareBtn").classList.toggle("hidden",!navigator.share);   // phones: opens the built-in share menu (Instagram, Messages, etc.)
+  $("final").scrollIntoView({block:"nearest"});
 }
+
+/* ---------- SHARING ---------- */
+const SITE = "https://capiclue.com";
+function shareText(){ return `Capiclue Day ${dayIndex+1}: ${total()}/100\n${emojis()}\n${SITE}` }
+$("shareBtn").addEventListener("click",async()=>{
+  try{ await navigator.share({text:shareText()}) }catch(e){}
+});
+$("shCopy").addEventListener("click",async()=>{
+  try{ await navigator.clipboard.writeText(shareText()); $("shCopy").textContent="Copied!" }
+  catch(e){ $("shCopy").textContent="Failed" }
+  setTimeout(()=>$("shCopy").textContent="Copy",2000);
+});
 
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
