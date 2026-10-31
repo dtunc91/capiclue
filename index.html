@@ -35,19 +35,21 @@ h1{font-size:2.4rem;font-weight:800;line-height:1;margin:0 0 6px;letter-spacing:
 .dots{display:flex;gap:6px;align-items:center}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--tile)}
 .dot.on{background:var(--amber)} .dot.win{background:var(--good)} .dot.lose{background:var(--bad)}
-.tiles{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;min-height:46px}
-.tile{width:30px;height:42px;border-radius:5px;background:var(--tile);color:var(--amber);
-  font-family:"DM Mono",ui-monospace,monospace;font-size:1.25rem;display:grid;place-items:center;
+.tiles{--tw:30px;display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;min-height:46px}
+.word{display:flex;gap:4px}
+.tiles:empty{min-height:0}
+.board-top:last-child{margin-bottom:0}
+.tile{width:var(--tw);height:calc(var(--tw)*1.4);border-radius:5px;background:var(--tile);color:var(--amber);
+  font-family:"DM Mono",ui-monospace,monospace;font-size:calc(var(--tw)*.62);display:grid;place-items:center;
   box-shadow:inset 0 -2px 0 rgba(0,0,0,.35);position:relative}
 .tile::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.4)}
-.tile.gap{background:transparent;box-shadow:none;width:12px}
-.tile.gap::after{display:none}
+.score{color:var(--amber);font-weight:600}
 .tile.flip{animation:flip .45s ease both}
 @keyframes flip{0%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
 @media (prefers-reduced-motion: reduce){.tile.flip{animation:none}}
 .clues{list-style:none;padding:0;margin:20px 0 0}
 .clue{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
-.pts{flex:none;width:44px;font-weight:800;font-size:1.1rem;color:var(--soft)}
+.pts{flex:none;min-width:58px;white-space:nowrap;font-weight:800;font-size:1.05rem;color:var(--soft)}
 .clue:last-child .pts{color:var(--ink)}
 form{display:flex;gap:8px;margin-top:18px}
 input{flex:1;min-width:0;font:inherit;padding:12px 14px;border-radius:10px;border:2px solid var(--line);
@@ -56,7 +58,25 @@ input:focus{outline:none;border-color:var(--amber)}
 button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;
   background:var(--ink);color:var(--paper)}
 button:focus-visible,.link:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-.link{background:none;color:var(--soft);padding:8px 0;text-decoration:underline;font-weight:400}
+.link{background:none;color:var(--soft);padding:12px 0;min-height:44px;text-decoration:underline;font-weight:400}
+button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
+.result button,.homecard button{width:100%;padding:14px 18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin:0 0 14px}
+.brand{background:none;color:var(--ink);padding:6px 0;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.homebtn{background:none;color:var(--soft);padding:10px 0;font-weight:600;font-size:.95rem}
+.how{margin:0 0 22px;padding-left:1.3em;color:var(--ink)} .how li{margin:4px 0}
+.homecard{padding:20px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.dayline{margin:0;font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.homecard h2{margin:2px 0 6px;font-size:1.5rem}
+.homecard p.status{margin:0 0 16px;color:var(--soft)}
+.countdown{margin:12px 0 0;text-align:center;color:var(--soft);font-size:.95rem}
+.countdown b{font-family:"DM Mono",ui-monospace,monospace;color:var(--ink)}
+@media (min-width:768px){
+  main{max-width:640px;padding-top:56px}
+  h1{font-size:3.2rem} .intro{font-size:1.1rem}
+  .board{padding:24px 22px 22px}
+  .clue{font-size:1.1rem;padding:14px 0}
+}
 .wrong{margin:10px 0 0;color:var(--bad);font-size:.95rem;min-height:1.4em}
 .result{margin-top:18px;padding:16px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
 .result h2{margin:0 0 4px;font-size:1.3rem}
@@ -73,8 +93,28 @@ button:focus-visible,.link:focus-visible{outline:3px solid var(--amber);outline-
 </head>
 <body>
 <main>
+<section id="home">
   <h1>Capiclue</h1>
   <p class="intro">Guess five of the world’s capital cities every day. Each hint gets easier, but earns fewer points.</p>
+  <ol class="how">
+    <li>Read a hint about a mystery capital and type your guess.</li>
+    <li>Guess early for more points: 20, 15, 10 or 5.</li>
+    <li>Five new cities every day. The best score is 100.</li>
+  </ol>
+  <div class="homecard">
+    <p class="dayline" id="homeDay">Day 1</p>
+    <h2 id="homeTitle">Today’s five capitals</h2>
+    <p class="status" id="homeStatus"></p>
+    <button id="playBtn" type="button">Play</button>
+    <p class="countdown hidden" id="homeCountdown"></p>
+  </div>
+</section>
+
+<section id="game" class="hidden">
+  <div class="topbar">
+    <button class="brand" id="brand" type="button" aria-label="Capiclue home">Capiclue</button>
+    <button class="homebtn" id="homeTop" type="button">← Home</button>
+  </div>
 
   <section class="board" aria-label="Answer board">
     <div class="board-top"><span id="round">City 1 of 5</span><div class="dots" id="dots"></div></div>
@@ -106,8 +146,9 @@ button:focus-visible,.link:focus-visible{outline:3px solid var(--amber);outline-
     <h2 id="finalTitle"></h2>
     <div class="summary" id="summary"></div>
     <p id="finalNote">A new set of five arrives tomorrow.</p>
-    <button id="share" type="button">Copy my result</button>
+    <button id="backHome" type="button">Back to homepage</button>
   </div>
+</section>
 </main>
 
 <script>
@@ -524,7 +565,7 @@ CITIES.forEach(c=>{const e=EXTRA[c[0]];if(!e)throw new Error("missing "+c[0]);co
 
 
 /* ---------- SETTINGS ---------- */
-const LAUNCH_DATE = "2026-10-27"; // Day 1 of the game. Change this to your real launch day.
+const LAUNCH_DATE = "2026-10-31"; // Day 1 of the game. Change this to your real launch day.
 const PER_DAY = 5;
 const POINTS = [20, 15, 10, 5];   // per clue; 5 cities x 20 = 100
 
@@ -538,10 +579,15 @@ function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.i
 function shuffled(n,seed){const r=rng(seed),a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
 const DAYS_PER_CYCLE = Math.floor(CITIES.length / PER_DAY);
-const now = new Date();
-const todayUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+/* The day follows the player's own clock: a fresh set of five appears at their local midnight. */
 const [ly,lm,ld] = LAUNCH_DATE.split("-").map(Number);
-const dayIndex = Math.max(0, Math.round((todayUTC - Date.UTC(ly,lm-1,ld)) / 864e5));
+let dayIndex, dayKey;
+function localDayKey(d=new Date()){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}` }
+function computeDay(){
+  const now=new Date();
+  dayKey=localDayKey(now);
+  dayIndex=Math.max(0, Math.round((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()) - Date.UTC(ly,lm-1,ld)) / 864e5));
+}
 
 function buildRound(cityIdx, cycle){
   const [c,n,alt,facts] = CITIES[cityIdx];
@@ -569,51 +615,119 @@ function dailySet(d){
 /* ---------- GAME ---------- */
 let set, idx, clueNo, scores, done;
 
-/* Progress is saved on this device, so refreshing the page can't restart today's game. */
-const SAVE_KEY = "capiclue-progress";
-function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({day:dayIndex, scores, clueNo:done?0:clueNo})) }catch(e){} }
-function loadSaved(){ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); return s&&s.day===dayIndex?s:null }catch(e){ return null } }
+/* Progress is saved on this device (keyed by date), so refreshing can't restart today's game. */
+const SAVE_KEY = "capiclue-v2";
+try{ localStorage.removeItem("capiclue-progress") }catch(e){}   // old save format from before the relaunch
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo})) }catch(e){} }
+function loadSaved(){ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); return s&&s.date===dayKey?s:null }catch(e){ return null } }
+const total = () => scores.reduce((a,b)=>a+b,0);
+const emojis = () => scores.map(s=>({20:"🟩",15:"🟨",10:"🟧",5:"🟥"}[s]||"⬛")).join(" ");
+const finePointer = matchMedia("(pointer:fine)").matches;
 
-function start(){
-  set=dailySet(dayIndex);
-  const saved=loadSaved();
-  scores=saved?saved.scores:[]; idx=scores.length;
+/* ---------- SCREENS: home <-> game (the browser back button works too) ---------- */
+function init(){
+  computeDay(); set=dailySet(dayIndex);
+  const saved=loadSaved(); scores=saved?saved.scores:[];
+  renderHome();
+}
+function renderHome(){
+  const n=scores.length;
+  $("homeDay").textContent=`Day ${dayIndex+1}`;
+  if(n>=PER_DAY){
+    $("homeTitle").textContent=`You scored ${total()} / 100`;
+    $("homeStatus").textContent=emojis();
+    $("playBtn").textContent="See my results";
+  }else if(n>0||(loadSaved()?.clueNo>0)){
+    $("homeTitle").textContent="Today’s five capitals";
+    $("homeStatus").textContent=`You’re on city ${n+1} of ${PER_DAY} with ${total()} points so far.`;
+    $("playBtn").textContent="Continue";
+  }else{
+    $("homeTitle").textContent="Today’s five capitals";
+    $("homeStatus").textContent="Five new mystery capitals are waiting for you.";
+    $("playBtn").textContent="Play";
+  }
+  $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
+  tick();
+}
+function showScreen(name){
+  $("home").classList.toggle("hidden",name!=="home");
+  $("game").classList.toggle("hidden",name!=="game");
+  window.scrollTo(0,0);
+}
+function openGame(){
+  showScreen("game");
+  const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
+  $("final").classList.add("hidden");
   if(idx>=PER_DAY) return showFinal();
   loadCity(saved?saved.clueNo:0);
 }
+function goHome(){ hideSuggest(); renderHome(); showScreen("home"); $("playBtn").focus({preventScroll:true}) }
+function leaveGame(){ if(location.hash==="#play") history.back(); else goHome() }
+$("playBtn").addEventListener("click",()=>{ history.pushState(null,"","#play"); openGame() });
+["brand","homeTop","backHome"].forEach(id=>$(id).addEventListener("click",leaveGame));
+addEventListener("popstate",()=>location.hash==="#play"?openGame():goHome());
+
+/* ---------- DAILY REFRESH: countdown, and a new set at midnight even if the tab stays open ---------- */
+function tick(){
+  if(localDayKey()!==dayKey){            // midnight passed: load the new day's cities
+    init(); if(location.hash==="#play") history.replaceState(null,"",location.pathname+location.search);
+    showScreen("home"); return;
+  }
+  const now=new Date(), next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  const s=Math.max(0,Math.floor((next-now)/1000));
+  const t=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(v=>String(v).padStart(2,"0")).join(":");
+  $("homeCountdown").innerHTML=`New cities in <b>${t}</b>`;
+  if(done&&scores.length>=PER_DAY) $("finalNote").innerHTML=`New cities in <b>${t}</b>`;
+}
+setInterval(tick,1000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) tick() });
+
 function loadCity(startClue=0){
   clueNo=0; done=false;
-  $("round").textContent=`Day ${dayIndex+1} · City ${idx+1} of ${PER_DAY}`;
+  $("round").innerHTML=`Day ${dayIndex+1} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
   $("dots").innerHTML=set.map((_,i)=>`<span class="dot ${i<idx?(scores[i]>0?"win":"lose"):i===idx?"on":""}"></span>`).join("");
   $("wrong").textContent=""; $("guess").value="";
   $("play").classList.remove("hidden"); $("result").classList.add("hidden");
   $("clues").innerHTML=""; drawTiles(false); showClue();
   while(clueNo<startClue){ clueNo++; showClue() }
+  if(finePointer) $("guess").focus({preventScroll:true});
 }
+/* Tiles shrink to fit the longest word, so long names never break mid-word on small phones. */
+function fitTiles(){
+  if(!set||idx==null||!set[idx]) return;
+  const el=$("tiles"), longest=Math.max(...set[idx].c.split(" ").map(w=>w.length));
+  const max=innerWidth>=768?42:34, size=Math.floor((el.clientWidth-(longest-1)*4)/longest);
+  el.style.setProperty("--tw",Math.max(10,Math.min(max,size))+"px");
+}
+addEventListener("resize",fitTiles);
 function drawTiles(reveal){
-  const name=set[idx].c.toUpperCase();
-  $("tiles").innerHTML=[...name].map((ch,i)=>{
-    if(ch===" ")return`<span class="tile gap"></span>`;
+  const name=set[idx].c.toUpperCase(); let i=0;
+  $("tiles").innerHTML=name.split(" ").map(word=>`<span class="word">${[...word].map(ch=>{
     const show=reveal||(clueNo>=3&&i===0)||!/[A-ZÀ-Ý]/.test(ch);
-    return`<span class="tile ${reveal?"flip":""}" style="animation-delay:${i*40}ms">${show?ch:""}</span>`;
-  }).join("");
+    return`<span class="tile ${reveal?"flip":""}" style="animation-delay:${(i++)*40}ms">${show?ch:""}</span>`;
+  }).join("")}</span>`).join("");
   $("tiles").setAttribute("aria-label",reveal?name:`${name.replace(/[^A-Z]/g,"").length} letters`);
+  fitTiles();
 }
 function showClue(){
   const li=document.createElement("li"); li.className="clue";
   const p=POINTS[clueNo];
-  li.innerHTML=`<span class="pts">${p} pt${p>1?"s":""}</span><span><strong>Hint ${clueNo+1}:</strong> ${set[idx].clues[clueNo]}</span>`;
+  li.innerHTML=`<span class="pts">${p} pts</span><span><strong>Hint ${clueNo+1}:</strong> ${set[idx].clues[clueNo]}</span>`;
   $("clues").appendChild(li);
   if(clueNo===3)drawTiles(false);
+  $("skip").textContent=`Show the next hint (${POINTS[clueNo+1]??0} pts)`;
   $("skip").classList.toggle("hidden",clueNo===3);
 }
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
 function finish(won){
-  done=true; const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save();
+  done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save();
   drawTiles(true); $("play").classList.add("hidden"); $("result").classList.remove("hidden");
+  $("round").innerHTML=`Day ${dayIndex+1} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
   $("resTitle").textContent=won?`Yes, it’s ${city.c}. +${pts}`:`It was ${city.c}.`;
   $("resText").textContent=`Capital of ${city.n}.`;
-  $("next").textContent=idx<PER_DAY-1?"Next city":"See my score"; $("next").focus();
+  $("next").textContent=idx<PER_DAY-1?"Next city":"See my score";
+  $("next").focus({preventScroll:true});
+  $("result").scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 $("form").addEventListener("submit",e=>{
   e.preventDefault(); hideSuggest(); if(done)return;
@@ -625,23 +739,20 @@ $("form").addEventListener("submit",e=>{
 });
 $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
 $("next").addEventListener("click",()=>{
-  if(idx<PER_DAY-1){idx++;loadCity();return}
+  if(idx<PER_DAY-1){idx++;loadCity();window.scrollTo({top:0,behavior:"smooth"});return}
   showFinal();
 });
 function showFinal(){
+  done=true;
   $("play").classList.add("hidden"); $("result").classList.add("hidden"); $("final").classList.remove("hidden");
   $("round").textContent=`Day ${dayIndex+1} · Done`;
   $("dots").innerHTML=scores.map(s=>`<span class="dot ${s>0?"win":"lose"}"></span>`).join("");
   $("clues").innerHTML=""; $("tiles").innerHTML="";
-  const total=scores.reduce((a,b)=>a+b,0);
-  $("finalTitle").textContent=`Today’s score: ${total} / 100`;
-  $("summary").textContent=scores.map(s=>({20:"🟩",15:"🟨",10:"🟧",5:"🟥"}[s]||"⬛")).join(" ");
-  $("finalNote").textContent="A new set of five arrives tomorrow.";
+  $("finalTitle").textContent=`Today’s score: ${total()} / 100`;
+  $("summary").textContent=emojis();
+  tick();
+  $("backHome").focus({preventScroll:true});
 }
-$("share").addEventListener("click",async()=>{
-  const txt=`Capiclue Day ${dayIndex+1}: ${scores.reduce((a,b)=>a+b,0)}/100\n${$("summary").textContent}`;
-  try{await navigator.clipboard.writeText(txt);$("share").textContent="Copied"}catch(e){$("share").textContent="Couldn’t copy"}
-});
 
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
@@ -685,7 +796,8 @@ inp.addEventListener("keydown", e=>{
 box.addEventListener("mousedown", e=>{ const li=e.target.closest("li"); if(li){ e.preventDefault(); pick(+li.dataset.i) } });
 inp.addEventListener("blur", ()=>setTimeout(hideSuggest, 120));
 
-start();
+init();
+if(location.hash==="#play") openGame();
 </script>
 </body>
 </html>
