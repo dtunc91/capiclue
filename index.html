@@ -216,6 +216,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .igsheet img{display:block;width:min(190px,45vw);height:auto;margin:6px auto 4px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.18);-webkit-touch-callout:default;user-select:auto}
 .ig-hold{text-align:center;font-size:.85rem;color:var(--soft);margin:4px 0 14px}
 .ig-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.ig-step{display:block;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:0 0 4px;text-align:left!important}
 .ig-steps span{display:block;font-size:.88rem;color:var(--soft);margin-top:6px;text-align:center}
 .ig-copy{width:100%;padding:13px;border-radius:10px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
 .ig-note{min-height:1.3em;margin:10px 0 0;color:var(--good);font-size:.9rem;text-align:center}
@@ -324,9 +325,9 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   <img id="igImg" alt="Your Capiclue score card" width="1080" height="1920">
   <p class="ig-hold" id="igHold">Press and hold the picture to save it.</p>
   <ol class="ig-steps">
-    <li><button type="button" class="cta" id="igShare">Share card to Instagram</button></li>
-    <li><button type="button" class="ig-copy" id="igCopy">Copy game link</button>
-      <span>Then in your story, tap the sticker icon, choose <b>Link</b> and paste it.</span></li>
+    <li><span class="ig-step">Step 1</span><button type="button" class="ig-copy" id="igCopy">Copy game link</button></li>
+    <li><span class="ig-step">Step 2</span><button type="button" class="cta" id="igShare">Share card to Instagram</button>
+      <span>In your story, tap the sticker icon <b>☺</b>, choose <b>Link</b> and paste. Friends can then tap it to play.</span></li>
   </ol>
   <p class="ig-note" id="igNote" aria-live="polite"></p>
   <button type="button" class="link" id="igClose">Close</button>
@@ -1308,14 +1309,14 @@ async function openInstagramSheet(){
 $("igShare").addEventListener("click",async()=>{
   const files=scoreCardFile?[scoreCardFile]:null, note=$("igNote");
   if(files&&navigator.canShare?.({files})){
-    try{ await navigator.share({files}); note.textContent="Now copy the game link for your Link sticker."; }
+    try{ await navigator.share({files}); note.textContent="Shared. Don’t forget the Link sticker so friends can tap through."; }
     catch(err){ if(err.name!=="AbortError") note.textContent="Sharing didn’t open here. Press and hold the picture to save it instead."; }
   }else if(saveScoreCard()){
     note.textContent=IS_PHONE?"If nothing saved, press and hold the picture to save it.":"Card downloaded. Post it on Instagram from your phone.";
   }
 });
 $("igCopy").addEventListener("click",async()=>{
-  try{ await navigator.clipboard.writeText(SITE); $("igNote").textContent="Link copied: capiclue.com"; }
+  try{ await navigator.clipboard.writeText(SITE); $("igNote").textContent="Link copied. Now share the card."; }
   catch(e){ $("igNote").textContent="Couldn’t copy. Type capiclue.com into the Link sticker."; }
 });
 $("igClose").addEventListener("click",()=>$("igSheet").close());
