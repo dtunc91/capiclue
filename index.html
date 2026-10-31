@@ -101,15 +101,36 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 .sharerow a:hover,.sharerow button:hover{border-color:var(--amber);filter:none}
 .sharerow a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .result button.secondary{background:none;color:var(--ink);border:2px solid var(--line);margin-top:4px}
-.promo{display:block;margin-top:14px;padding:18px;border-radius:12px;background:var(--board);color:#E6ECF3;text-decoration:none;
-  box-shadow:0 6px 18px rgba(0,0,0,.12);transition:transform .15s}
-.promo:hover{transform:translateY(-2px)} .promo:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-.promo-label{display:block;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:#B8C4D6;margin-bottom:4px}
-.promo-title{display:block;font-size:1.25rem;font-weight:800;margin-bottom:4px}
-.promo-text{display:block;color:#C9D3E1;font-size:.95rem;margin-bottom:12px}
-.promo-cta{display:inline-block;background:var(--amber);color:#1D2B45;font-weight:700;padding:10px 16px;border-radius:10px}
-.promo.hidden{display:none}
-.about{margin-top:32px;color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
+.brandh{margin:0;font-size:1.6rem;font-weight:800;letter-spacing:-.02em;line-height:1}
+.topright{display:flex;gap:12px;align-items:center}
+.help{width:36px;height:36px;padding:0;border-radius:50%;background:none;border:2px solid var(--line);color:var(--soft);font-weight:800;font-size:1rem}
+.cta{display:block;width:100%;padding:16px 18px;font-size:1.1rem;background:var(--amber);color:#1D2B45;font-weight:800}
+.teaser{color:#E6ECF3;padding:20px 18px 18px}
+.teaser-label{margin:0;font-size:.78rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#B8C4D6}
+.teaser-fact{margin:10px 0 16px;font-size:1.3rem;font-weight:600;line-height:1.3;text-wrap:balance}
+.teaser-fact.big{font-family:"DM Mono",ui-monospace,monospace;font-size:3.4rem;font-weight:500;line-height:1;margin:12px 0}
+.teaser-fact.big small{font-size:1.2rem;color:#B8C4D6}
+.teaser-tiles{justify-content:flex-start;min-height:0}
+.teaser-tiles.emo{font-size:1.5rem;letter-spacing:.15em;gap:0}
+.teaser-sub{margin:16px 0;color:var(--soft)}
+#home .countdown{margin-top:14px}
+dialog{border:0;border-radius:16px;padding:24px 22px;max-width:min(420px,calc(100vw - 32px));background:var(--card);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(15,22,38,.55)}
+dialog h2{margin:0 0 10px;font-size:1.4rem}
+dialog .how{list-style:none;padding:0;margin:0 0 18px} dialog .how li{margin:0 0 10px}
+.final{margin-top:4px;text-align:center}
+.final-label{margin:8px 0 0;font-size:.85rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--soft)}
+.bigscore{font-family:"DM Mono",ui-monospace,monospace;font-size:4.6rem;line-height:1.05;margin:8px 0 4px}
+.bigscore small{font-size:1.5rem;color:var(--soft)}
+.final .summary{margin:4px 0 22px}
+.final .countdown{margin:14px 0 4px}
+.final .link{display:inline-block}
+.strip{display:flex;align-items:center;gap:12px;margin-top:22px;padding:14px 16px;border-radius:12px;background:var(--board);color:#E6ECF3;text-decoration:none}
+.strip:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.strip-text{min-width:0} .strip-text b{display:block} .strip-text span{display:block;font-size:.88rem;color:#B8C4D6}
+.strip .go{margin-left:auto;flex:none;background:var(--amber);color:#1D2B45;font-weight:800;padding:8px 12px;border-radius:9px}
+.strip.hidden{display:none}
+.about{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
 @media (min-width:768px){
   main{max-width:640px;padding-top:56px}
   h1{font-size:3.2rem} .intro{font-size:1.1rem}
@@ -133,20 +154,19 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 <body>
 <main>
 <section id="home">
-  <h1>Capiclue</h1>
-  <p class="intro">The city guessing game built on fun facts. Every day, five mystery capitals, each one hiding behind surprising trivia.</p>
-  <ol class="how">
-    <li>Read a fun fact about a mystery city and type your guess.</li>
-    <li>Stuck? Unlock another fact. Each one is easier, but worth fewer points: 20, 15, 10 or 5.</li>
-    <li>Five new cities every day. Can you score 100?</li>
-  </ol>
-  <div class="homecard">
-    <p class="dayline" id="homeDay">Day 1</p>
-    <h2 id="homeTitle">Today’s five capitals</h2>
-    <p class="status" id="homeStatus"></p>
-    <button id="playBtn" type="button">Play</button>
-    <p class="countdown hidden" id="homeCountdown"></p>
+  <div class="topbar">
+    <h1 class="brandh">Capiclue</h1>
+    <button class="help" id="helpBtn" type="button" aria-label="How to play">?</button>
   </div>
+  <div class="board teaser">
+    <p class="teaser-label" id="homeDay">Day 1 · Today’s first fact</p>
+    <p class="teaser-fact" id="homeFact"></p>
+    <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
+  </div>
+  <p class="teaser-sub" id="homeStatus">Can you name the city? Five mystery capitals, new every day.</p>
+  <button id="playBtn" class="cta" type="button">Guess the city</button>
+  <p class="countdown hidden" id="homeCountdown"></p>
+
   <section class="about">
     <h2>About Capiclue</h2>
     <p>Capiclue is a free daily city guessing game where every clue is a fun fact. Instead of maps or flags, you get surprising trivia: a city with a Museum of Broken Relationships, a capital whose giant Ferris wheel has turned since 1897, a place nicknamed the “Jerusalem of Europe”. Can you name the city?</p>
@@ -154,15 +174,26 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
     <p>No sign-up, no download: it works on any phone, tablet or computer.</p>
   </section>
 </section>
+
+<dialog id="help" aria-labelledby="helpTitle">
+  <h2 id="helpTitle">How to play</h2>
+  <ul class="how">
+    <li><b>💡 Read a fact</b> about a mystery capital city.</li>
+    <li><b>⌨️ Type your guess.</b> Wrong guesses reveal the next fact.</li>
+    <li><b>🏆 Guess early for more points:</b> 20, 15, 10 or 5 per city.</li>
+    <li><b>📅 Five new cities every day.</b> The best score is 100.</li>
+  </ul>
+  <button id="helpClose" class="cta" type="button">Got it</button>
+</dialog>
 <noscript><p style="text-align:center">Capiclue needs JavaScript turned on to play.</p></noscript>
 
 <section id="game" class="hidden">
   <div class="topbar">
     <button class="brand" id="brand" type="button" aria-label="Capiclue home">Capiclue</button>
-    <button class="homebtn" id="homeTop" type="button">← Home</button>
+    <span class="topright"><button class="homebtn" id="homeTop" type="button">← Home</button><button class="help" id="helpBtn2" type="button" aria-label="How to play">?</button></span>
   </div>
 
-  <section class="board" aria-label="Answer board">
+  <section class="board" id="board" aria-label="Answer board">
     <div class="board-top"><span id="round">City 1 of 5</span><div class="dots" id="dots"></div></div>
     <div class="tiles" id="tiles" aria-live="polite"></div>
   </section>
@@ -179,7 +210,7 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
       <button type="submit">Guess</button>
     </form>
     <p class="wrong" id="wrong"></p>
-    <button class="link" id="skip" type="button">Show another fact</button>
+    <button class="link" id="skip" type="button">Next fact</button>
   </div>
 
   <div class="result hidden" id="result">
@@ -188,25 +219,24 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
     <button id="next" type="button">Next city</button>
   </div>
 
-  <div class="result hidden" id="final">
-    <h2 id="finalTitle"></h2>
+  <div class="final hidden" id="final">
+    <h2 class="final-label" id="finalTitle">Day 1 · Today’s score</h2>
+    <div class="bigscore"><span id="finalScore">0</span><small>/100</small></div>
     <div class="summary" id="summary"></div>
-    <p id="finalNote">A new set of five arrives tomorrow.</p>
-    <button id="shareBtn" type="button">Share my score</button>
-    <div class="sharerow" aria-label="Share on">
+    <button id="shareBtn" class="cta" type="button">Share my score</button>
+    <div class="sharerow hidden" id="shareRow" aria-label="Share on">
       <a id="shWa" target="_blank" rel="noopener">WhatsApp</a>
       <a id="shX" target="_blank" rel="noopener">X</a>
       <a id="shFb" target="_blank" rel="noopener">Facebook</a>
       <button id="shCopy" type="button">Copy</button>
     </div>
-    <button id="backHome" class="secondary" type="button">Back to homepage</button>
+    <p class="countdown" id="finalNote"></p>
+    <button id="backHome" class="link" type="button">Back to homepage</button>
   </div>
 
-  <a class="promo hidden" id="promo" href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=results_card" target="_blank" rel="noopener">
-    <span class="promo-label">Also from the maker of Capiclue</span>
-    <span class="promo-title">✈️ Get Me Out of Here</span>
-    <span class="promo-text">Loved exploring today’s capitals? Now go see one. No destination needed: tell it where you are and when, and it finds the cheapest flights anywhere.</span>
-    <span class="promo-cta">Find cheap flights →</span>
+  <a class="strip hidden" id="promo" target="_blank" rel="noopener" href="https://getmeoutofhere.live/">
+    <span class="strip-text"><b id="promoTitle">✈️ Fancy a trip to one of today’s capitals?</b><span>Cheapest flights from where you are</span></span>
+    <span class="go">Go →</span>
   </a>
 </section>
 </main>
@@ -695,21 +725,23 @@ function init(){
   const saved=loadSaved(); scores=saved?saved.scores:[];
   renderHome();
 }
+function blankTiles(name){ return name.toUpperCase().split(" ").map(w=>`<span class="word">${[...w].map(()=>`<span class="tile"></span>`).join("")}</span>`).join("") }
 function renderHome(){
-  const n=scores.length;
-  $("homeDay").textContent=`Day ${dayIndex+1}`;
+  const n=scores.length, saved=loadSaved(), fact=$("homeFact"), tiles=$("homeTiles");
+  fact.classList.remove("big"); tiles.classList.remove("emo");
   if(n>=PER_DAY){
-    $("homeTitle").textContent=`You scored ${total()} / 100`;
-    $("homeStatus").textContent=emojis();
+    $("homeDay").textContent=`Day ${dayIndex+1} · Done`;
+    fact.classList.add("big"); fact.innerHTML=`${total()}<small>/100</small>`;
+    tiles.classList.add("emo"); tiles.textContent=emojis();
+    $("homeStatus").textContent="Come back tomorrow for five new cities.";
     $("playBtn").textContent="See my results";
-  }else if(n>0||(loadSaved()?.clueNo>0)){
-    $("homeTitle").textContent="Today’s five capitals";
-    $("homeStatus").textContent=`You’re on city ${n+1} of ${PER_DAY} with ${total()} points so far.`;
-    $("playBtn").textContent="Continue";
   }else{
-    $("homeTitle").textContent="Today’s five capitals";
-    $("homeStatus").textContent="Five new mystery cities and their fun facts are waiting.";
-    $("playBtn").textContent="Play";
+    const started=n>0||saved?.clueNo>0, c=set[n];
+    $("homeDay").textContent=started?`Day ${dayIndex+1} · City ${n+1} of ${PER_DAY}`:`Day ${dayIndex+1} · Today’s first fact`;
+    fact.textContent=`“${c.clues[0]}”`;
+    tiles.innerHTML=blankTiles(c.c); fitTiles(tiles,c.c);
+    $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
+    $("playBtn").textContent=started?"Continue":"Guess the city";
   }
   $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
   tick();
@@ -718,19 +750,23 @@ function showScreen(name){
   $("home").classList.toggle("hidden",name!=="home");
   $("game").classList.toggle("hidden",name!=="game");
   window.scrollTo(0,0);
+  if(name==="home") renderHome();   // re-measure tiles now that home is visible
 }
 function openGame(){
   showScreen("game");
   const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
-  $("final").classList.add("hidden"); $("promo").classList.add("hidden");
+  $("final").classList.add("hidden"); $("promo").classList.add("hidden"); $("board").classList.remove("hidden");
   if(idx>=PER_DAY) return showFinal();
   loadCity(saved?saved.clueNo:0);
 }
-function goHome(){ hideSuggest(); renderHome(); showScreen("home"); $("playBtn").focus({preventScroll:true}) }
+function goHome(){ hideSuggest(); showScreen("home"); $("playBtn").focus({preventScroll:true}) }
 function leaveGame(){ if(location.hash==="#play") history.back(); else goHome() }
 $("playBtn").addEventListener("click",()=>{ history.pushState(null,"","#play"); openGame() });
 ["brand","homeTop","backHome"].forEach(id=>$(id).addEventListener("click",leaveGame));
 addEventListener("popstate",()=>location.hash==="#play"?openGame():goHome());
+["helpBtn","helpBtn2"].forEach(id=>$(id).addEventListener("click",()=>{ hideSuggest(); $("help").showModal() }));
+$("helpClose").addEventListener("click",()=>$("help").close());
+$("help").addEventListener("click",e=>{ if(e.target===$("help")) $("help").close() });   // tap outside to close
 
 /* ---------- DAILY REFRESH: countdown, and a new set at midnight even if the tab stays open ---------- */
 function tick(){
@@ -742,7 +778,7 @@ function tick(){
   const s=Math.max(0,Math.floor((next-now)/1000));
   const t=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(v=>String(v).padStart(2,"0")).join(":");
   $("homeCountdown").innerHTML=`New cities in <b>${t}</b>`;
-  if(done&&scores.length>=PER_DAY) $("finalNote").innerHTML=`New cities in <b>${t}</b>`;
+  if(scores&&scores.length>=PER_DAY) $("finalNote").innerHTML=`New cities in <b>${t}</b>`;
 }
 setInterval(tick,1000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) tick() });
@@ -758,13 +794,13 @@ function loadCity(startClue=0){
   if(finePointer) $("guess").focus({preventScroll:true});
 }
 /* Tiles shrink to fit the longest word, so long names never break mid-word on small phones. */
-function fitTiles(){
-  if(!set||idx==null||!set[idx]) return;
-  const el=$("tiles"), longest=Math.max(...set[idx].c.split(" ").map(w=>w.length));
+function fitTiles(el=$("tiles"), name=set?.[idx]?.c){
+  if(!name||!el.clientWidth) return;
+  const longest=Math.max(...name.split(" ").map(w=>w.length));
   const max=innerWidth>=768?42:34, size=Math.floor((el.clientWidth-(longest-1)*4)/longest);
   el.style.setProperty("--tw",Math.max(10,Math.min(max,size))+"px");
 }
-addEventListener("resize",fitTiles);
+addEventListener("resize",()=>{ fitTiles(); if(!$("home").classList.contains("hidden")) renderHome() });
 function drawTiles(reveal){
   const name=set[idx].c.toUpperCase(); let i=0;
   $("tiles").innerHTML=name.split(" ").map(word=>`<span class="word">${[...word].map(ch=>{
@@ -780,7 +816,7 @@ function showClue(){
   li.innerHTML=`<span class="pts">${p} pts</span><span><strong>Fact ${clueNo+1}:</strong> ${set[idx].clues[clueNo]}</span>`;
   $("clues").appendChild(li);
   if(clueNo===3)drawTiles(false);
-  $("skip").textContent=`Show another fact (${POINTS[clueNo+1]??0} pts)`;
+  $("skip").textContent=`Next fact · ${POINTS[clueNo+1]??0} pts`;
   $("skip").classList.toggle("hidden",clueNo===3);
 }
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
@@ -808,20 +844,27 @@ $("next").addEventListener("click",()=>{
   showFinal();
 });
 function showFinal(){
-  done=true; $("promo").classList.remove("hidden");
-  $("play").classList.add("hidden"); $("result").classList.add("hidden"); $("final").classList.remove("hidden");
-  $("round").textContent=`Day ${dayIndex+1} · Done`;
-  $("dots").innerHTML=scores.map(s=>`<span class="dot ${s>0?"win":"lose"}"></span>`).join("");
+  done=true;
+  $("play").classList.add("hidden"); $("result").classList.add("hidden"); $("board").classList.add("hidden");
   $("clues").innerHTML=""; $("tiles").innerHTML="";
-  $("finalTitle").textContent=`Today’s score: ${total()} / 100`;
+  $("final").classList.remove("hidden");
+  $("finalTitle").textContent=`Day ${dayIndex+1} · Today’s score`;
+  $("finalScore").textContent=total();
   $("summary").textContent=emojis();
   tick();
-  const t=shareText(), u=encodeURIComponent(SITE), e=encodeURIComponent(t);
+  const u=encodeURIComponent(SITE), e=encodeURIComponent(shareText());
   $("shWa").href=`https://wa.me/?text=${e}`;
   $("shX").href=`https://twitter.com/intent/tweet?text=${e}`;
   $("shFb").href=`https://www.facebook.com/sharer/sharer.php?u=${u}`;
-  $("shareBtn").classList.toggle("hidden",!navigator.share);   // phones: opens the built-in share menu (Instagram, Messages, etc.)
-  $("final").scrollIntoView({block:"nearest"});
+  // Phones: one button opens the phone's own share menu. Computers: show the row of share buttons instead.
+  $("shareBtn").classList.toggle("hidden",!navigator.share);
+  $("shareRow").classList.toggle("hidden",!!navigator.share);
+  // Ad: name the city the player did best on, to turn today's game into a trip idea.
+  const best=set[scores.indexOf(Math.max(...scores))]||set[0];
+  $("promoTitle").textContent=`✈️ Fancy ${best.c} for real?`;
+  $("promo").href=`https://getmeoutofhere.live/?utm_source=capiclue&utm_medium=referral&utm_campaign=results_strip&utm_content=${encodeURIComponent(best.c)}`;
+  $("promo").classList.remove("hidden");
+  window.scrollTo(0,0);
 }
 
 /* ---------- SHARING ---------- */
