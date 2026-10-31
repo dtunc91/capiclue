@@ -7,6 +7,7 @@
 <meta name="description" content="Capiclue is a free daily city guessing game built on fun facts. Read surprising trivia about a mystery capital and guess the city – the fewer facts you need, the more points you score. Five new cities every day.">
 <link rel="canonical" href="https://capiclue.com/">
 <meta name="theme-color" content="#1D2B45">
+<script>try{var t=localStorage.getItem("capiclue-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
@@ -38,7 +39,7 @@
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  :root:not([data-theme="light"]):not([data-theme="bright"]){
     --paper:#111827; --ink:#E6ECF3; --soft:#9AA8BC; --board:#0B1222; --tile:#1E2C47;
     --card:#1A2436; --line:#2C3A52; --good:#4CB38C; --bad:#E06A5E; color-scheme:dark;
   }
@@ -46,6 +47,11 @@
 :root[data-theme="dark"]{
   --paper:#111827; --ink:#E6ECF3; --soft:#9AA8BC; --board:#0B1222; --tile:#1E2C47;
   --card:#1A2436; --line:#2C3A52; --good:#4CB38C; --bad:#E06A5E; color-scheme:dark;
+}
+/* Bright: a clean white page; the navy board and tiles stay as the brand. */
+:root[data-theme="bright"]{
+  --paper:#FFFFFF; --ink:#1D2B45; --soft:#56647B; --board:#1D2B45; --tile:#2A3C5F;
+  --card:#F4F6F9; --line:#E2E7ED; color-scheme:light;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -168,13 +174,20 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .brandh .mark{--m:38px}
 .logo.small .mark{--m:26px} .logo.small .word{font-size:1.1rem}
 .brand .mark{--m:32px}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mark{background:#0B1222;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 0 0 1px #2C3A52}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="bright"]) .mark{background:#0B1222;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 0 0 1px #2C3A52}}
 :root[data-theme="dark"] .mark{background:#0B1222;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 0 0 1px #2C3A52}
 @media (prefers-reduced-motion: no-preference){ .brandh .mark span{animation:markflip .7s .15s ease both} }
 @keyframes markflip{0%{transform:rotateX(90deg)}60%{transform:rotateX(-12deg)}100%{transform:rotateX(0)}}
 .foot{margin-top:40px;padding:24px 0 8px;border-top:1px solid var(--line);color:var(--soft);font-size:.92rem}
 .foot p{margin:8px 0 0} .foot a{color:var(--ink)}
 .foot-meta{font-size:.85rem}
+.themebtn{display:grid;place-items:center}
+.thememenu{position:absolute;z-index:20;min-width:170px;padding:6px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.thememenu.hidden{display:none}
+.thememenu button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:8px;background:none;color:var(--ink);font-weight:600;text-align:left}
+.thememenu button:hover{background:var(--paper);filter:none}
+.thememenu button[aria-checked="true"]::after{content:"✓";margin-left:auto;color:var(--good)}
+.thememenu i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}
 .about{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0 0 6px} .about p{margin:0 0 10px}
 @media (min-width:1024px){
   main{max-width:1080px}
@@ -223,7 +236,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="home">
   <div class="topbar">
     <h1 class="brandh"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></h1>
-    <button class="help" id="helpBtn" type="button" aria-label="How to play">?</button>
+    <span class="topright"><button class="help themebtn" type="button" aria-label="Change colours" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play">?</button></span>
   </div>
   <div class="hero">
     <div class="hero-text">
@@ -272,7 +285,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="game" class="hidden">
   <div class="topbar">
     <button class="brand" id="brand" type="button" aria-label="Capiclue home"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></button>
-    <span class="topright"><button class="homebtn" id="homeTop" type="button">← Home</button><button class="help" id="helpBtn2" type="button" aria-label="How to play">?</button></span>
+    <span class="topright"><button class="homebtn" id="homeTop" type="button">← Home</button><button class="help themebtn" type="button" aria-label="Change colours" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play">?</button></span>
   </div>
 
   <div class="gamegrid">
@@ -332,6 +345,11 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   </aside>
   </div>
 </section>
+<div class="thememenu hidden" id="themeMenu" role="menu" aria-label="Colours">
+  <button type="button" role="menuitemradio" data-theme-choice="light"><i style="background:#E9EEF2"></i>Classic</button>
+  <button type="button" role="menuitemradio" data-theme-choice="bright"><i style="background:#FFFFFF"></i>Bright</button>
+  <button type="button" role="menuitemradio" data-theme-choice="dark"><i style="background:#111827"></i>Dark</button>
+</div>
 </main>
 
 <script>
@@ -875,6 +893,30 @@ document.addEventListener("keydown",e=>{   // desktop: press Enter on the home s
   if(e.key==="Enter"&&!$("home").classList.contains("hidden")&&!$("help").open&&!e.target.closest("button,a,input")){ e.preventDefault(); $("playBtn").click() }
 });
 $("help").addEventListener("click",e=>{ if(e.target===$("help")) $("help").close() });   // tap outside to close
+
+/* ---------- COLOURS: Classic (default), Bright (white) or Dark. Remembered on this device. ---------- */
+function currentTheme(){ return document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light") }
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  try{ localStorage.setItem("capiclue-theme",t) }catch(e){}
+  document.querySelector('meta[name="theme-color"]').content = t==="bright"?"#FFFFFF":t==="dark"?"#111827":"#1D2B45";
+}
+const themeMenu=$("themeMenu");
+function closeThemeMenu(){ themeMenu.classList.add("hidden") }
+document.querySelectorAll("[data-theme-btn]").forEach(btn=>btn.addEventListener("click",e=>{
+  e.stopPropagation();
+  if(!themeMenu.classList.contains("hidden")) return closeThemeMenu();
+  const r=btn.getBoundingClientRect();
+  themeMenu.style.top=(r.bottom+scrollY+8)+"px";
+  themeMenu.style.left=Math.max(12, r.right+scrollX-180)+"px";
+  const cur=currentTheme();
+  themeMenu.querySelectorAll("button").forEach(b=>b.setAttribute("aria-checked",b.dataset.themeChoice===cur));
+  themeMenu.classList.remove("hidden"); themeMenu.querySelector('[aria-checked="true"]')?.focus();
+}));
+themeMenu.addEventListener("click",e=>{ const b=e.target.closest("[data-theme-choice]"); if(b){ setTheme(b.dataset.themeChoice); closeThemeMenu() } });
+document.addEventListener("click",e=>{ if(!themeMenu.contains(e.target)) closeThemeMenu() });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeThemeMenu() });
+addEventListener("resize",closeThemeMenu);
 
 /* ---------- DAILY REFRESH: countdown, and a new set at midnight even if the tab stays open ---------- */
 function tick(){
