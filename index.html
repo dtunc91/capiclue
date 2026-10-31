@@ -191,6 +191,27 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .thememenu button:hover{background:var(--paper);filter:none}
 .thememenu button[aria-checked="true"]::after{content:"✓";margin-left:auto;color:var(--good)}
 .thememenu i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:12px;background:var(--card);border:1px solid var(--line);margin:0 0 8px}
+.levels button{padding:10px 6px;border-radius:9px;background:none;color:var(--soft);font-weight:700;position:relative}
+.levels button:hover{color:var(--ink);filter:none}
+.levels button[aria-checked="true"]{background:var(--ink);color:var(--paper)}
+.levels button.done::after{content:"✓";position:absolute;top:3px;right:7px;font-size:.7rem;color:var(--good)}
+.levels button[aria-checked="true"].done::after{color:var(--amber)}
+.level-note{margin:0 0 16px;font-size:.9rem;color:var(--soft);min-height:1.4em}
+.hintline{margin:12px 0 0;text-align:center;color:#B8C4D6;font-size:.9rem}
+.hintline b{color:var(--amber);font-weight:600}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.choices button{padding:14px 10px;border-radius:12px;background:var(--card);color:var(--ink);border:2px solid var(--line);font-weight:700;min-height:52px}
+.choices button:hover{border-color:var(--amber);filter:none}
+.choices button.wrong{opacity:.45;text-decoration:line-through;border-color:var(--bad);cursor:default}
+.choices button.right{border-color:var(--good);background:var(--good);color:#fff}
+.choices kbd{margin-right:6px;font-size:.7em;opacity:.7}
+.playlinks{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.lucky{background:none;border:2px solid var(--line);color:var(--ink);padding:9px 14px;border-radius:99px;font-weight:700;font-size:.95rem}
+.lucky:hover{border-color:var(--good);filter:none}
+.lucky.spin{animation:luckyspin .5s ease}
+@keyframes luckyspin{0%{transform:rotate(0)}50%{transform:rotate(-8deg) scale(1.05)}100%{transform:rotate(0)}}
+@media (prefers-reduced-motion: reduce){ .lucky.spin{animation:none} }
 .about{margin-top:36px;padding-top:4px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0} .about p{margin:0 0 10px}
 /* Phones: About is folded into one tappable line. Bigger screens: always open. */
 .about summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:14px 0;min-height:44px}
@@ -255,6 +276,12 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div class="hero-text">
       <p class="hero-title desk" id="heroTitle">Guess the city<br>from fun facts.</p>
       <p class="teaser-sub" id="homeStatus">Can you name the city? Five mystery capitals, new every day.</p>
+      <div class="levels" role="radiogroup" aria-label="Level">
+        <button type="button" role="radio" data-level="easy">Easy</button>
+        <button type="button" role="radio" data-level="medium">Medium</button>
+        <button type="button" role="radio" data-level="hard">Hard</button>
+      </div>
+      <p class="level-note" id="levelNote"></p>
       <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk">or press <kbd>Enter</kbd></span></div>
       <p class="countdown hidden" id="homeCountdown"></p>
     </div>
@@ -291,6 +318,8 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <li><b>⌨️ Type your guess.</b> Wrong guesses reveal the next fact.</li>
     <li><b>🏆 Guess early for more points:</b> 20, 15, 10 or 5 per city.</li>
     <li><b>📅 Five new cities every day.</b> The best score is 100.</li>
+    <li><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the first letter, Hard gives no extra help. Each level has its own five cities.</li>
+    <li><b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.</li>
   </ul>
   <button id="helpClose" class="cta" type="button">Got it</button>
 </dialog>
@@ -310,11 +339,13 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   <section class="board" id="board" aria-label="Answer board">
     <div class="board-top"><span id="round">City 1 of 5</span><div class="dots" id="dots"></div></div>
     <div class="tiles" id="tiles" aria-live="polite"></div>
+    <p class="hintline hidden" id="hintline"></p>
   </section>
 
   <ul class="clues" id="clues"></ul>
 
   <div id="play">
+    <div class="choices hidden" id="choices" role="group" aria-label="Pick the capital"></div>
     <form id="form" autocomplete="off">
       <div class="inputwrap">
         <input id="guess" placeholder="Type a world capital" aria-label="Your guess" autocapitalize="words" spellcheck="false"
@@ -324,7 +355,10 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
       <button type="submit">Guess</button>
     </form>
     <p class="wrong" id="wrong"></p>
-    <button class="link" id="skip" type="button">Next fact</button>
+    <div class="playlinks">
+      <button class="link" id="skip" type="button">Next fact</button>
+      <button class="lucky" id="lucky" type="button" title="Let fate pick a random capital">🍀 Lucky guess</button>
+    </div>
   </div>
 
   <div class="result hidden" id="result">
@@ -356,7 +390,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   </div>
   <aside class="side desk" aria-label="Points and keys">
     <div class="sidecard"><p class="sidelabel">Points</p><ul class="scorecard plain"><li><span>Fact 1</span><b>20</b></li><li><span>Fact 2</span><b>15</b></li><li><span>Fact 3</span><b>10</b></li><li><span>Fact 4</span><b>5</b></li></ul></div>
-    <div class="sidecard"><p class="sidelabel">Keys</p><p class="keys"><kbd>Enter</kbd> guess<br><kbd>↑</kbd> <kbd>↓</kbd> pick a name<br><kbd>Esc</kbd> close the list</p></div>
+    <div class="sidecard"><p class="sidelabel">Keys</p><p class="keys" id="keysText"></p></div>
   </aside>
   </div>
 </section>
@@ -373,7 +407,7 @@ const CITIES = [];
 CITIES.push(
 ["Tirana","Albania",[],["Cold War bunkers dot its country, and one here is now a museum.","A cable car takes visitors up Mount Dajti on its edge.","A former mayor had its grey apartment blocks painted in bright colours.","Its central square is named after Skanderbeg, a hero who resisted the Ottomans."]],
 ["Andorra la Vella","Andorra",["andorra"],["Its country is ruled by two co-princes, one of them the French president.","Shoppers come for its tax-free streets.","It is the highest capital city in Europe.","It sits in the Pyrenees between France and Spain."]],
-["Vienna","Austria",["wien"],["Sigmund Freud lived and worked here for almost 50 years.","Its giant Ferris wheel in the Prater dates from 1897.","Its New Year’s concert is broadcast around the world.","Mozart, Beethoven and Haydn all worked here, by the Danube."]],
+["Vienna","Austria",["wien"],["Sigmund Freud lived and worked at Berggasse 19 here for 47 years.","Its giant Ferris wheel in the Prater dates from 1897.","Its New Year’s concert is broadcast around the world.","Mozart, Beethoven and Haydn all worked here, by the Danube."]],
 ["Minsk","Belarus",[],["The Commonwealth of Independent States has its headquarters here.","The Svislach river runs through it.","It was almost entirely rebuilt in grand Soviet style after the Second World War.","Its Independence Avenue is one of the longest city avenues in Europe."]],
 ["Brussels","Belgium",["bruxelles","brussel"],["The Atomium, built for the 1958 World’s Fair, stands here.","Its Grand-Place is ringed by ornate guildhalls.","Its most famous statue is a tiny boy relieving himself.","The European Commission and NATO are based here."]],
 ["Sarajevo","Bosnia and Herzegovina",[],["It is nicknamed the “Jerusalem of Europe” for its mosques, churches and synagogues.","It hosted the 1984 Winter Olympics.","It endured the longest siege of a capital in modern warfare, from 1992 to 1996.","The shot that sparked the First World War was fired here in 1914."]],
@@ -428,7 +462,7 @@ CITIES.push(
 ["Phnom Penh","Cambodia",[],["Its name refers to a hill and a woman named Penh.","It was emptied by the Khmer Rouge in 1975.","Its Royal Palace has a Silver Pagoda with a floor of silver tiles.","It sits where the Mekong meets the Tonlé Sap river."]],
 ["Beijing","China",["peking"],["Its name means “northern capital”.","It is the first city to host both the Summer and Winter Olympics.","The Forbidden City was home to emperors for nearly 500 years.","Tiananmen Square is here."]],
 ["Tbilisi","Georgia",["tiflis"],["Its name comes from the word for “warm”, after its sulphur springs.","Its Bridge of Peace is a curved glass and steel walkway.","A cable car carries visitors from its old town up to a fortress.","Its country is often called the birthplace of wine."]],
-["New Delhi","India",["delhi"],["British architects Lutyens and Baker designed it.","It became capital in 1931, replacing Calcutta.","Its metro is one of the largest in the world.","The Red Fort stands in the older city right next to it."]],
+["New Delhi","India",["delhi"],["British architects Lutyens and Baker designed it.","It was officially inaugurated as the capital in 1931.","Its metro is one of the largest in the world.","The Red Fort stands in the older city right next to it."]],
 ["Jakarta","Indonesia",[],["It was once called Batavia.","Its National Monument is topped with a gold-covered flame.","It is sinking faster than almost any other big city.","Its country is building a new capital on Borneo."]],
 ["Tehran","Iran",["teheran"],["The Darya-ye Noor diamond is kept in its national jewels collection.","Its Azadi Tower was built in 1971.","The Alborz mountains rise right behind it.","Its Grand Bazaar is one of the largest in the world."]],
 ["Baghdad","Iraq",[],["It was founded in 762 as a perfectly round city.","Its House of Wisdom was a great centre of learning.","Many tales of One Thousand and One Nights are set here.","The Tigris flows through it."]],
@@ -516,7 +550,7 @@ CITIES.push(
 ["Juba","South Sudan",[],["It sits on the White Nile.","It became a national capital in 2011.","Its country is the world’s newest.","Its country split from Sudan."]],
 ["Khartoum","Sudan",[],["Its name may mean “elephant’s trunk”.","Omdurman lies just across the river.","It suffered heavy fighting in a war that began in 2023.","It sits where the Blue Nile and White Nile meet."]],
 ["Dodoma","Tanzania",[],["It was chosen in the 1970s to replace Dar es Salaam as capital.","It is in the dry centre of its country.","Its country includes the island of Zanzibar.","Its country has Africa’s highest mountain."]],
-["Lome","Togo",["lomé"],["It has a large fetish market selling traditional medicine.","It sits right on the border with Ghana.","It is on the Gulf of Guinea.","Its country is barely 50 km wide at the coast."]],
+["Lome","Togo",["lomé"],["It has a large fetish market selling traditional medicine.","It sits right on the border with Ghana.","It is on the Gulf of Guinea.","Its country’s coastline is only about 56 km long."]],
 ["Tunis","Tunisia",[],["The ruins of ancient Carthage are in its suburbs.","Blue-and-white Sidi Bou Said is close by.","Its medina is a UNESCO World Heritage Site.","It shares most of its name with its country."]],
 ["Kampala","Uganda",[],["It was built on seven hills.","Boda-boda motorbike taxis fill its streets.","It is close to Lake Victoria.","Its country is home to about half the world’s mountain gorillas."]],
 ["Lusaka","Zambia",[],["It was planned as a new capital in the 1930s.","Its country is a major copper producer.","Its country shares Victoria Falls with Zimbabwe.","It is the capital of a landlocked country in southern Africa."]],
@@ -584,12 +618,12 @@ Object.assign(EXTRA,{
 "Brussels":["Its Royal Galleries are among Europe’s oldest shopping arcades.","Its Palace of Justice was the largest building of the 19th century.","Hergé, creator of Tintin, was born here.","Comic-strip murals cover many of its walls.","Every two years a giant carpet of flowers covers its main square.","It is officially bilingual, in French and Dutch.","The European Parliament meets here as well as in Strasbourg.","Its country is famous for waffles, chocolate and beer."],
 "Sarajevo":["A famous medieval Jewish manuscript, a Haggadah, is kept in its museum.","Its abandoned Olympic bobsleigh track is covered in graffiti.","Mortar scars in its pavements are filled with red resin as memorials.","Its cable car up Mount Trebević reopened in 2018.","Its film festival is one of the biggest in southeast Europe.","Its Baščaršija bazaar dates back to the 15th century.","Ćevapi, small grilled sausages, are its signature food.","The Miljacka river runs through it."],
 "Sofia":["Its Boyana Church has frescoes painted in 1259.","Its Rotunda of St George is one of Europe’s oldest churches still in use.","Mineral water flows from free public taps in its centre.","Roman ruins are on show inside one of its metro stations.","Its Alexander Nevsky Cathedral has gold-plated domes.","Its country uses the Cyrillic alphabet, which developed there.","Its country gave its name to the bacteria used to make yoghurt.","It is the capital of a Balkan country on the Black Sea."],
-"Zagreb":["The necktie comes from soldiers of its country.","A cannon fires from its Lotrščak Tower every day at noon.","Gas lamps in its Upper Town are still lit by hand.","Its Mirogoj cemetery is one of Europe’s most beautiful.","Its cathedral’s twin spires are the tallest structures in its country.","Nikola Tesla was born in its country.","The Sava river flows through it.","Its country’s coast gave its name to the Dalmatian dog."],
+"Zagreb":["The necktie comes from soldiers of its country.","A cannon fires from its Lotrščak Tower every day at noon.","Gas lamps in its Upper Town are still lit by hand.","Its Mirogoj cemetery is one of Europe’s most beautiful.","Its cathedral is the tallest building in its country.","Nikola Tesla was born in its country.","The Sava river flows through it.","Its country’s coast gave its name to the Dalmatian dog."],
 "Nicosia":["Its Büyük Han is an Ottoman inn from 1572.","Its old town walls have 11 bastions.","Its Ledra Street crossing reopened in 2008, linking both sides.","Its museum shows ancient terracotta figures from the island.","It sits inland, unlike most big towns on its island.","Halloumi cheese comes from its island.","Its island is said to be the birthplace of Aphrodite.","Geographically it is in Asia, yet its country is in the EU."],
 "Prague":["A giant metronome stands where a huge Stalin statue once was.","Its Old Jewish Cemetery has graves stacked up to 12 layers deep.","Its Dancing House is nicknamed “Fred and Ginger”.","Franz Kafka was born here.","Its Lennon Wall is covered in graffiti tributes.","Its country drinks more beer per person than any other.","Its 1989 revolution was called the Velvet Revolution.","It is nicknamed the “City of a Hundred Spires”."],
 "Copenhagen":["Its Round Tower has a spiral ramp instead of stairs.","Its old Stock Exchange lost its dragon-tail spire in a fire in 2024.","A ski slope runs down the roof of its waste-to-energy plant.","Its Noma restaurant was named the world’s best several times.","The Carlsberg brewery was founded here.","Its royal family lives in Amalienborg Palace.","Hygge, the idea of cosy living, comes from its country.","A bridge and tunnel link it to Malmö in Sweden."],
 "Tallinn":["Its town hall pharmacy has been open since at least 1422.","Some say marzipan was invented here.","A tower nicknamed Fat Margaret once guarded its harbour.","Its Kadriorg Palace was built for Peter the Great.","Its old town walls still have more than 20 towers.","A huge song festival here helped its country win freedom.","Its country offers digital e-residency to foreigners.","It is the capital of the northernmost Baltic state."],
-"Helsinki":["Its Temppeliaukio Church is carved straight into rock.","Its central library lends out 3D printers and sewing machines.","Its white cathedral towers over Senate Square.","It is the second-northernmost capital of an independent country.","Its market square sells reindeer meat and fresh berries.","Its country has around 3 million saunas for 5.5 million people.","The Moomins and Angry Birds both come from its country.","It is the capital of a Nordic country with thousands of lakes."],
+"Helsinki":["Its Temppeliaukio Church is carved straight into rock.","Its central library lets visitors use 3D printers and sewing machines.","Its white cathedral towers over Senate Square.","It is the second-northernmost capital of an independent country.","Its market square sells reindeer meat and fresh berries.","Its country has around 3 million saunas for 5.5 million people.","The Moomins and Angry Birds both come from its country.","It is the capital of a Nordic country with thousands of lakes."],
 "Paris":["Its catacombs hold the bones of millions of people.","Its Pont Neuf, meaning “new bridge”, is its oldest standing bridge.","It is divided into 20 numbered districts called arrondissements.","It is nicknamed the City of Light.","The world’s most famous cycling race usually finishes here.","Its Sacré-Cœur basilica sits on Montmartre hill.","The Mona Lisa hangs in its largest museum.","The Seine runs through it, past the Louvre."],
 "Berlin":["It is about eight times bigger than Paris by area.","Its zoo, opened in 1844, is the oldest in its country.","Its old Tempelhof airport is now a huge public park.","Its Museum Island has five world-class museums.","Its Reichstag has a glass dome you can walk up.","It hosted the 1936 Olympics.","Checkpoint Charlie was a famous border crossing here.","The Brandenburg Gate is its symbol."],
 "Athens":["The first Olympic marathon, in 1896, was won by a local water carrier.","Its Panathenaic Stadium is built entirely of marble.","Its Plaka district is one of Europe’s oldest neighbourhoods.","Guards in kilts and pompom shoes stand at its parliament.","Plato and Aristotle taught here.","It hosted the 2004 Summer Olympics.","Democracy was born here around 2,500 years ago.","It is the capital of the country that invented the Olympics."],
@@ -597,14 +631,14 @@ Object.assign(EXTRA,{
 "Reykjavik":["A 1972 world chess championship was held here.","Reagan and Gorbachev held a famous summit here in 1986.","Its Sun Voyager sculpture looks like a Viking ship.","Its country’s parliament, founded in 930, is one of the oldest.","Puffins nest on islands near its harbour.","Its Hallgrímskirkja church looks like basalt lava columns.","The Blue Lagoon is about 45 minutes away.","The Northern Lights can be seen from it in winter."],
 "Dublin":["Bram Stoker, who wrote Dracula, was born here.","James Joyce’s Ulysses takes place here over a single day.","Its Ha’penny Bridge got its name from an old toll.","Wild deer roam its Phoenix Park, one of Europe’s largest city parks.","Its Spire is a 120-metre steel needle on O’Connell Street.","Its Temple Bar area is known for pubs and live music.","Huge parades fill it every St Patrick’s Day.","Its country is known as the Emerald Isle."],
 "Rome":["Its emblem, SPQR, appears even on its drain covers.","Its Pantheon has the largest unreinforced concrete dome in the world.","It has over 900 churches.","Building its metro keeps uncovering ancient ruins.","Its Spanish Steps lead up to a church.","Carbonara and cacio e pepe are its classic pasta dishes.","It is called the Eternal City.","It sits on the river Tiber."],
-"Riga":["Some say the first decorated Christmas tree stood here in 1510.","Its House of the Blackheads was rebuilt after being destroyed in the war.","Its Freedom Monument is nicknamed Milda.","It was founded in 1201.","Black Balsam, a herbal liqueur, is its famous drink.","Its TV tower is the tallest structure in the EU.","Its old town is UNESCO-listed.","It is the capital of the middle Baltic state."],
+"Riga":["Some say the first decorated Christmas tree stood here in 1510.","Its House of the Blackheads was rebuilt after being destroyed in the war.","Its Freedom Monument is nicknamed Milda.","It was founded in 1201.","Black Balsam, a herbal liqueur, is its famous drink.","Its TV tower is the tallest tower in the EU.","Its old town is UNESCO-listed.","It is the capital of the middle Baltic state."],
 "Vaduz":["In 2011, its whole country was listed for rent on Airbnb.","Its art museum is a black cube.","Its country has more registered companies than people.","Its country has had no army since 1868.","Its country uses the Swiss franc.","Its prince is one of Europe’s richest royals.","Its country is the sixth-smallest in the world.","It is the capital of an Alpine microstate between Switzerland and Austria."],
 "Vilnius":["It has a statue of the musician Frank Zappa.","Its cathedral’s bell tower stands apart from the cathedral.","Its university, founded in 1579, is one of the oldest in Eastern Europe.","It was once a great centre of Jewish learning.","Its TV tower was the site of a deadly Soviet crackdown in 1991.","Its Gates of Dawn hold a famous painting of the Virgin Mary.","Cepelinai, potato dumplings shaped like zeppelins, are its classic dish.","It is the capital of the southernmost Baltic state."],
 "Luxembourg":["Its Adolphe Bridge has a cycle lane hanging beneath it.","A free funicular links its upper and lower parts.","Its Grand Ducal Palace is in its old town.","Its old town and fortifications are UNESCO-listed.","Its country is the world’s only grand duchy.","Its country speaks three official languages.","Its country has one of the highest incomes per person in the world.","It is the capital of a small country between Belgium, France and Germany."],
 "Valletta":["A cannon is fired from its Upper Barrakka Gardens every day at noon.","Its St John’s Co-Cathedral has a large Caravaggio painting.","It is named after a Grand Master of the Knights.","Its streets are laid out in a strict grid.","It was European Capital of Culture in 2018.","Game of Thrones scenes were filmed in its country.","English is an official language of its country.","It is the capital of a small island country south of Sicily."],
 "Chisinau":["It was first mentioned in records in 1436.","An earthquake in 1940 and the war destroyed much of it.","A wine cellar with over 100 km of underground streets is just outside it.","Its Nativity Cathedral sits in a large central park.","Its country has more vineyards per person than almost anywhere.","Most people here speak Romanian.","It is the capital of one of Europe’s least-visited countries.","It is the capital of a landlocked country in Eastern Europe."],
 "Monaco":["Its citizens are not allowed to gamble in its casino.","Its Oceanographic Museum was once run by Jacques Cousteau.","It has grown by building out into the sea.","Its Grimaldi family has ruled since 1297.","Residents pay no income tax.","Its Prince’s Palace has a daily changing of the guard.","It is the second-smallest country in the world.","It sits on the French Riviera."],
-"Podgorica":["Ruins of the Roman town of Doclea lie on its edge.","Its Ottoman clock tower stands in the old Stara Varoš quarter.","Its Cathedral of Christ’s Resurrection was finished in 2014.","It is one of the hottest cities in its region in summer.","Its country uses the euro without being in the EU.","Its country’s name means “black mountain”.","Lake Skadar lies just south of it.","Its country has the Bay of Kotor."],
+"Podgorica":["Ruins of the Roman town of Doclea lie on its edge.","Its Ottoman clock tower stands in the old Stara Varoš quarter.","Its Cathedral of Christ’s Resurrection was consecrated in 2013.","It is one of the hottest cities in its region in summer.","Its country uses the euro without being in the EU.","Its country’s name means “black mountain”.","Lake Skadar lies just south of it.","Its country has the Bay of Kotor."],
 "Amsterdam":["Its stock exchange, founded in 1602, is the oldest in the world.","Its houses lean forward, with hooks to lift furniture through windows.","Its airport, Schiphol, sits below sea level.","It has over 1,200 bridges.","Rembrandt’s The Night Watch hangs in its Rijksmuseum.","Van Gogh’s paintings have their own museum here.","Tulips and windmills are symbols of its country.","It is often called the “Venice of the North”."],
 "Skopje":["A stopped railway station clock marks the time of its 1963 earthquake.","Its Old Bazaar is one of the largest in the Balkans.","A giant cross on Mount Vodno overlooks it.","Its Kale fortress sits above the river.","A huge warrior-on-horseback statue stands in its main square.","Its country changed its name in 2019 after a dispute with Greece.","Lake Ohrid, in its country, is one of Europe’s oldest lakes.","It is the capital of a landlocked Balkan country."],
 "Oslo":["It sends a Christmas tree to London every year.","Its Fram Museum holds a polar exploration ship.","Its city hall is decorated with huge murals.","Its Holmenkollen ski jump towers over it.","Edvard Munch’s The Scream is shown in its museums.","Viking ships found nearby are kept here.","It sits at the head of a long fjord.","It is the capital of a Scandinavian country famous for fjords."],
@@ -633,7 +667,7 @@ Object.assign(EXTRA,{
 "Phnom Penh":["It was once called the “Pearl of Asia”.","Its Central Market is a huge art deco dome.","Its Tuol Sleng museum was a Khmer Rouge prison.","Its Independence Monument is shaped like a lotus tower.","A hilltop temple marks the spot where it was founded.","Fish amok, a coconut curry, is its country’s national dish.","Its country’s flag shows a temple.","Angkor Wat is in its country."],
 "Beijing":["Its Lama Temple has a 26-metre Buddha carved from one tree.","Its hutongs are old, narrow alleyways.","Its Temple of Heaven is where emperors prayed for good harvests.","Its Summer Palace has a long painted corridor.","Roast duck is its most famous dish.","It was the capital of the Ming and Qing dynasties.","Parts of the Great Wall are about an hour away.","It is one of the most populous capitals in the world."],
 "Tbilisi":["Pushkin and Dumas both bathed in its old bathhouses.","Its Narikala fortress dates back to the 4th century.","Its country’s alphabet is unique to its language.","Its Holy Trinity Cathedral is one of the largest Orthodox churches.","A giant statue of a woman holding a sword and a wine bowl overlooks it.","Khachapuri, cheese-filled bread, is everywhere here.","It sits on the Kura river.","It is the capital of a country between Russia and Turkey."],
-"New Delhi":["Its Qutub Minar is the tallest brick minaret in the world.","Humayun’s Tomb here inspired the Taj Mahal.","Its Rashtrapati Bhavan is one of the largest presidential homes in the world.","Its Lotus Temple is shaped like a flower.","Its Chandni Chowk market is centuries old.","A huge parade is held here every 26 January.","The Taj Mahal is a few hours’ drive away.","Its country has the largest population in the world."],
+"New Delhi":["Its Qutub Minar is the tallest brick minaret in the world.","Humayun’s Tomb here inspired the Taj Mahal.","Its Rashtrapati Bhavan is one of the largest presidential homes in the world.","Its Lotus Temple is shaped like a flower.","The centuries-old Chandni Chowk market is in Old Delhi, right next to it.","A huge parade is held here every 26 January.","The Taj Mahal is a few hours’ drive away.","Its country has the largest population in the world."],
 "Jakarta":["Its old town is called Kota Tua.","A cathedral stands right opposite its biggest mosque.","Its Istiqlal Mosque is the largest in Southeast Asia.","Its Thousand Islands lie just off its coast.","Its traffic is among the worst in the world.","Its country has the largest Muslim population in the world.","Its country is the largest archipelago in the world.","It is on the island of Java."],
 "Tehran":["Churchill, Roosevelt and Stalin met here in 1943.","Its Golestan Palace is UNESCO-listed.","Its Tabiat Bridge is a three-level footbridge over a motorway.","Its Milad Tower is one of the tallest towers in the world.","It has a museum of carpets.","Skiing is possible on mountains just outside it.","Its country is famous for saffron and pistachios.","Its country was once called Persia."],
 "Baghdad":["Its Al-Mustansiriya school, from 1233, is one of the oldest universities.","It was sacked by the Mongols in 1258.","It was the capital of the Abbasid Caliphate.","Its Mutanabbi Street is famous for booksellers.","Its Hands of Victory monument has giant crossed swords.","Masgouf, grilled carp, is its classic dish.","Its country was home to ancient Mesopotamia.","It is the capital of a country between the Tigris and Euphrates."],
@@ -678,9 +712,9 @@ Object.assign(EXTRA,{
 "Ouagadougou":["Its national museum of music shows traditional instruments.","It was the seat of the Mossi kings.","Its crafts village sells bronze and leather goods.","Its country’s leader Thomas Sankara renamed the country in 1984.","Its country is famous for painted mud houses at Tiébélé.","Motorbikes are everywhere on its streets.","Its country was once called Upper Volta.","Its country lies between Mali and Ghana."],
 "Gitega":["Its national museum is one of the oldest in its country.","Its country’s royal drum dance is UNESCO-listed.","It is roughly its country’s second-largest city.","Its country was ruled by Germany and then Belgium.","Its country is one of the most densely populated in Africa.","Kirundi, French and English are spoken here.","Its country is famous for coffee.","Its country is a small landlocked nation in East Africa."],
 "Praia":["Cidade Velha, near it, was the first European colonial town in the tropics.","Its old town sits on a flat-topped plateau.","Its country’s islands were uninhabited before the Portuguese arrived.","Cachupa, a slow-cooked stew, is its country’s national dish.","Its country has an active volcano on Fogo island.","Its country gained independence in 1975.","Portuguese and Creole are spoken here.","It is the largest city of its island country."],
-"Yaounde":["A Benedictine monastery stands on its Mount Febe.","It hosted matches at the 2021 Africa Cup of Nations.","It is not its country’s largest city; Douala is.","Its country has over 250 languages.","Football legend Roger Milla is from its country.","Its country has an active volcano, West Africa’s highest peak.","Its country speaks both French and English.","It is in central Africa, near the Gulf of Guinea."],
+"Yaounde":["A Benedictine monastery stands on its Mount Febe.","It hosted matches at the 2021 Africa Cup of Nations.","It is not its country’s largest city; Douala is.","Its country has over 250 languages.","Football legend Roger Milla is from its country.","Its country has an active volcano, Mount Cameroon, over 4,000 m high.","Its country speaks both French and English.","It is in central Africa, near the Gulf of Guinea."],
 "Bangui":["Its Notre-Dame Cathedral is built of red brick.","Rapids on its river limit boat traffic.","A leader of its country crowned himself emperor in 1977.","Forest elephants gather in its country’s Dzanga-Sangha reserve.","Sango and French are spoken here.","Its country is rich in diamonds and gold.","Its country is one of the least densely populated in Africa.","It lies near the borders of both Congos."],
-"N'Djamena":["Its Grand Mosque dates from 1974.","It is one of the hottest capitals on Earth.","Its country’s Ennedi plateau has giant rock arches.","Elephants roam its country’s Zakouma national park.","Arabic and French are its country’s official languages.","Its country contains the Tibesti mountains in the Sahara.","Its country is one of the largest in Africa.","It is the capital of a landlocked country south of Libya."],
+"N'Djamena":["A bridge over the Logone river links it to Cameroon.","It is one of the hottest capitals on Earth.","Its country’s Ennedi plateau has giant rock arches.","Elephants roam its country’s Zakouma national park.","Arabic and French are its country’s official languages.","Its country contains the Tibesti mountains in the Sahara.","Its country is one of the largest in Africa.","It is the capital of a landlocked country south of Libya."],
 "Moroni":["Its Friday Mosque by the harbour dates from 1427.","Its old medina has narrow alleyways.","Coelacanths, prehistoric fish, live off its islands.","Its country has had over 20 coups or attempted coups.","Its country grows vanilla and cloves.","Arabic, French and Comorian are spoken here.","Its country’s name means “moon islands”.","Its country is in the Indian Ocean off East Africa."],
 "Kinshasa":["Humanoid robots have been used to direct its traffic.","Its sapeurs are famous for flashy designer clothes.","Its Palais du Peuple houses parliament.","Congolese rumba, UNESCO-listed, thrives here.","Its population is well over 15 million.","Its country was formerly called Zaire.","Its country holds much of the Congo rainforest.","Its country is the second-largest in Africa."],
 "Brazzaville":["The explorer Pierre Savorgnan de Brazza is buried in a mausoleum here.","Its Sacré-Cœur Basilica is one of the oldest churches in central Africa.","Rapids just downstream stop ships sailing to the sea.","Its Nabemba Tower is its tallest building.","Lowland gorillas live in its country’s Odzala park.","Its country produces oil off its coast.","Its country’s main port is Pointe-Noire.","French is its country’s official language."],
@@ -710,7 +744,7 @@ Object.assign(EXTRA,{
 "Windhoek":["Its parliament building is called the Tintenpalast, “ink palace”.","Its Independence Memorial Museum is a golden building.","Some people here still speak German.","Its country gained independence in 1990.","Its country’s Etosha park has huge salt pans full of wildlife.","Its country’s Fish River Canyon is one of the largest in the world.","Its country has the Skeleton Coast.","Its country is one of the least densely populated in the world."],
 "Niamey":["Wild giraffes live in Kouré, an hour away.","Its Kennedy Bridge crosses the river.","Its Petit Marché is a busy market.","Its country has Agadez, an old mud-brick city.","Its country has one of the youngest populations in the world.","Hausa and Zarma are widely spoken here.","Its country is mostly Sahara Desert.","Its country is landlocked and named after a river."],
 "Abuja":["It was planned as a neutral capital in the middle of its country.","Its National Mosque has golden domes.","Its National Christian Centre stands opposite the mosque.","Its Millennium Park is its largest park.","Nollywood, its country’s film industry, is one of the world’s largest.","Afrobeats music comes from its country.","Lagos is still its country’s biggest city.","Its country is in West Africa."],
-"Kigali":["Its Inema arts centre showcases local artists.","Its convention centre has a glowing dome.","Motorbike taxi riders here must carry a helmet for passengers.","It sits in the centre of its country.","Mountain gorillas live in its country’s Volcanoes National Park.","Its country has more women in parliament than any other.","Three official languages are spoken here, including English and French.","Its country is landlocked in East Africa."],
+"Kigali":["Its Inema arts centre showcases local artists.","Its convention centre has a glowing dome.","Motorbike taxi riders here must carry a helmet for passengers.","It sits in the centre of its country.","Mountain gorillas live in its country’s Volcanoes National Park.","Its country has more women in parliament than any other.","Four official languages are spoken here, including English and French.","Its country is landlocked in East Africa."],
 "Sao Tome":["Its country was the world’s top cocoa producer in the early 1900s.","Its pink colonial cathedral dates from the 1500s.","A dramatic rock spire called Pico Cão Grande rises on its island.","Its country’s islands are volcanic.","Its country gained independence from Portugal in 1975.","The Equator crosses a small islet just south of its island.","Portuguese is spoken here.","Its country is in the Gulf of Guinea."],
 "Dakar":["Its Mosque of the Divinity stands by the sea.","Its Sandaga market is famous.","A lake with pink water is nearby.","Wrestling is its country’s most popular sport.","Thieboudienne, fish and rice, is its country’s national dish.","It sits on a peninsula sticking out into the Atlantic.","French and Wolof are spoken here.","It was chosen to host the 2026 Youth Olympics, Africa’s first Olympic event."],
 "Victoria":["Its market is named after Sir Selwyn Selwyn-Clarke.","Giant tortoises live in its botanical garden.","Its country has the coco de mer, the world’s heaviest seed.","About 100,000 giant tortoises live on its country’s Aldabra atoll.","Its country has the smallest population in Africa.","Its country is famous for granite islands.","Creole, English and French are spoken here.","Its country lies northeast of Madagascar."],
@@ -738,7 +772,7 @@ Object.assign(EXTRA,{
 "Santiago":["Pablo Neruda’s quirky house, La Chascona, is here.","Its La Moneda palace was bombed in a 1973 coup.","A funicular climbs its Cerro San Cristóbal to a big statue of Mary.","Its central market is famous for seafood.","Ski resorts are about an hour away.","Its country owns Easter Island.","Its country has the Atacama, the driest desert in the world.","Its country is very long and thin."],
 "Bogota":["Its Monserrate church sits on a mountain at over 3,100 m.","Its Botero Museum shows chubby painted figures.","Its TransMilenio bus system works like a metro.","Its La Candelaria district has colourful colonial houses.","Ajiaco, a chicken and potato soup, is its local dish.","Shakira comes from its country.","Its country is named after Christopher Columbus.","Its country is the only one in South America on two oceans."],
 "San Jose":["Its Pre-Columbian Gold Museum is under a plaza.","Its Central Market has been open since 1880.","Volcanoes surround it.","Its country’s motto is “pura vida”.","Its country holds about 5% of the world’s species.","Its country gets almost all its electricity from renewables.","Sloths and toucans live in its country’s forests.","Spanish is spoken here."],
-"Havana":["Its El Capitolio looks like the US Capitol.","Its Morro Castle guards the harbour.","Its old town was founded in 1519.","The mojito and daiquiri are linked to its bars.","Salsa and son music fill its streets.","A giant Che Guevara image looks over its Revolution Square.","It is about 150 km from Florida.","Its country is the largest island in the Caribbean."],
+"Havana":["Its El Capitolio looks like the US Capitol.","Its Morro Castle guards the harbour.","Its old town was founded in 1519.","The mojito and daiquiri are linked to its bars.","Salsa and son music fill its streets.","A giant Che Guevara image looks over its Revolution Square.","It is about 170 km from Key West, Florida.","Its country is the largest island in the Caribbean."],
 "Roseau":["A parrot appears on its country’s flag.","Its country’s Champagne Reef bubbles with volcanic gas.","Trafalgar Falls is just outside it.","Its country is home to the Kalinago, Indigenous Caribbean people.","Its country’s Morne Trois Pitons park is UNESCO-listed.","Its country is a top spot for whale watching.","English and Creole are spoken here.","Its country lies between Guadeloupe and Martinique."],
 "Santo Domingo":["The Columbus Lighthouse here is said to hold his remains.","Its Alcázar de Colón was the home of Columbus’s son Diego.","Its first university was founded in 1538.","Its Los Tres Ojos are caves with underground lakes.","Merengue and bachata come from its country.","Baseball is its country’s favourite sport.","Its country has the Punta Cana beaches.","Spanish is spoken here."],
 "Quito":["Its basilica has gargoyles shaped like iguanas and turtles.","Its Compañía church is covered in gold leaf.","Its cable car climbs to about 4,000 m.","A monument near it marks the Equator line.","Panama hats actually come from its country.","Its country uses the US dollar.","Its country owns the Galápagos Islands.","Spanish is spoken here."],
@@ -794,7 +828,35 @@ const $ = id => document.getElementById(id);
 function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function shuffled(n,seed){const r=rng(seed),a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
-const DAYS_PER_CYCLE = Math.floor(CITIES.length / PER_DAY);
+/* ---------- LEVELS ----------
+   Easy: famous capitals, pick from 4 answers, continent shown.
+   Medium: famous + well-known capitals, type the answer, first letter shown.
+   Hard: all 193 capitals, type the answer, no extra help.
+   Every level uses all 12 facts per city (4 fresh sets of 3) so questions last as long as possible. */
+const LEVELS = {easy:"Easy", medium:"Medium", hard:"Hard"};
+const EASY_CAPITALS = [
+  "Paris","London","Rome","Berlin","Madrid","Lisbon","Athens","Vienna","Amsterdam","Brussels","Dublin","Moscow",
+  "Prague","Stockholm","Oslo","Copenhagen","Warsaw","Budapest","Helsinki","Kyiv","Reykjavik","Monaco","Luxembourg","San Marino",
+  "Tokyo","Beijing","Seoul","Bangkok","New Delhi","Singapore","Jakarta","Manila","Tehran","Baghdad","Jerusalem","Kabul",
+  "Kuwait City","Doha","Abu Dhabi","Riyadh","Kuala Lumpur","Hanoi","Kathmandu","Damascus","Beirut",
+  "Cairo","Nairobi","Tunis","Algiers","Tripoli","Djibouti","Addis Ababa",
+  "Washington","Ottawa","Mexico City","Buenos Aires","Havana","Lima","Santiago","Bogota","Caracas","Panama City","Guatemala City","Kingston",
+  "Canberra","Wellington"
+];
+const MEDIUM_EXTRA = [
+  "Bern","Bucharest","Sofia","Belgrade","Zagreb","Tallinn","Riga","Vilnius","Bratislava","Ljubljana","Valletta","Minsk","Tirana","Sarajevo","Nicosia","Andorra la Vella",
+  "Ankara","Islamabad","Dhaka","Ulaanbaatar","Pyongyang","Phnom Penh","Muscat","Manama","Amman","Tbilisi","Yerevan","Baku","Tashkent","Astana","Male","Sanaa","Vientiane",
+  "Rabat","Accra","Abuja","Pretoria","Dakar","Kinshasa","Kampala","Kigali","Khartoum","Harare","Lusaka","Luanda","Antananarivo","Mogadishu","Windhoek","Maputo","Monrovia","Freetown",
+  "Brasilia","Quito","Montevideo","Asuncion","San Jose","Managua","San Salvador","Santo Domingo","Port-au-Prince","Nassau","Port of Spain",
+  "Suva","Port Moresby","Apia"
+];
+const capIndex = name => { const i=CITIES.findIndex(c=>c[0]===name); if(i<0) throw new Error("Unknown capital in level list: "+name); return i };
+const POOLS = {
+  easy:   EASY_CAPITALS.map(capIndex).sort((a,b)=>a-b),
+  medium: [...EASY_CAPITALS,...MEDIUM_EXTRA].map(capIndex).sort((a,b)=>a-b),
+  hard:   CITIES.map((_,i)=>i)
+};
+const SALT = {hard:0, medium:500009, easy:900007};   // each level gets its own daily order
 /* The day follows the player's own clock: a fresh set of five appears at their local midnight. */
 const [ly,lm,ld] = LAUNCH_DATE.split("-").map(Number);
 let dayIndex, dayKey;
@@ -815,39 +877,55 @@ function buildRound(cityIdx, cycle){
 }
 /* Spread regions out: each region's cities are spaced evenly through the cycle,
    so a day mixes continents instead of landing on the same area. */
-function cycleOrder(cycle){
-  const r=rng(1000+cycle*7919), groups={};
-  shuffled(CITIES.length,2000+cycle*104729).forEach(i=>(groups[CITIES[i][4]]??=[]).push(i));
+function cycleOrder(cycle, level){
+  const pool=POOLS[level], salt=SALT[level];
+  const r=rng(1000+cycle*7919+salt), groups={};
+  shuffled(pool.length,2000+cycle*104729+salt).map(k=>pool[k]).forEach(i=>(groups[CITIES[i][4]]??=[]).push(i));
   const keyed=[];
   for(const g of Object.values(groups)){const off=r();g.forEach((i,k)=>keyed.push([(k+off)/g.length,i]))}
   return keyed.sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
 }
-function dailySet(d){
-  const cycle = Math.floor(d / DAYS_PER_CYCLE), slot = d % DAYS_PER_CYCLE;
-  const today = cycleOrder(cycle).slice(slot*PER_DAY, slot*PER_DAY+PER_DAY);
-  const mix = shuffled(today.length, 3000+d);          // shuffle the order within the day
-  return mix.map(j=>buildRound(today[j], cycle));
+function dailySet(d, level){
+  const pool=POOLS[level], salt=SALT[level], days=Math.floor(pool.length/PER_DAY);
+  const cycle = Math.floor(d / days), slot = d % days;
+  const today = cycleOrder(cycle, level).slice(slot*PER_DAY, slot*PER_DAY+PER_DAY);
+  const mix = shuffled(today.length, 3000+d+salt);     // shuffle the order within the day
+  const rounds = mix.map(j=>buildRound(today[j], cycle));
+  if(level==="easy") rounds.forEach((rd,j)=>{
+    // Easy: 3 wrong answers from the other famous capitals. Two come from the same continent when possible,
+    // so the continent hint helps rule one out without giving the answer away.
+    const region=CITIES[today[mix[j]]][4];
+    const others=shuffled(pool.length, 7000+d*31+j*7).map(k=>pool[k]).filter(i=>CITIES[i][0]!==rd.c);
+    const near=others.filter(i=>CITIES[i][4]===region).slice(0,2);
+    const wrong=[...near, ...others.filter(i=>!near.includes(i))].slice(0,3).map(i=>CITIES[i][0]);
+    rd.options=shuffled(4, 8000+d*17+j).map(k=>[rd.c,...wrong][k]);
+    rd.region=region;
+  });
+  return rounds;
 }
 /* ---------- GAME ---------- */
-let set, idx, clueNo, scores, done;
+let set, idx, clueNo, scores, done, wrongs=[];
+/* The chosen level is remembered on this device. New players start on Medium. */
+let level = (()=>{ try{ const l=localStorage.getItem("capiclue-level"); return LEVELS[l]?l:"medium" }catch(e){ return "medium" } })();
 
-/* Progress is saved on this device (keyed by date), so refreshing can't restart today's game. */
-const SAVE_KEY = "capiclue-v2";
+/* Progress is saved per level on this device (keyed by date), so refreshing can't restart today's game.
+   Hard keeps the original save name so nobody loses today's progress. */
+const saveKey = l => l==="hard" ? "capiclue-v2" : "capiclue-v2-"+l;
 try{ localStorage.removeItem("capiclue-progress") }catch(e){}   // old save format from before the relaunch
-/* Visiting capiclue.com/?reset clears today's progress on this device (handy for testing). */
+/* Visiting capiclue.com/?reset clears today's progress on this device, for every level (handy for testing). */
 if(new URLSearchParams(location.search).has("reset")){
-  try{ localStorage.removeItem(SAVE_KEY) }catch(e){}
+  try{ Object.keys(LEVELS).forEach(l=>localStorage.removeItem(saveKey(l))) }catch(e){}
   history.replaceState(null,"",location.pathname);
 }
-function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo})) }catch(e){} }
-function loadSaved(){ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); return s&&s.date===dayKey?s:null }catch(e){ return null } }
+function save(){ try{ localStorage.setItem(saveKey(level), JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo, wrongs:done?[]:wrongs})) }catch(e){} }
+function loadSaved(l=level){ try{ const s=JSON.parse(localStorage.getItem(saveKey(l))); return s&&s.date===dayKey?s:null }catch(e){ return null } }
 const total = () => scores.reduce((a,b)=>a+b,0);
 const emojis = () => scores.map(s=>({20:"🟩",15:"🟨",10:"🟧",5:"🟥"}[s]||"⬛")).join(" ");
 const finePointer = matchMedia("(pointer:fine)").matches;
 
 /* ---------- SCREENS: home <-> game (the browser back button works too) ---------- */
 function init(){
-  computeDay(); set=dailySet(dayIndex);
+  computeDay(); set=dailySet(dayIndex, level);
   const saved=loadSaved(); scores=saved?saved.scores:[];
   renderHome();
 }
@@ -860,22 +938,41 @@ function renderScorecard(){
   });
   $("scorecard").innerHTML=rows.join(""); $("sideTotal").textContent=`${total()} pts`;
 }
-function blankTiles(name){ return name.toUpperCase().split(" ").map(w=>`<span class="word">${[...w].map(()=>`<span class="tile"></span>`).join("")}</span>`).join("") }
+function blankTiles(name, firstLetter=false){ let i=0; return name.toUpperCase().split(" ").map(w=>`<span class="word">${[...w].map(ch=>`<span class="tile">${firstLetter&&(i++===0)?ch:""}</span>`).join("")}</span>`).join("") }
+const LEVEL_NOTES = {
+  easy:"Famous capitals. Pick from 4 answers, with the continent shown.",
+  medium:"Well-known capitals. Type your answer, with the first letter shown.",
+  hard:"All 193 capitals. Type your answer, no extra help."
+};
+function renderLevels(){
+  document.querySelectorAll("[data-level]").forEach(b=>{
+    const on=b.dataset.level===level, doneHere=(loadSaved(b.dataset.level)?.scores.length||0)>=PER_DAY;
+    b.setAttribute("aria-checked",on); b.classList.toggle("done",doneHere);
+    b.title=doneHere?"Played today":"";
+  });
+  $("levelNote").textContent=LEVEL_NOTES[level];
+}
+document.querySelectorAll("[data-level]").forEach(b=>b.addEventListener("click",()=>{
+  if(b.dataset.level===level) return;
+  level=b.dataset.level; try{ localStorage.setItem("capiclue-level",level) }catch(e){}
+  init();
+}));
 function renderHome(){
+  renderLevels();
   const n=scores.length, saved=loadSaved(), fact=$("homeFact"), tiles=$("homeTiles");
   fact.classList.remove("big"); tiles.classList.remove("emo");
   if(n>=PER_DAY){
     $("homeDay").textContent="Done for today";
     fact.classList.add("big"); fact.innerHTML=`${total()}<small>/100</small>`;
     tiles.classList.add("emo"); tiles.textContent=emojis();
-    $("homeStatus").textContent="Come back tomorrow for five new cities.";
+    $("homeStatus").textContent=`You’ve finished ${LEVELS[level]} today. Try another level, or come back tomorrow.`;
     $("playBtn").textContent="See my results";
     $("heroTitle").innerHTML="That’s today<br>done. Nice!";
   }else{
     const started=n>0||saved?.clueNo>0, c=set[n];
-    $("homeDay").textContent=started?`City ${n+1} of ${PER_DAY}`:"Today’s first fact";
+    $("homeDay").textContent=(started?`City ${n+1} of ${PER_DAY}`:"Today’s first fact")+(level==="easy"?` · ${c.region}`:"");
     fact.textContent=`“${c.clues[0]}”`;
-    tiles.innerHTML=blankTiles(c.c); fitTiles(tiles,c.c);
+    tiles.innerHTML=blankTiles(c.c, level==="medium"); fitTiles(tiles,c.c);
     $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
     $("playBtn").textContent=started?"Continue":"Guess the city";
     $("heroTitle").innerHTML=started?"Pick up where<br>you left off.":"Guess the city<br>from fun facts.";
@@ -895,7 +992,7 @@ function openGame(){
   const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
   $("final").classList.add("hidden"); $("board").classList.remove("hidden"); $("game").classList.remove("finalmode");
   if(idx>=PER_DAY) return showFinal();
-  loadCity(saved?saved.clueNo:0);
+  loadCity(saved?saved.clueNo:0, saved?.wrongs||[]);
 }
 function goHome(){ hideSuggest(); showScreen("home"); $("playBtn").focus({preventScroll:true}) }
 function leaveGame(){ if(location.hash==="#play") history.back(); else goHome() }
@@ -953,15 +1050,26 @@ function tick(){
 setInterval(tick,1000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) tick() });
 
-function loadCity(startClue=0){
-  clueNo=0; done=false;
-  $("round").innerHTML=`City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
+function setRound(){ $("round").innerHTML=`${LEVELS[level]} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>` }
+const KEYS = {
+  easy:"<kbd>1</kbd>–<kbd>4</kbd> pick an answer",
+  typed:"<kbd>Enter</kbd> guess<br><kbd>↑</kbd> <kbd>↓</kbd> pick a name<br><kbd>Esc</kbd> close the list"
+};
+function loadCity(startClue=0, startWrongs=[]){
+  clueNo=0; done=false; wrongs=[...startWrongs];
+  const easy=level==="easy", city=set[idx];
+  $("choices").classList.toggle("hidden",!easy); $("form").classList.toggle("hidden",easy); $("lucky").classList.toggle("hidden",easy);
+  $("keysText").innerHTML=easy?KEYS.easy:KEYS.typed;
+  $("hintline").classList.toggle("hidden",!easy);   // Medium shows its first letter in the tiles instead
+  if(easy) $("hintline").innerHTML=`Continent: <b>${city.region}</b>`;
+  if(easy) $("choices").innerHTML=city.options.map((o,k)=>`<button type="button" data-k="${k}" class="${wrongs.includes(o)?"wrong":""}" ${wrongs.includes(o)?"disabled":""}><kbd>${k+1}</kbd>${o}</button>`).join("");
+  setRound();
   $("dots").innerHTML=set.map((_,i)=>`<span class="dot ${i<idx?(scores[i]>0?"win":"lose"):i===idx?"on":""}"></span>`).join("");
   $("wrong").textContent=""; $("guess").value="";
   $("play").classList.remove("hidden"); $("result").classList.add("hidden");
   $("clues").innerHTML=""; drawTiles(false); showClue(); renderScorecard();
   while(clueNo<startClue){ clueNo++; showClue() }
-  if(finePointer) $("guess").focus({preventScroll:true});
+  if(finePointer&&!easy) $("guess").focus({preventScroll:true});
 }
 /* Tiles shrink to fit the longest word, so long names never break mid-word on small phones. */
 function fitTiles(el=$("tiles"), name=set?.[idx]?.c){
@@ -974,7 +1082,7 @@ addEventListener("resize",()=>{ fitTiles(); if(!$("home").classList.contains("hi
 function drawTiles(reveal){
   const name=set[idx].c.toUpperCase(); let i=0;
   $("tiles").innerHTML=name.split(" ").map(word=>`<span class="word">${[...word].map(ch=>{
-    const show=reveal||(clueNo>=3&&i===0)||!/[A-ZÀ-Ý]/.test(ch);
+    const show=reveal||((clueNo>=3||level==="medium")&&i===0)||!/[A-ZÀ-Ý]/.test(ch);
     return`<span class="tile ${reveal?"flip":""}" style="animation-delay:${(i++)*40}ms">${show?ch:""}</span>`;
   }).join("")}</span>`).join("");
   $("tiles").setAttribute("aria-label",reveal?name:`${name.replace(/[^A-Z]/g,"").length} letters`);
@@ -990,23 +1098,54 @@ function showClue(){
   $("skip").classList.toggle("hidden",clueNo===3);
 }
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
-function finish(won){
+function finish(won, lucky=false){
   done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save(); renderScorecard();
   drawTiles(true); $("play").classList.add("hidden"); $("result").classList.remove("hidden");
-  $("round").innerHTML=`City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>`;
-  $("resTitle").textContent=won?`Yes, it’s ${city.c}. +${pts}`:`It was ${city.c}.`;
+  setRound();
+  $("resTitle").textContent=won?(lucky?`🍀 Lucky! It’s ${city.c}. +${pts}`:`Yes, it’s ${city.c}. +${pts}`):`It was ${city.c}.`;
   $("resText").textContent=`Capital of ${city.n}.`;
   $("next").textContent=idx<PER_DAY-1?"Next city":"See my score";
   $("next").focus({preventScroll:true});
   $("result").scrollIntoView({block:"nearest",behavior:"smooth"});
 }
-$("form").addEventListener("submit",e=>{
-  e.preventDefault(); hideSuggest(); if(done)return;
-  const raw=$("guess").value.trim(), g=norm(raw); if(!g)return;
+/* One path for every guess: typed, picked from the 4 options, or a lucky guess. */
+function submitGuess(raw, how="typed"){
+  if(done) return;
+  const g=norm(raw); if(!g) return;
   const city=set[idx];
-  if([city.c,...city.alt].some(x=>norm(x)===g)) return finish(true);
-  $("wrong").textContent=clueNo<3?`Not ${raw}. Here’s another fact.`:`Not ${raw}.`;
-  $("guess").value=""; nextClue();
+  if([city.c,...city.alt].some(x=>norm(x)===g)) return finish(true, how==="lucky");
+  if(!wrongs.includes(raw)) wrongs.push(raw);
+  const more=clueNo<3?" Here’s another fact.":"";
+  $("wrong").textContent=how==="lucky"?`🍀 Lucky guess: ${raw}. Not this time.${more}`:`Not ${raw}.${more}`;
+  $("guess").value="";
+  if(level==="easy") markChoices();
+  nextClue();
+}
+$("form").addEventListener("submit",e=>{ e.preventDefault(); hideSuggest(); submitGuess($("guess").value.trim()) });
+
+/* Easy: 4 answers to pick from. Wrong picks are crossed out. Keys 1–4 also work. */
+function markChoices(){ [...$("choices").children].forEach(b=>{ const o=set[idx].options[b.dataset.k]; if(wrongs.includes(o)){ b.classList.add("wrong"); b.disabled=true } }) }
+$("choices").addEventListener("click",e=>{ const b=e.target.closest("button[data-k]"); if(!b||b.disabled||done) return;
+  const o=set[idx].options[b.dataset.k]; if(o===set[idx].c) b.classList.add("right"); submitGuess(o,"choice") });
+document.addEventListener("keydown",e=>{
+  if(level!=="easy"||done||$("game").classList.contains("hidden")||$("help").open||e.target.closest("input")) return;
+  const k=Number(e.key); if(k>=1&&k<=4){ e.preventDefault(); $("choices").children[k-1]?.click() }
+});
+
+/* Lucky guess (Medium and Hard): picks a truly random capital from this level's list,
+   skipping ones already tried for this city. A correct lucky guess earns the full points for the current fact. */
+function randomInt(n){   // unbiased random number from the browser's secure generator
+  const max=Math.floor(4294967296/n)*n, buf=new Uint32Array(1);
+  do{ crypto.getRandomValues(buf) }while(buf[0]>=max);
+  return buf[0]%n;
+}
+$("lucky").addEventListener("click",()=>{
+  if(done) return;
+  const tried=wrongs.map(norm), options=POOLS[level].map(i=>CITIES[i][0]).filter(n=>!tried.includes(norm(n)));
+  const pick=options[randomInt(options.length)];
+  hideSuggest(); $("guess").value=pick;
+  const b=$("lucky"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
+  submitGuess(pick,"lucky");
 });
 $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
 $("next").addEventListener("click",()=>{
@@ -1019,7 +1158,7 @@ function showFinal(){
   $("clues").innerHTML=""; $("tiles").innerHTML="";
   $("final").classList.remove("hidden"); $("game").classList.add("finalmode");
   $("recap").innerHTML=set.map((c,i)=>`<li class="${scores[i]>0?"win":"lose"}"><span>${c.c} <small class="soft">${c.n}</small></span><b>${scores[i]??0}</b></li>`).join("");
-  $("finalTitle").textContent="Today’s score";
+  $("finalTitle").textContent=`Today’s score · ${LEVELS[level]}`;
   $("finalScore").textContent=total();
   $("summary").textContent=emojis();
   tick();
@@ -1034,7 +1173,7 @@ function showFinal(){
 /* ---------- SHARING ---------- */
 const SITE = "https://capiclue.com";
 /* Share text uses the date (e.g. "31 Oct") rather than a day number, so nobody feels they joined late. */
-function shareText(){ const d=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"}); return `Capiclue ${d}: ${total()}/100\n${emojis()}\n${SITE}` }
+function shareText(){ const d=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"}); return `Capiclue ${d} · ${LEVELS[level]}: ${total()}/100\n${emojis()}\n${SITE}` }
 /* One button per app. Phones get the apps people use there; computers get the ones that work in a browser. */
 const IS_PHONE = matchMedia("(pointer:coarse)").matches;
 const ICON = {
