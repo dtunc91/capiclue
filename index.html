@@ -959,8 +959,11 @@ function showFinal(){
   $("shX").href=`https://twitter.com/intent/tweet?text=${e}`;
   $("shFb").href=`https://www.facebook.com/sharer/sharer.php?u=${u}`;
   // Phones: one button opens the phone's own share menu. Computers: show the row of share buttons instead.
-  $("shareBtn").classList.toggle("hidden",!navigator.share);
-  $("shareRow").classList.toggle("hidden",!!navigator.share);
+  // Phones (touch screens): one button opens the phone's own share menu with every app installed.
+  // Computers: always show WhatsApp / X / Facebook / Copy, since a computer's share menu often lacks WhatsApp.
+  const phoneShare=!!navigator.share&&matchMedia("(pointer:coarse)").matches;
+  $("shareBtn").classList.toggle("hidden",!phoneShare);
+  $("shareRow").classList.toggle("hidden",phoneShare);
   // Ad: name the city the player did best on, to turn today's game into a trip idea.
   const best=set[scores.indexOf(Math.max(...scores))]||set[0];
   $("promoTitle").textContent=`✈️ Fancy ${best.c} for real?`;
