@@ -102,16 +102,19 @@ button:hover{filter:brightness(1.12)} .link:hover{color:var(--ink);filter:none}
 .countdown{margin:12px 0 0;text-align:center;color:var(--soft);font-size:.95rem}
 .countdown b{font-family:"DM Mono",ui-monospace,monospace;color:var(--ink)}
 .share-label{margin:0 0 10px;font-weight:700}
-.sharegrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px 6px;margin:0 auto;max-width:420px}
+.sharegrid{display:grid;grid-template-columns:repeat(var(--n,6),minmax(0,1fr));gap:12px 4px;margin:0 auto;max-width:440px}
+.sharegrid.extra{margin-top:14px;max-width:calc(440px / 6 * var(--n,3))}
+.sharegrid.hidden{display:none}
+@media (max-width:359px){ .sharegrid{grid-template-columns:repeat(3,minmax(0,1fr))} }
 .sh{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:4px 0;color:var(--ink);
-  font:inherit;font-size:.74rem;font-weight:600;text-decoration:none;cursor:pointer;min-width:0}
+  font:inherit;font-size:.72rem;font-weight:600;text-decoration:none;cursor:pointer;min-width:0}
 .sh:hover{filter:none} .sh:hover i{transform:translateY(-2px)}
 .sh:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:10px}
-.sh i{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;font-style:normal;font-size:1.05rem;font-weight:800;color:#fff;transition:transform .15s}
+.sh i{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-style:normal;font-size:1.05rem;font-weight:800;color:#fff;transition:transform .15s}
 .sh i svg{width:22px;height:22px;fill:currentColor}
-.sh span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sh span{white-space:nowrap;font-size:.68rem;letter-spacing:-.01em}
+@media (min-width:400px){ .sh span{font-size:.74rem} }
 .share-note{min-height:1.3em;margin:8px 0 0;font-size:.9rem;color:var(--good)}
-@media (min-width:1024px){ .sharegrid{grid-template-columns:repeat(var(--n,6),minmax(0,1fr))} }
 .sharerow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
 .sharerow a,.sharerow button{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 4px;border-radius:10px;
   border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:.9rem;text-decoration:none;cursor:pointer;width:auto}
@@ -326,6 +329,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div class="summary" id="summary"></div>
     <p class="share-label">Share my score</p>
     <div class="sharegrid" id="shareGrid" aria-label="Share my score on"></div>
+    <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share"></div>
     <p class="share-note" id="shareNote" aria-live="polite"></p>
     <p class="countdown" id="finalNote"></p>
     <button id="backHome" class="link" type="button">Back to homepage</button>
@@ -1029,38 +1033,48 @@ const ICON = {
   copy:'<svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>',
   more:'<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg>'
 };
+/* Main row: WhatsApp, Messages (phones), X, Instagram, Copy, More.
+   "More" opens the phone's own share menu (every other app). Where there is none, it reveals Telegram, Facebook etc. */
 function shareTargets(){
   const t=encodeURIComponent(shareText()), u=encodeURIComponent(SITE);
+  const tgText=encodeURIComponent(shareText().replace("\n"+SITE,""));
   const all=[
     {k:"wa",   label:"WhatsApp",  bg:"#25D366", href:`https://wa.me/?text=${t}`},
-    {k:"ig",   label:"Instagram", bg:"linear-gradient(45deg,#F58529,#DD2A7B 50%,#8134AF)", act:"instagram"},
     {k:"sms",  label:"Messages",  bg:"#34C759", href:`sms:?&body=${t}`, phoneOnly:true},
-    {k:"msg",  label:"Messenger", bg:"linear-gradient(45deg,#0099FF,#A033FF 60%,#FF5280)", href:`fb-messenger://share/?link=${u}`, phoneOnly:true},
-    {k:"snap", label:"Snapchat",  bg:"#FFFC00", fg:"#111", href:`https://www.snapchat.com/scan?attachmentUrl=${u}`, phoneOnly:true},
-    {k:"tg",   label:"Telegram",  bg:"#229ED9", href:`https://t.me/share/url?url=${u}&text=${encodeURIComponent(shareText().replace("\n"+SITE,""))}`},
     {k:"x",    label:"X",         bg:"#000000", href:`https://twitter.com/intent/tweet?text=${t}`},
-    {k:"fb",   label:"Facebook",  bg:"#1877F2", href:`https://www.facebook.com/sharer/sharer.php?u=${u}`},
+    {k:"ig",   label:"Instagram", bg:"linear-gradient(45deg,#F58529,#DD2A7B 50%,#8134AF)", act:"instagram"},
     {k:"copy", label:"Copy",      bg:"var(--ink)", fg:"var(--paper)", act:"copy"},
-    {k:"more", label:"More",      bg:"var(--soft)", act:"more", phoneOnly:true, needsShare:true},
+    {k:"more", label:"More",      bg:"var(--soft)", act:"more"},
+    // Only shown after tapping More on devices without a built-in share menu (mostly computers):
+    {k:"tg",   label:"Telegram",  bg:"#229ED9", href:`https://t.me/share/url?url=${u}&text=${tgText}`, extra:true},
+    {k:"fb",   label:"Facebook",  bg:"#1877F2", href:`https://www.facebook.com/sharer/sharer.php?u=${u}`, extra:true},
+    {k:"msg",  label:"Messenger", bg:"linear-gradient(45deg,#0099FF,#A033FF 60%,#FF5280)", href:`fb-messenger://share/?link=${u}`, extra:true, phoneOnly:true},
   ];
-  return all.filter(x=>(!x.phoneOnly||IS_PHONE)&&(!x.needsShare||navigator.share));
+  return all.filter(x=>!x.phoneOnly||IS_PHONE);
+}
+function shareItem(x){
+  const inner=`<i style="background:${x.bg};color:${x.fg||"#fff"}">${ICON[x.k]}</i><span>${x.label}</span>`;
+  return x.href?`<a class="sh" href="${x.href}" target="_blank" rel="noopener" aria-label="Share on ${x.label}">${inner}</a>`
+               :`<button class="sh" type="button" data-act="${x.act}" aria-label="${x.label==="More"?"More ways to share":x.label==="Copy"?"Copy my score and link":"Share on "+x.label}">${inner}</button>`;
 }
 function renderShare(){
-  const list=shareTargets();
-  $("shareGrid").style.setProperty("--n",list.length);
-  $("shareGrid").innerHTML=list.map(x=>{
-    const inner=`<i style="background:${x.bg};color:${x.fg||"#fff"}">${ICON[x.k]}</i><span>${x.label}</span>`;
-    return x.href?`<a class="sh" href="${x.href}" target="_blank" rel="noopener" aria-label="Share on ${x.label}">${inner}</a>`
-                 :`<button class="sh" type="button" data-act="${x.act}" aria-label="${x.label==="More"?"More ways to share":x.label==="Copy"?"Copy my score":"Share on "+x.label}">${inner}</button>`;
-  }).join("");
+  const list=shareTargets(), main=list.filter(x=>!x.extra), extra=list.filter(x=>x.extra);
+  $("shareGrid").style.setProperty("--n",main.length);
+  $("shareGrid").innerHTML=main.map(shareItem).join("");
+  $("shareExtra").style.setProperty("--n",extra.length);
+  $("shareExtra").innerHTML=extra.map(shareItem).join("");
+  $("shareExtra").classList.add("hidden");
   $("shareNote").textContent="";
 }
 async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()); return true }catch(e){ return false } }
-$("shareGrid").addEventListener("click",async e=>{
+["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",async e=>{
   const b=e.target.closest("button[data-act]"); if(!b) return;
   const act=b.dataset.act, note=$("shareNote");
   if(act==="copy"){ note.textContent=await copyScore()?"Copied! Paste it anywhere.":"Couldn’t copy. Try another option." }
-  else if(act==="more"){ try{ await navigator.share({text:shareText()}) }catch(err){} }
+  else if(act==="more"){
+    if(IS_PHONE&&navigator.share){ try{ await navigator.share({text:shareText()}) }catch(err){} }
+    else $("shareExtra").classList.toggle("hidden");
+  }
   else if(act==="instagram"){
     // Instagram has no way for websites to pre-fill a post, so copy the score and open Instagram to paste it.
     const ok=await copyScore();
@@ -1068,7 +1082,7 @@ $("shareGrid").addEventListener("click",async e=>{
     if(IS_PHONE&&navigator.share){ try{ await navigator.share({text:shareText()}) }catch(err){} }
     else window.open("https://www.instagram.com/direct/inbox/","_blank","noopener");
   }
-});
+}));
 
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
