@@ -274,7 +274,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   </div>
   <div class="hero">
     <div class="hero-text">
-      <p class="hero-title desk" id="heroTitle">Guess the city<br>from fun facts.</p>
+      <p class="hero-title desk" id="heroTitle">Guess the capital<br>from fun facts.</p>
       <p class="teaser-sub" id="homeStatus">Can you name the city? Five mystery capitals, new every day.</p>
       <div class="levels" role="radiogroup" aria-label="Level">
         <button type="button" role="radio" data-level="easy">Easy</button>
@@ -985,7 +985,7 @@ function renderHome(){
     tiles.innerHTML=blankTiles(c.c, level==="medium"); fitTiles(tiles,c.c);
     $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
     $("playBtn").textContent=started?"Continue":"Guess the city";
-    $("heroTitle").innerHTML=started?"Pick up where<br>you left off.":"Guess the city<br>from fun facts.";
+    $("heroTitle").innerHTML=started?"Pick up where<br>you left off.":"Guess the capital<br>from fun facts.";
   }
   $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
   tick();
