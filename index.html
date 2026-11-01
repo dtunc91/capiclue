@@ -233,6 +233,18 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .installtip-btn{flex:none;padding:8px 14px;border-radius:9px;background:var(--amber);color:#1D2B45;font-weight:800}
 .installtip-x{flex:none;background:none;color:var(--soft);padding:4px 8px;font-size:1.3rem;line-height:1}
 .share-ico{display:inline-block;vertical-align:-3px}
+.remindbtn{display:block;margin:16px auto 0;padding:11px 18px;border-radius:99px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
+.remindbtn:hover{border-color:var(--amber);filter:none}
+.remindsheet{width:min(420px,calc(100vw - 24px))}
+.remind-sub{margin:0 0 14px;color:var(--soft)}
+.remind-label{margin:14px 0 8px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.remind-times{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.remind-times button{padding:10px 0;border-radius:10px;background:var(--card);color:var(--ink);border:2px solid var(--line);font-weight:700;font-family:"DM Mono",ui-monospace,monospace}
+.remind-times button[aria-checked="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.remind-cal{display:block;text-align:center;text-decoration:none;border-radius:10px;padding:14px;font-weight:800;margin-bottom:10px}
+.remind-google{border:2px solid var(--line);color:var(--ink);font-weight:700}
+.remind-foot{font-size:.85rem;color:var(--soft);margin:6px 0 4px;text-align:center}
+#remindClose{display:block;margin:0 auto}
 .about{margin-top:36px;padding-top:4px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0} .about p{margin:0 0 10px}
 /* Phones: About is folded into one tappable line. Bigger screens: always open. */
 .about summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:14px 0;min-height:44px}
@@ -350,6 +362,24 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   <p class="ig-note" id="igNote" aria-live="polite"></p>
   <button type="button" class="link" id="igClose">Close</button>
 </dialog>
+<dialog id="remindSheet" class="remindsheet" aria-labelledby="remindTitle">
+  <h2 id="remindTitle">Daily reminder</h2>
+  <p class="remind-sub">Add a daily event to your calendar so you never miss the new capitals.</p>
+  <p class="remind-label">Remind me at</p>
+  <div class="remind-times" id="remindTimes" role="radiogroup" aria-label="Reminder time">
+    <button type="button" role="radio" data-t="0700">7:00</button>
+    <button type="button" role="radio" data-t="0800">8:00</button>
+    <button type="button" role="radio" data-t="0900" aria-checked="true">9:00</button>
+    <button type="button" role="radio" data-t="1200">12:00</button>
+    <button type="button" role="radio" data-t="1800">18:00</button>
+    <button type="button" role="radio" data-t="2000">20:00</button>
+  </div>
+  <p class="remind-label">Add to</p>
+  <a class="cta remind-cal" id="remindApple" target="_blank" rel="noopener">Apple / Outlook calendar</a>
+  <a class="remind-cal remind-google" id="remindGoogle" target="_blank" rel="noopener">Google Calendar</a>
+  <p class="remind-foot">It repeats every day at your local time. You can change or delete it any time in your calendar.</p>
+  <button type="button" class="link" id="remindClose">Close</button>
+</dialog>
 <dialog id="help" aria-labelledby="helpTitle">
   <h2 id="helpTitle">How to play</h2>
   <ul class="how">
@@ -415,6 +445,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div class="sharegrid" id="shareGrid" aria-label="Share my score on"></div>
     <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share"></div>
     <p class="share-note" id="shareNote" aria-live="polite"></p>
+    <button type="button" class="remindbtn" id="remindBtn">📅 Remind me daily</button>
     <p class="countdown" id="finalNote"></p>
     <button id="backHome" class="link" type="button">Back to homepage</button>
     </div>
@@ -1295,6 +1326,26 @@ function renderShare(){
   $("shareNote").textContent="";
   makeScoreCard();   // prepare the Instagram picture now, so the tap can share it instantly
 }
+
+/* ---------- DAILY CALENDAR REMINDER: Apple/Outlook get a ready-made calendar file, Google gets a pre-filled event ---------- */
+let remindTime="0900";
+function updateRemindLinks(){
+  document.querySelectorAll("#remindTimes button").forEach(b=>b.setAttribute("aria-checked",b.dataset.t===remindTime));
+  $("remindApple").href=`/reminders/capiclue-${remindTime}.ics`;
+  const now=new Date(), p=n=>String(n).padStart(2,"0");
+  const day=`${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}`, end=`${remindTime.slice(0,2)}1000`;
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
+  const q=new URLSearchParams({action:"TEMPLATE", text:"🌍 Capiclue: 5 new capitals",
+    details:"Today’s five mystery capitals are ready. Play at https://capiclue.com", location:"https://capiclue.com",
+    dates:`${day}T${remindTime}00/${day}T${end}`, recur:"RRULE:FREQ=DAILY"});
+  if(tz) q.set("ctz",tz);
+  $("remindGoogle").href="https://calendar.google.com/calendar/render?"+q.toString();
+}
+$("remindBtn").addEventListener("click",()=>{ updateRemindLinks(); $("remindSheet").showModal() });
+$("remindTimes").addEventListener("click",e=>{ const b=e.target.closest("button[data-t]"); if(b){ remindTime=b.dataset.t; updateRemindLinks() } });
+["remindApple","remindGoogle"].forEach(id=>$(id).addEventListener("click",()=>setTimeout(()=>$("remindSheet").close(),300)));
+$("remindClose").addEventListener("click",()=>$("remindSheet").close());
+$("remindSheet").addEventListener("click",e=>{ if(e.target===$("remindSheet")) $("remindSheet").close() });
 
 /* ---------- SCORE CARD PICTURE for Instagram (Stories, posts and messages accept images, not text) ---------- */
 let scoreCardFile=null;

@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Capiclue//Daily reminder//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:capiclue-daily-0900@capiclue.com
+DTSTAMP:20261101T000000Z
+DTSTART:20261101T090000
+DTEND:20261101T091000
+RRULE:FREQ=DAILY
+SUMMARY:🌍 Capiclue: 5 new capitals
+DESCRIPTION:Today’s five mystery capitals are ready. Play at https://capiclue.com
+URL:https://capiclue.com/?source=calendar
+LOCATION:https://capiclue.com
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Capiclue: 5 new capitals are ready
+TRIGGER:PT0M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
