@@ -1,0 +1,11 @@
+# Cloudflare: label the reminder files as calendars so iPhones show "Add to Calendar"
+/reminders/*
+  Content-Type: text/calendar; charset=utf-8
+  Content-Disposition: inline; filename="capiclue-reminder.ics"
+  Cache-Control: public, max-age=3600
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+
+/sw.js
+  Cache-Control: no-cache

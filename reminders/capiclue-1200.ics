@@ -10,9 +10,9 @@ DTSTART:20261101T120000
 DTEND:20261101T121000
 RRULE:FREQ=DAILY
 SUMMARY:🌍 Capiclue: 5 new capitals
-DESCRIPTION:Today’s five mystery capitals are ready. Play at https://capiclue.com
-URL:https://capiclue.com/?source=calendar
-LOCATION:https://capiclue.com
+DESCRIPTION:Today’s five mystery capitals are ready. Play at https://capi
+ clue.com
+URL:https://capiclue.com/
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Capiclue: 5 new capitals are ready

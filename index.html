@@ -375,9 +375,10 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <button type="button" role="radio" data-t="2000">20:00</button>
   </div>
   <p class="remind-label">Add to</p>
-  <a class="cta remind-cal" id="remindApple" target="_blank" rel="noopener">Apple / Outlook calendar</a>
+  <a class="cta remind-cal" id="remindApple">Apple / Outlook calendar</a>
   <a class="remind-cal remind-google" id="remindGoogle" target="_blank" rel="noopener">Google Calendar</a>
   <p class="remind-foot">It repeats every day at your local time. You can change or delete it any time in your calendar.</p>
+  <p class="remind-foot" id="remindInApp" hidden>On iPhone, this works best in Safari. If nothing happens, open capiclue.com in Safari and try again.</p>
   <button type="button" class="link" id="remindClose">Close</button>
 </dialog>
 <dialog id="help" aria-labelledby="helpTitle">
@@ -1341,9 +1342,13 @@ function updateRemindLinks(){
   if(tz) q.set("ctz",tz);
   $("remindGoogle").href="https://calendar.google.com/calendar/render?"+q.toString();
 }
-$("remindBtn").addEventListener("click",()=>{ updateRemindLinks(); $("remindSheet").showModal() });
+$("remindBtn").addEventListener("click",()=>{
+  updateRemindLinks();
+  $("remindInApp").hidden=!/iPhone|iPad|iPod/.test(navigator.userAgent);
+  $("remindSheet").showModal();
+});
 $("remindTimes").addEventListener("click",e=>{ const b=e.target.closest("button[data-t]"); if(b){ remindTime=b.dataset.t; updateRemindLinks() } });
-["remindApple","remindGoogle"].forEach(id=>$(id).addEventListener("click",()=>setTimeout(()=>$("remindSheet").close(),300)));
+$("remindGoogle").addEventListener("click",()=>setTimeout(()=>$("remindSheet").close(),300));
 $("remindClose").addEventListener("click",()=>$("remindSheet").close());
 $("remindSheet").addEventListener("click",e=>{ if(e.target===$("remindSheet")) $("remindSheet").close() });
 
