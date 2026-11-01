@@ -339,7 +339,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <li><b>⌨️ Type your guess.</b> Wrong guesses reveal the next fact.</li>
     <li><b>🏆 Guess early for more points:</b> 20, 15, 10 or 5 per city.</li>
     <li><b>📅 Five new cities every day.</b> The best score is 100.</li>
-    <li><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the first letter, Hard gives no extra help. Each level has its own five cities.</li>
+    <li><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the continent and first letter, Hard shows the continent. Each level has its own five cities.</li>
     <li><b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.</li>
   </ul>
   <button id="helpClose" class="cta" type="button">Got it</button>
@@ -360,6 +360,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   <section class="board" id="board" aria-label="Answer board">
     <div class="board-top"><span id="round">City 1 of 5</span><div class="dots" id="dots"></div></div>
     <div class="tiles" id="tiles" aria-live="polite"></div>
+    <p class="hintline hidden" id="hintline"></p>
   </section>
 
   <ul class="clues" id="clues"></ul>
@@ -910,7 +911,7 @@ function dailySet(d, level){
   const cycle = Math.floor(d / days), slot = d % days;
   const today = cycleOrder(cycle, level).slice(slot*PER_DAY, slot*PER_DAY+PER_DAY);
   const mix = shuffled(today.length, 3000+d+salt);     // shuffle the order within the day
-  const rounds = mix.map(j=>buildRound(today[j], cycle));
+  const rounds = mix.map(j=>({...buildRound(today[j], cycle), region:CITIES[today[j]][4]}));
   if(level==="easy") rounds.forEach((rd,j)=>{
     // Easy: 3 wrong answers from the other famous capitals that look like the answer on the letter tiles,
     // so counting tiles never gives it away. Best match first:
@@ -971,8 +972,8 @@ function renderScorecard(){
 function blankTiles(name, firstLetter=false){ let i=0; return name.toUpperCase().split(" ").map(w=>`<span class="word">${[...w].map(ch=>`<span class="tile">${firstLetter&&(i++===0)?ch:""}</span>`).join("")}</span>`).join("") }
 const LEVEL_NOTES = {
   easy:"Famous capitals. Pick from 4 answers.",
-  medium:"Well-known capitals. Type your answer, with the first letter shown.",
-  hard:"All 193 capitals. Type your answer, no extra help."
+  medium:"Well-known capitals. Type your answer, with the continent and first letter shown.",
+  hard:"All 193 capitals. Type your answer, with the continent shown."
 };
 function renderLevels(){
   document.querySelectorAll("[data-level]").forEach(b=>{
@@ -1000,7 +1001,7 @@ function renderHome(){
     $("heroTitle").innerHTML="That’s today<br>done. Nice!";
   }else{
     const started=n>0||saved?.clueNo>0, c=set[n];
-    $("homeDay").textContent=(started?`City ${n+1} of ${PER_DAY}`:"Today’s first fact");
+    $("homeDay").textContent=(started?`City ${n+1} of ${PER_DAY}`:"Today’s first fact")+(level!=="easy"?` · ${c.region}`:"");
     fact.textContent=`“${c.clues[0]}”`;
     tiles.innerHTML=blankTiles(c.c, level==="medium"); fitTiles(tiles,c.c);
     $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
@@ -1087,6 +1088,9 @@ const KEYS = {
 };
 function loadCity(startClue=0, startWrongs=[]){
   clueNo=0; done=false; wrongs=[...startWrongs];
+  // Medium and Hard show the continent; Easy already has 4 answers to choose from.
+  $("hintline").classList.toggle("hidden",level==="easy");
+  $("hintline").innerHTML=`Continent: <b>${set[idx].region}</b>`;
   const easy=level==="easy", city=set[idx];
   $("choices").classList.toggle("hidden",!easy); $("form").classList.toggle("hidden",easy); $("lucky").classList.toggle("hidden",easy);
   $("keysText").innerHTML=easy?KEYS.easy:KEYS.typed;
