@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /stats
 Disallow: /stats.html
 Disallow: /api/
 
