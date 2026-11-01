@@ -1,0 +1,8 @@
+# Files that are part of the setup, not the website
+.git
+.gitignore
+.assetsignore
+wrangler.jsonc
+worker
+node_modules
+.wrangler

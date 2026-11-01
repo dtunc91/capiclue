@@ -1160,7 +1160,21 @@ function dailySet(d, level){
   return rounds;
 }
 /* ---------- GAME ---------- */
-let set, idx, clueNo, scores, done, wrongs=[];
+let set, idx, clueNo, scores, done, wrongs=[], gid=null;
+
+/* ---------- ANONYMOUS GAME STATS ----------
+   Sends small anonymous notes (e.g. "finished city 3 on Medium using 2 facts") to capiclue.com/api/event.
+   No names, emails or IP addresses are stored. Each game gets a random id that is only used for that day's game. */
+const STATS_ON = location.protocol==="https:" && location.hostname.endsWith("capiclue.com");
+const statsDevice = matchMedia("(pointer:coarse)").matches ? "phone" : "desktop";
+const statsInstalled = matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+let statsReturning = false;
+const newGameId = () => { const a=new Uint32Array(2); crypto.getRandomValues(a); return a[0].toString(36)+a[1].toString(36) };
+function track(ev, data={}){
+  const body = JSON.stringify({ ev, ...data, ret:statsReturning, inst:statsInstalled, dev:statsDevice });
+  if(!STATS_ON){ (window.__statsLog ||= []).push(JSON.parse(body)); return }   // local testing: keep in memory only
+  try{ navigator.sendBeacon?.("/api/event", body) || fetch("/api/event",{method:"POST",body,keepalive:true}).catch(()=>{}) }catch(e){}
+}
 /* The chosen level is remembered on this device. New players start on Medium. */
 let level = (()=>{ try{ const l=localStorage.getItem("capiclue-level"); return LEVELS[l]?l:"medium" }catch(e){ return "medium" } })();
 
@@ -1173,7 +1187,7 @@ if(new URLSearchParams(location.search).has("reset")){
   try{ Object.keys(LEVELS).forEach(l=>localStorage.removeItem(saveKey(l))) }catch(e){}
   history.replaceState(null,"",location.pathname);
 }
-function save(){ try{ localStorage.setItem(saveKey(level), JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo, wrongs:done?[]:wrongs})) }catch(e){} }
+function save(){ try{ localStorage.setItem(saveKey(level), JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo, wrongs:done?[]:wrongs, gid})) }catch(e){} }
 function loadSaved(l=level){ try{ const s=JSON.parse(localStorage.getItem(saveKey(l))); return s&&s.date===dayKey?s:null }catch(e){ return null } }
 const total = () => scores.reduce((a,b)=>a+b,0);
 const emojis = () => scores.map(s=>({20:"🟩",15:"🟨",10:"🟧",5:"🟥"}[s]||"⬛")).join(" ");
@@ -1211,6 +1225,7 @@ function renderLevels(){
 document.querySelectorAll("[data-level]").forEach(b=>b.addEventListener("click",()=>{
   if(b.dataset.level===level) return;
   level=b.dataset.level; try{ localStorage.setItem("capiclue-level",level) }catch(e){}
+  track("level",{level});
   init();
 }));
 function renderHome(){
@@ -1246,6 +1261,11 @@ function showScreen(name){
 function openGame(){
   showScreen("game");
   const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
+  gid=saved?.gid||null;
+  if(!gid&&idx<PER_DAY){   // first time today on this level: give the game a random id (keeps saved progress exactly as it was)
+    gid=newGameId(); if(!scores.length&&!saved?.clueNo) track("start",{level,gid});
+    try{ localStorage.setItem(saveKey(level), JSON.stringify({date:dayKey, scores, clueNo:saved?.clueNo||0, wrongs:saved?.wrongs||[], gid})) }catch(e){}
+  }
   $("final").classList.add("hidden"); $("board").classList.remove("hidden"); $("game").classList.remove("finalmode");
   if(idx>=PER_DAY) return showFinal();
   loadCity(saved?saved.clueNo:0, saved?.wrongs||[]);
@@ -1305,7 +1325,7 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
     e.preventDefault(); deferred=e;
     text.textContent=t("install_android"); btn.classList.remove("hidden"); tip.classList.remove("hidden");
   });
-  btn.addEventListener("click",async()=>{ if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null; tip.classList.add("hidden") });
+  btn.addEventListener("click",async()=>{ if(!deferred) return; deferred.prompt(); const choice=await deferred.userChoice; if(choice?.outcome==="accepted") track("install",{app:"android"}); deferred=null; tip.classList.add("hidden") });
   if(iOS&&!inApp){   // iPhone (Safari): show the two taps
     text.innerHTML=t("install_ios",{share:SHARE}); tip.classList.remove("hidden");
   }else if(inApp){
@@ -1380,6 +1400,7 @@ function showClue(){
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
 function finish(won, lucky=false){
   done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save(); renderScorecard();
+  track("city",{level,gid,city:idx+1,facts:clueNo+1,result:won?(lucky?"lucky":"right"):"miss"});
   drawTiles(true); $("play").classList.add("hidden"); $("result").classList.remove("hidden");
   setRound();
   $("resTitle").textContent=won?t(lucky?"res_lucky":"res_right",{city:city.c,pts}):t("res_wrong",{city:city.c});
@@ -1425,11 +1446,13 @@ $("lucky").addEventListener("click",()=>{
   const pick=options[randomInt(options.length)];
   hideSuggest(); $("guess").value=pick;
   const b=$("lucky"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
+  const city=set[idx]; track("lucky",{level,gid,result:[city.c,...city.alt].some(x=>norm(x)===norm(pick))?"hit":"miss"});
   submitGuess(pick,"lucky");
 });
 $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
 $("next").addEventListener("click",()=>{
   if(idx<PER_DAY-1){idx++;loadCity();window.scrollTo({top:0,behavior:"smooth"});return}
+  track("finish",{level,gid,score:total()});
   showFinal();
 });
 function showFinal(){
@@ -1489,8 +1512,8 @@ function shareTargets(){
 }
 function shareItem(x){
   const inner=`<i style="background:${x.bg};color:${x.fg||"#fff"}">${ICON[x.k]}</i><span>${x.label}</span>`;
-  return x.href?`<a class="sh" href="${x.href}" target="_blank" rel="noopener" aria-label="${t("share_on_app",{app:x.label})}">${inner}</a>`
-               :`<button class="sh" type="button" data-act="${x.act}" aria-label="${x.k==="more"?t("share_more_aria"):x.k==="copy"?t("copy_aria"):t("share_on_app",{app:x.label})}">${inner}</button>`;
+  return x.href?`<a class="sh" data-app="${x.k}" href="${x.href}" target="_blank" rel="noopener" aria-label="${t("share_on_app",{app:x.label})}">${inner}</a>`
+               :`<button class="sh" type="button" data-app="${x.k}" data-act="${x.act}" aria-label="${x.k==="more"?t("share_more_aria"):x.k==="copy"?t("copy_aria"):t("share_on_app",{app:x.label})}">${inner}</button>`;
 }
 function renderShare(){
   const list=shareTargets(), main=list.filter(x=>!x.extra), extra=list.filter(x=>x.extra);
@@ -1524,6 +1547,8 @@ $("remindBtn").addEventListener("click",()=>{
 });
 $("remindTimes").addEventListener("click",e=>{ const b=e.target.closest("button[data-t]"); if(b){ remindTime=b.dataset.t; updateRemindLinks() } });
 $("remindGoogle").addEventListener("click",()=>setTimeout(()=>$("remindSheet").close(),300));
+$("remindGoogle").addEventListener("click",()=>track("remind",{app:"google",result:"t"+remindTime}));
+$("remindApple").addEventListener("click",()=>track("remind",{app:"apple",result:"t"+remindTime}));
 $("remindClose").addEventListener("click",()=>$("remindSheet").close());
 $("remindSheet").addEventListener("click",e=>{ if(e.target===$("remindSheet")) $("remindSheet").close() });
 
@@ -1582,6 +1607,7 @@ async function openInstagramSheet(){
   $("igNote").textContent="";
   $("igSheet").showModal();
 }
+$("igShare").addEventListener("click",()=>track("share",{level,app:"ig_card"}));
 $("igShare").addEventListener("click",async()=>{
   const files=scoreCardFile?[scoreCardFile]:null, note=$("igNote");
   if(files&&navigator.canShare?.({files})){
@@ -1591,6 +1617,7 @@ $("igShare").addEventListener("click",async()=>{
     note.textContent=IS_PHONE?t("ig_saved_phone"):t("ig_saved_desktop");
   }
 });
+$("igCopy").addEventListener("click",()=>track("share",{level,app:"ig_link"}));
 $("igCopy").addEventListener("click",async()=>{
   try{ await navigator.clipboard.writeText(SITE); $("igNote").textContent=t("ig_link_copied"); }
   catch(e){ $("igNote").textContent=t("ig_link_failed"); }
@@ -1604,6 +1631,7 @@ function saveScoreCard(){   // fallback: save the picture so it can be posted fr
   return true;
 }
 async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()); return true }catch(e){ return false } }
+["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",e=>{ const a=e.target.closest("[data-app]"); if(a) track("share",{level,app:a.dataset.app}) }));
 ["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",async e=>{
   const b=e.target.closest("button[data-act]"); if(!b) return;
   const act=b.dataset.act, note=$("shareNote");
@@ -1659,6 +1687,8 @@ inp.addEventListener("blur", ()=>setTimeout(hideSuggest, 120));
 
 applyStaticWording();
 init();
+try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
+track("visit",{level});
 if(location.hash==="#play") openGame();
 </script>
 </body>

@@ -1,0 +1,16 @@
+// Cloudflare settings for capiclue.com (deployed automatically from GitHub by Workers Builds).
+{
+  "name": "capiclue",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    // Only /api/... runs the program first; every other address is served as a normal file, exactly as before.
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "capiclue-analytics", "database_id": "add92ebd-8235-4511-b9c2-b0b60c633251" }
+  ],
+  "observability": { "enabled": true }
+}

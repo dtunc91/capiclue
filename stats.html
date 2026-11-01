@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Capiclue Stats</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#E9EEF2;--card:#FFFFFF;--ink:#1D2B45;--soft:#5A6880;--line:#CBD5DF;--amber:#F4B942;--good:#2E8B6A;--bad:#C2483D;--bar:#1D2B45;color-scheme:light}
+@media (prefers-color-scheme: dark){:root{--paper:#111827;--card:#1A2436;--ink:#E6ECF3;--soft:#9AA8BC;--line:#2C3A52;--bar:#F4B942;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+main{max-width:1000px;margin:0 auto;padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:20px}
+h1{margin:0;font-size:1.8rem;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.mark{width:34px;height:34px;border-radius:8px;background:#1D2B45;display:grid;place-items:center}
+.mark span{width:72%;height:72%;border-radius:4px;background:#2A3C5F;color:#F4B942;font-family:"DM Mono",monospace;font-size:18px;display:grid;place-items:center}
+.ranges{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.ranges button{border:0;background:none;color:var(--soft);font:inherit;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer}
+.ranges button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.login{max-width:360px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.login input{width:100%;font:inherit;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--paper);color:var(--ink);margin:10px 0}
+.btn{font:inherit;font-weight:800;border:0;border-radius:10px;padding:12px 16px;background:var(--amber);color:#1D2B45;cursor:pointer;width:100%}
+.err{color:var(--bad);min-height:1.4em;margin:6px 0 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .n{font-family:"DM Mono",monospace;font-size:1.9rem;line-height:1.1}
+.tile .l{color:var(--soft);font-size:.88rem}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;min-width:0}
+section h2{margin:0 0 4px;font-size:1.15rem}
+section p.sub{margin:0 0 12px;color:var(--soft);font-size:.9rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.grid2 section{margin-bottom:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--soft);font-weight:600;font-size:.85rem}
+td.num,th.num{text-align:right}
+.barrow{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;margin:6px 0}
+.barrow .lbl{font-size:.92rem}
+.barrow .track{height:14px;border-radius:7px;background:var(--paper);overflow:hidden}
+.barrow .fill{display:block;height:100%;background:var(--bar);border-radius:7px}
+.barrow .val{text-align:right;font-family:"DM Mono",monospace;font-size:.9rem}
+.lvl{font-weight:800;margin:10px 0 2px}
+.empty{color:var(--soft)}
+.foot{color:var(--soft);font-size:.85rem;margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+  <div class="login" id="login">
+    <h1><span class="mark"><span>C</span></span>Capiclue stats</h1>
+    <form id="loginForm">
+      <input type="password" id="pw" placeholder="Stats password" autocomplete="current-password" aria-label="Stats password">
+      <button class="btn" type="submit">Open stats</button>
+      <p class="err" id="err" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <div id="dash" hidden>
+    <div class="top">
+      <h1><span class="mark"><span>C</span></span>Capiclue stats</h1>
+      <div class="ranges" id="ranges">
+        <button data-d="1">Today</button><button data-d="7" aria-pressed="true">7 days</button><button data-d="30">30 days</button><button data-d="90">90 days</button>
+      </div>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <section><h2>Where players drop off</h2><p class="sub">Of the players who started each level, how many finished each city.</p><div id="funnel"></div></section>
+    <section><h2>Day by day</h2><p class="sub">Dates are in UTC.</p><div class="scroll" id="daily"></div></section>
+    <div class="grid2">
+      <section><h2>How many facts players needed</h2><p class="sub">Per city answered, by level.</p><div id="facts"></div></section>
+      <section><h2>Average score</h2><p class="sub">Finished games only.</p><div id="scores"></div></section>
+      <section><h2>Shares</h2><p class="sub">Taps on each share button.</p><div id="shares"></div></section>
+      <section><h2>🍀 Lucky guess</h2><p class="sub">How often a lucky guess was right.</p><div id="lucky"></div></section>
+      <section><h2>Players</h2><p class="sub">Visits by device, app and returning players.</p><div id="visits"></div></section>
+      <section><h2>Countries</h2><p class="sub">Top countries by visits.</p><div id="countries"></div></section>
+      <section><h2>Reminders</h2><p class="sub">Daily calendar reminders added.</p><div id="reminders"></div></section>
+      <section><h2>Level switches</h2><p class="sub">Times players tapped each level.</p><div id="levels"></div></section>
+    </div>
+    <p class="foot">Anonymous: no names, emails or IP addresses are stored. Each game has a random id used only for that day.</p>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let key=""; try{ key=sessionStorage.getItem("capiclue-stats-key")||"" }catch(e){}
+let days=7;
+const LV=["easy","medium","hard"], LVN={easy:"Easy",medium:"Medium",hard:"Hard"};
+const APP={wa:"WhatsApp",sms:"Messages",x:"X",ig:"Instagram (panel opened)",ig_card:"Instagram card shared",ig_link:"Instagram link copied",copy:"Copy",more:"More",tg:"Telegram",fb:"Facebook",msg:"Messenger"};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
+const sum=(arr,f)=>arr.reduce((s,x)=>s+(+f(x)||0),0);
+function bars(rows){ // rows: [label, value, note?]
+  if(!rows.length) return '<p class="empty">No data yet.</p>';
+  const max=Math.max(...rows.map(r=>r[1]),1);
+  return rows.map(([l,v,note])=>`<div class="barrow"><span class="lbl">${esc(l)}</span><span class="track"><span class="fill" style="width:${Math.max(2,v/max*100)}%"></span></span><span class="val">${esc(note??v)}</span></div>`).join("");
+}
+function table(head,rows,numCols=[]){
+  if(!rows.length) return '<p class="empty">No data yet.</p>';
+  return `<table><thead><tr>${head.map((h,i)=>`<th class="${numCols.includes(i)?"num":""}">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${numCols.includes(i)?"num":""}">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+async function load(){
+  const res=await fetch(`/api/stats?days=${days}`,{headers:{"x-stats-key":key},cache:"no-store"});
+  if(res.status===401){ $("dash").hidden=true; $("login").hidden=false; $("err").textContent=key?"Wrong password.":""; return }
+  const d=await res.json(); $("login").hidden=true; $("dash").hidden=false; render(d);
+}
+function render(d){
+  const visits=sum(d.daily,x=>x.visits), started=sum(d.daily,x=>x.games_started), finished=sum(d.daily,x=>x.games_finished);
+  const ret=sum(d.daily,x=>x.returning_visits), shares=sum(d.daily,x=>x.shares);
+  const games=sum(d.scores,x=>x.games), avg=games?(sum(d.scores,x=>x.avg_score*x.games)/games).toFixed(1):"–";
+  $("tiles").innerHTML=[
+    [visits,"Visits"],[started,"Games started"],[finished,"Games finished"],[pct(finished,started),"Finish rate"],
+    [avg,"Average score"],[pct(ret,visits),"Returning visits"],[shares,"Shares"]
+  ].map(([n,l])=>`<div class="tile"><div class="n">${esc(n)}</div><div class="l">${esc(l)}</div></div>`).join("");
+  // funnel
+  $("funnel").innerHTML=LV.map(lv=>{
+    const f=d.funnel.filter(x=>x.level===lv), get=c=>(f.find(x=>x.city===c)||{}).players||0, st=get(0);
+    if(!st&&!get(1)) return "";
+    const rows=[["Started",st,`${st}`]];
+    for(let c=1;c<=5;c++) rows.push([`City ${c} done`,get(c),`${get(c)} · ${pct(get(c),st)}`]);
+    rows.push(["Saw results",get(6),`${get(6)} · ${pct(get(6),st)}`]);
+    return `<div class="lvl">${LVN[lv]}</div>`+bars(rows);
+  }).join("")||'<p class="empty">No games yet.</p>';
+  // daily
+  $("daily").innerHTML=table(["Day","Visits","Returning","Started","Finished","Finish rate","Shares"],
+    d.daily.slice().reverse().map(x=>[x.day,x.visits,x.returning_visits,x.games_started,x.games_finished,pct(x.games_finished,x.games_started),x.shares]),[1,2,3,4,5,6]);
+  // facts needed
+  $("facts").innerHTML=LV.map(lv=>{
+    const r=d.results.filter(x=>x.level===lv); if(!r.length) return "";
+    const n=sum(r,x=>x.n), by=k=>sum(r.filter(k),x=>x.n);
+    const rows=[1,2,3,4].map(f=>[`Fact ${f}`,by(x=>x.result!=="miss"&&x.facts===f)]).concat([["Missed",by(x=>x.result==="miss")]]);
+    return `<div class="lvl">${LVN[lv]} <span class="empty">(${n} cities)</span></div>`+bars(rows.map(([l,v])=>[l,v,`${v} · ${pct(v,n)}`]));
+  }).join("")||'<p class="empty">No data yet.</p>';
+  $("scores").innerHTML=table(["Level","Games","Average","Perfect 100s"],LV.map(lv=>d.scores.find(x=>x.level===lv)).filter(Boolean).map(x=>[LVN[x.level],x.games,x.avg_score,x.perfect]),[1,2,3]);
+  $("shares").innerHTML=bars(d.shares.map(x=>[APP[x.app]||x.app,x.n]));
+  $("lucky").innerHTML=table(["Level","Tries","Right","Hit rate"],LV.map(lv=>{const r=d.lucky.filter(x=>x.level===lv);if(!r.length)return null;const t=sum(r,x=>x.n),h=sum(r.filter(x=>x.result==="hit"),x=>x.n);return[LVN[lv],t,h,pct(h,t)]}).filter(Boolean),[1,2,3]);
+  const v=d.visits, vs=f=>sum(v.filter(f),x=>x.n);
+  $("visits").innerHTML=bars([["Phone",vs(x=>x.dev==="phone")],["Computer",vs(x=>x.dev==="desktop")],["Home-screen app",vs(x=>x.inst===1)],["Returning",vs(x=>x.ret===1)],["First visit",vs(x=>x.ret===0)]]);
+  let names; try{ names=new Intl.DisplayNames(["en"],{type:"region"}) }catch(e){}
+  $("countries").innerHTML=bars(d.countries.map(x=>[x.country?(names?.of(x.country.toUpperCase())||x.country.toUpperCase()):"Unknown",x.n]));
+  $("reminders").innerHTML=bars(d.reminders.map(x=>[`${x.app==="apple"?"Apple/Outlook":"Google"} ${String(x.time||"").replace(/^t(\d\d)(\d\d)$/,"$1:$2")}`,x.n]));
+  $("levels").innerHTML=bars(LV.map(lv=>[LVN[lv],(d.levels.find(x=>x.level===lv)||{}).n||0]));
+}
+$("loginForm").addEventListener("submit",e=>{ e.preventDefault(); key=$("pw").value.trim(); try{ sessionStorage.setItem("capiclue-stats-key",key) }catch(e){} load() });
+$("ranges").addEventListener("click",e=>{ const b=e.target.closest("button[data-d]"); if(!b) return; days=+b.dataset.d;
+  [...$("ranges").children].forEach(x=>x.setAttribute("aria-pressed",x===b)); load() });
+if(key) load();
+</script>
+</body>
+</html>

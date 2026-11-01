@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /stats.html
+Disallow: /api/
 
 Sitemap: https://capiclue.com/sitemap.xml
