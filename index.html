@@ -309,70 +309,70 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="home">
   <div class="topbar">
     <h1 class="brandh"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></h1>
-    <span class="topright"><button class="help themebtn" type="button" aria-label="Change colours" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play">?</button></span>
+    <span class="topright"><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
   </div>
   <div class="hero">
     <div class="hero-text">
       <p class="hero-title desk" id="heroTitle">Guess the capital<br>from fun facts.</p>
-      <p class="teaser-sub" id="homeStatus">Can you name the city? Five mystery capitals, new every day.</p>
-      <div class="levels" role="radiogroup" aria-label="Level">
-        <button type="button" role="radio" data-level="easy">Easy</button>
-        <button type="button" role="radio" data-level="medium">Medium</button>
-        <button type="button" role="radio" data-level="hard">Hard</button>
+      <p class="teaser-sub" id="homeStatus" data-i18n="status_fresh">Can you name the city? Five mystery capitals, new every day.</p>
+      <div class="levels" role="radiogroup" aria-label="Level" data-i18n-attr="aria-label:level_group">
+        <button type="button" role="radio" data-level="easy" data-i18n="level_easy">Easy</button>
+        <button type="button" role="radio" data-level="medium" data-i18n="level_medium">Medium</button>
+        <button type="button" role="radio" data-level="hard" data-i18n="level_hard">Hard</button>
       </div>
       <p class="level-note" id="levelNote"></p>
-      <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk">or press <kbd>Enter</kbd></span></div>
+      <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk" data-i18n="enter_hint">or press <kbd>Enter</kbd></span></div>
       <p class="countdown hidden" id="homeCountdown"></p>
       <div class="installtip hidden" id="installTip">
         <span class="installtip-icon" aria-hidden="true">📲</span>
         <p id="installText"></p>
-        <button type="button" class="installtip-btn hidden" id="installBtn">Install</button>
-        <button type="button" class="installtip-x" id="installClose" aria-label="Hide this tip">×</button>
+        <button type="button" class="installtip-btn hidden" id="installBtn" data-i18n="install_btn">Install</button>
+        <button type="button" class="installtip-x" id="installClose" aria-label="Hide this tip" data-i18n-attr="aria-label:install_hide">×</button>
       </div>
     </div>
     <div class="board teaser">
-      <p class="teaser-label" id="homeDay">Today’s first fact</p>
+      <p class="teaser-label" id="homeDay" data-i18n="first_fact">Today’s first fact</p>
       <p class="teaser-fact" id="homeFact"></p>
       <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
     </div>
   </div>
   <div class="points desk">
-    <div><b>💡 Facts, not maps</b><span>Every clue is a surprising piece of trivia about the city.</span></div>
-    <div><b>🏆 Up to 100 points</b><span>20, 15, 10 or 5 per city, depending on how many facts you need.</span></div>
-    <div><b>📅 New every day</b><span>Five fresh capitals from around the world at midnight.</span></div>
+    <div><b data-i18n="point1_t">💡 Facts, not maps</b><span data-i18n="point1_d">Every clue is a surprising piece of trivia about the city.</span></div>
+    <div><b data-i18n="point2_t">🏆 Up to 100 points</b><span data-i18n="point2_d">20, 15, 10 or 5 per city, depending on how many facts you need.</span></div>
+    <div><b data-i18n="point3_t">📅 New every day</b><span data-i18n="point3_d">Five fresh capitals from around the world at midnight.</span></div>
   </div>
 
   <details class="about" id="about">
-    <summary><h2>About Capiclue</h2><span class="chev" aria-hidden="true"></span></summary>
-    <p>Capiclue is a free daily capital city guessing game where every clue is a fun fact. Instead of maps or flags, you get surprising trivia: a city with a Museum of Broken Relationships, a capital whose giant Ferris wheel has turned since 1897, a place nicknamed the “Jerusalem of Europe”. Can you name the city?</p>
-    <p>Each day brings five mystery capitals from Europe, Asia, Africa, the Americas and Oceania, with up to four facts each, starting tricky and getting easier. Even when you miss one, you walk away knowing something new about the world.</p>
-    <p>No sign-up, no download: it works on any phone, tablet or computer.</p>
+    <summary><h2 data-i18n="about_title">About Capiclue</h2><span class="chev" aria-hidden="true"></span></summary>
+    <p data-i18n="about_p1">Capiclue is a free daily capital city guessing game where every clue is a fun fact. Instead of maps or flags, you get surprising trivia: a city with a Museum of Broken Relationships, a capital whose giant Ferris wheel has turned since 1897, a place nicknamed the “Jerusalem of Europe”. Can you name the city?</p>
+    <p data-i18n="about_p2">Each day brings five mystery capitals from Europe, Asia, Africa, the Americas and Oceania, with up to four facts each, starting tricky and getting easier. Even when you miss one, you walk away knowing something new about the world.</p>
+    <p data-i18n="about_p3">No sign-up, no download: it works on any phone, tablet or computer.</p>
   </details>
   <footer class="foot">
     <span class="logo small"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span>
-    <p>The capital city guessing game built on fun facts.</p>
-    <p class="foot-meta">Also from us: <a href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=footer" target="_blank" rel="noopener">✈️ Get Me Out of Here</a>: the cheapest flights to anywhere from your airport.</p>
-    <p class="foot-meta">© <span id="year">2026</span> Capiclue · <a href="/privacy.html">Privacy</a></p>
+    <p data-i18n="tagline_dot">The capital city guessing game built on fun facts.</p>
+    <p class="foot-meta"><span data-i18n="footer_also">Also from us:</span> <a href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=footer" target="_blank" rel="noopener">✈️ Get Me Out of Here</a><span data-i18n="footer_gmooh">: the cheapest flights to anywhere from your airport.</span></p>
+    <p class="foot-meta">© <span id="year">2026</span> Capiclue · <a href="/privacy.html" data-i18n="privacy_link">Privacy</a></p>
   </footer>
 </section>
 
 <dialog id="igSheet" class="igsheet" aria-labelledby="igTitle">
-  <h2 id="igTitle">Share to Instagram</h2>
-  <img id="igImg" alt="Your Capiclue score card" width="1080" height="1920">
+  <h2 id="igTitle" data-i18n="ig_title">Share to Instagram</h2>
+  <img id="igImg" alt="Your Capiclue score card" data-i18n-attr="alt:ig_img_alt" width="1080" height="1920">
   <p class="ig-hold" id="igHold">Press and hold the picture to save it.</p>
   <ol class="ig-steps">
-    <li><span class="ig-step">Step 1</span><button type="button" class="ig-copy" id="igCopy">Copy game link</button></li>
-    <li><span class="ig-step">Step 2</span><button type="button" class="cta" id="igShare">Share card to Instagram</button>
-      <span>In your story, tap the sticker icon <b>☺</b>, choose <b>Link</b> and paste. Friends can then tap it to play.</span></li>
+    <li><span class="ig-step" data-i18n="ig_step1">Step 1</span><button type="button" class="ig-copy" id="igCopy" data-i18n="ig_copy">Copy game link</button></li>
+    <li><span class="ig-step" data-i18n="ig_step2">Step 2</span><button type="button" class="cta" id="igShare" data-i18n="ig_share">Share card to Instagram</button>
+      <span data-i18n="ig_sticker">In your story, tap the sticker icon <b>☺</b>, choose <b>Link</b> and paste. Friends can then tap it to play.</span></li>
   </ol>
   <p class="ig-note" id="igNote" aria-live="polite"></p>
-  <button type="button" class="link" id="igClose">Close</button>
+  <button type="button" class="link" id="igClose" data-i18n="close">Close</button>
 </dialog>
 <dialog id="remindSheet" class="remindsheet" aria-labelledby="remindTitle">
-  <h2 id="remindTitle">Daily reminder</h2>
-  <p class="remind-sub">Add a daily event to your calendar so you never miss the new capitals.</p>
-  <p class="remind-label">Remind me at</p>
-  <div class="remind-times" id="remindTimes" role="radiogroup" aria-label="Reminder time">
+  <h2 id="remindTitle" data-i18n="remind_title">Daily reminder</h2>
+  <p class="remind-sub" data-i18n="remind_sub">Add a daily event to your calendar so you never miss the new capitals.</p>
+  <p class="remind-label" data-i18n="remind_at">Remind me at</p>
+  <div class="remind-times" id="remindTimes" role="radiogroup" aria-label="Reminder time" data-i18n-attr="aria-label:remind_time">
     <button type="button" role="radio" data-t="0700">7:00</button>
     <button type="button" role="radio" data-t="0800">8:00</button>
     <button type="button" role="radio" data-t="0900" aria-checked="true">9:00</button>
@@ -380,39 +380,39 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <button type="button" role="radio" data-t="1800">18:00</button>
     <button type="button" role="radio" data-t="2000">20:00</button>
   </div>
-  <p class="remind-label">Add to</p>
-  <a class="cta remind-cal" id="remindApple">Apple / Outlook calendar</a>
-  <a class="remind-cal remind-google" id="remindGoogle" target="_blank" rel="noopener">Google Calendar</a>
-  <p class="remind-foot">It repeats every day at your local time. You can change or delete it any time in your calendar.</p>
-  <p class="remind-foot" id="remindInApp" hidden>On iPhone, this works best in Safari. If nothing happens, open capiclue.com in Safari and try again.</p>
-  <button type="button" class="link" id="remindClose">Close</button>
+  <p class="remind-label" data-i18n="remind_add">Add to</p>
+  <a class="cta remind-cal" id="remindApple" data-i18n="remind_apple">Apple / Outlook calendar</a>
+  <a class="remind-cal remind-google" id="remindGoogle" target="_blank" rel="noopener" data-i18n="remind_google">Google Calendar</a>
+  <p class="remind-foot" data-i18n="remind_foot">It repeats every day at your local time. You can change or delete it any time in your calendar.</p>
+  <p class="remind-foot" id="remindInApp" hidden data-i18n="remind_inapp">On iPhone, this works best in Safari. If nothing happens, open capiclue.com in Safari and try again.</p>
+  <button type="button" class="link" id="remindClose" data-i18n="close">Close</button>
 </dialog>
 <dialog id="help" aria-labelledby="helpTitle">
-  <h2 id="helpTitle">How to play</h2>
+  <h2 id="helpTitle" data-i18n="help_title">How to play</h2>
   <ul class="how">
-    <li><b>💡 Read a fact</b> about a mystery capital city.</li>
-    <li><b>⌨️ Type your guess.</b> Wrong guesses reveal the next fact.</li>
-    <li><b>🏆 Guess early for more points:</b> 20, 15, 10 or 5 per city.</li>
-    <li><b>📅 Five new cities every day.</b> The best score is 100.</li>
-    <li><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the continent and first letter, Hard shows the continent. Each level has its own five cities.</li>
-    <li><b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.</li>
+    <li data-i18n="help_1"><b>💡 Read a fact</b> about a mystery capital city.</li>
+    <li data-i18n="help_2"><b>⌨️ Type your guess.</b> Wrong guesses reveal the next fact.</li>
+    <li data-i18n="help_3"><b>🏆 Guess early for more points:</b> 20, 15, 10 or 5 per city.</li>
+    <li data-i18n="help_4"><b>📅 Five new cities every day.</b> The best score is 100.</li>
+    <li data-i18n="help_5"><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the continent and first letter, Hard shows the continent. Each level has its own five cities.</li>
+    <li data-i18n="help_6"><b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.</li>
   </ul>
-  <button id="helpClose" class="cta" type="button">Got it</button>
+  <button id="helpClose" class="cta" type="button" data-i18n="got_it">Got it</button>
 </dialog>
 <noscript><p style="text-align:center">Capiclue needs JavaScript turned on to play.</p></noscript>
 
 <section id="game" class="hidden">
   <div class="topbar">
-    <button class="brand" id="brand" type="button" aria-label="Capiclue home"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></button>
-    <span class="topright"><button class="homebtn" id="homeTop" type="button">← Home</button><button class="help themebtn" type="button" aria-label="Change colours" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play">?</button></span>
+    <button class="brand" id="brand" type="button" aria-label="Capiclue home" data-i18n-attr="aria-label:brand_home"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></button>
+    <span class="topright"><button class="homebtn" id="homeTop" type="button" data-i18n="home_btn">← Home</button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
   </div>
 
   <div class="gamegrid">
-  <aside class="side desk" aria-label="Today’s scorecard">
-    <div class="sidecard"><p class="sidelabel">Today</p><ul class="scorecard" id="scorecard"></ul><p class="sidetotal" id="sideTotal">0 pts</p></div>
+  <aside class="side desk" aria-label="Today’s scorecard" data-i18n-attr="aria-label:scorecard_label">
+    <div class="sidecard"><p class="sidelabel" data-i18n="today">Today</p><ul class="scorecard" id="scorecard"></ul><p class="sidetotal" id="sideTotal">0 pts</p></div>
   </aside>
   <div class="center">
-  <section class="board" id="board" aria-label="Answer board">
+  <section class="board" id="board" aria-label="Answer board" data-i18n-attr="aria-label:board_label">
     <div class="board-top"><span id="round">City 1 of 5</span><div class="dots" id="dots"></div></div>
     <div class="tiles" id="tiles" aria-live="polite"></div>
     <p class="hintline hidden" id="hintline"></p>
@@ -421,26 +421,26 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   <ul class="clues" id="clues"></ul>
 
   <div id="play">
-    <div class="choices hidden" id="choices" role="group" aria-label="Pick the capital"></div>
+    <div class="choices hidden" id="choices" role="group" aria-label="Pick the capital" data-i18n-attr="aria-label:choices_label"></div>
     <form id="form" autocomplete="off">
       <div class="inputwrap">
-        <input id="guess" placeholder="Type a world capital" aria-label="Your guess" autocapitalize="words" spellcheck="false"
+        <input id="guess" placeholder="Type a world capital" aria-label="Your guess" data-i18n-attr="placeholder:guess_placeholder;aria-label:guess_label" autocapitalize="words" spellcheck="false"
           role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
         <ul class="suggest hidden" id="suggest" role="listbox"></ul>
       </div>
-      <button type="submit">Guess</button>
+      <button type="submit" data-i18n="guess_btn">Guess</button>
     </form>
     <p class="wrong" id="wrong"></p>
     <div class="playlinks">
-      <button class="link" id="skip" type="button">Next fact</button>
-      <button class="lucky" id="lucky" type="button" title="Let fate pick a random capital">🍀 Lucky guess</button>
+      <button class="link" id="skip" type="button" data-i18n="next_fact">Next fact</button>
+      <button class="lucky" id="lucky" type="button" title="Let fate pick a random capital" data-i18n="lucky_btn" data-i18n-attr="title:lucky_title">🍀 Lucky guess</button>
     </div>
   </div>
 
   <div class="result hidden" id="result">
     <h2 id="resTitle"></h2>
     <p id="resText"></p>
-    <button id="next" type="button">Next city</button>
+    <button id="next" type="button" data-i18n="next_city">Next city</button>
   </div>
 
   <div class="final hidden" id="final">
@@ -448,33 +448,33 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <h2 class="final-label" id="finalTitle">Today’s score</h2>
     <div class="bigscore"><span id="finalScore">0</span><small>/100</small></div>
     <div class="summary" id="summary"></div>
-    <p class="share-label">Share my score</p>
-    <div class="sharegrid" id="shareGrid" aria-label="Share my score on"></div>
-    <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share"></div>
+    <p class="share-label" data-i18n="share_label">Share my score</p>
+    <div class="sharegrid" id="shareGrid" aria-label="Share my score on" data-i18n-attr="aria-label:share_on"></div>
+    <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share" data-i18n-attr="aria-label:share_more"></div>
     <p class="share-note" id="shareNote" aria-live="polite"></p>
-    <button type="button" class="remindbtn" id="remindBtn">📅 Remind me daily</button>
+    <button type="button" class="remindbtn" id="remindBtn" data-i18n="remind_btn">📅 Remind me daily</button>
     <p class="countdown" id="finalNote"></p>
-    <button id="backHome" class="link" type="button">Back to homepage</button>
+    <button id="backHome" class="link" type="button" data-i18n="back_home">Back to homepage</button>
     </div>
     <div class="final-side">
-      <div class="sidecard recap desk"><p class="sidelabel">Today’s cities</p><ul class="scorecard" id="recap"></ul></div>
+      <div class="sidecard recap desk"><p class="sidelabel" data-i18n="todays_cities">Today’s cities</p><ul class="scorecard" id="recap"></ul></div>
       <a class="strip" id="promo" target="_blank" rel="noopener" href="https://getmeoutofhere.live/">
-        <span class="strip-text"><b id="promoTitle">✈️ Fancy a trip to one of today’s capitals?</b><span>Cheapest flights from where you are</span></span>
-        <span class="go">Go →</span>
+        <span class="strip-text"><b id="promoTitle">✈️ Fancy a trip to one of today’s capitals?</b><span data-i18n="promo_sub">Cheapest flights from where you are</span></span>
+        <span class="go" data-i18n="promo_go">Go →</span>
       </a>
     </div>
   </div>
   </div>
-  <aside class="side desk" aria-label="Points and keys">
-    <div class="sidecard"><p class="sidelabel">Points</p><ul class="scorecard plain"><li><span>Fact 1</span><b>20</b></li><li><span>Fact 2</span><b>15</b></li><li><span>Fact 3</span><b>10</b></li><li><span>Fact 4</span><b>5</b></li></ul></div>
-    <div class="sidecard"><p class="sidelabel">Keys</p><p class="keys" id="keysText"></p></div>
+  <aside class="side desk" aria-label="Points and keys" data-i18n-attr="aria-label:side_label">
+    <div class="sidecard"><p class="sidelabel" data-i18n="points">Points</p><ul class="scorecard plain"><li><span data-i18n="fact_1">Fact 1</span><b>20</b></li><li><span data-i18n="fact_2">Fact 2</span><b>15</b></li><li><span data-i18n="fact_3">Fact 3</span><b>10</b></li><li><span data-i18n="fact_4">Fact 4</span><b>5</b></li></ul></div>
+    <div class="sidecard"><p class="sidelabel" data-i18n="keys">Keys</p><p class="keys" id="keysText"></p></div>
   </aside>
   </div>
 </section>
-<div class="thememenu hidden" id="themeMenu" role="menu" aria-label="Colours">
-  <button type="button" role="menuitemradio" data-theme-choice="light"><i style="background:#E9EEF2"></i>Classic</button>
-  <button type="button" role="menuitemradio" data-theme-choice="bright"><i style="background:#FFFFFF"></i>Bright</button>
-  <button type="button" role="menuitemradio" data-theme-choice="dark"><i style="background:#111827"></i>Dark</button>
+<div class="thememenu hidden" id="themeMenu" role="menu" aria-label="Colours" data-i18n-attr="aria-label:colours">
+  <button type="button" role="menuitemradio" data-theme-choice="light"><i style="background:#E9EEF2"></i><span data-i18n="theme_classic">Classic</span></button>
+  <button type="button" role="menuitemradio" data-theme-choice="bright"><i style="background:#FFFFFF"></i><span data-i18n="theme_bright">Bright</span></button>
+  <button type="button" role="menuitemradio" data-theme-choice="dark"><i style="background:#111827"></i><span data-i18n="theme_dark">Dark</span></button>
 </div>
 </main>
 
@@ -891,6 +891,175 @@ Object.assign(EXTRA,{
 CITIES.forEach(c=>{const e=EXTRA[c[0]];if(!e)throw new Error("missing "+c[0]);const f=c[3];c[3]=[f[0],f[1],f[2],...e.slice(0,6),e[6],e[7],f[3]]});
 
 
+/* ---------- WORDING ----------
+   Every word players see lives here, so new languages (e.g. Spanish "es", Turkish "tr") can be added by
+   copying the "en" list and translating it. {name} marks a value the game fills in. Missing words fall back to English. */
+const I18N = {
+  en: {
+    "status_fresh": "Can you name the city? Five mystery capitals, new every day.",
+    "level_easy": "Easy",
+    "level_medium": "Medium",
+    "level_hard": "Hard",
+    "enter_hint": "or press <kbd>Enter</kbd>",
+    "install_btn": "Install",
+    "first_fact": "Today’s first fact",
+    "point1_t": "💡 Facts, not maps",
+    "point1_d": "Every clue is a surprising piece of trivia about the city.",
+    "point2_t": "🏆 Up to 100 points",
+    "point2_d": "20, 15, 10 or 5 per city, depending on how many facts you need.",
+    "point3_t": "📅 New every day",
+    "point3_d": "Five fresh capitals from around the world at midnight.",
+    "about_title": "About Capiclue",
+    "about_p1": "Capiclue is a free daily capital city guessing game where every clue is a fun fact. Instead of maps or flags, you get surprising trivia: a city with a Museum of Broken Relationships, a capital whose giant Ferris wheel has turned since 1897, a place nicknamed the “Jerusalem of Europe”. Can you name the city?",
+    "about_p2": "Each day brings five mystery capitals from Europe, Asia, Africa, the Americas and Oceania, with up to four facts each, starting tricky and getting easier. Even when you miss one, you walk away knowing something new about the world.",
+    "about_p3": "No sign-up, no download: it works on any phone, tablet or computer.",
+    "tagline_dot": "The capital city guessing game built on fun facts.",
+    "footer_also": "Also from us:",
+    "footer_gmooh": ": the cheapest flights to anywhere from your airport.",
+    "privacy_link": "Privacy",
+    "ig_title": "Share to Instagram",
+    "ig_step1": "Step 1",
+    "ig_copy": "Copy game link",
+    "ig_step2": "Step 2",
+    "ig_share": "Share card to Instagram",
+    "ig_sticker": "In your story, tap the sticker icon <b>☺</b>, choose <b>Link</b> and paste. Friends can then tap it to play.",
+    "close": "Close",
+    "remind_title": "Daily reminder",
+    "remind_sub": "Add a daily event to your calendar so you never miss the new capitals.",
+    "remind_at": "Remind me at",
+    "remind_add": "Add to",
+    "remind_apple": "Apple / Outlook calendar",
+    "remind_google": "Google Calendar",
+    "remind_foot": "It repeats every day at your local time. You can change or delete it any time in your calendar.",
+    "remind_inapp": "On iPhone, this works best in Safari. If nothing happens, open capiclue.com in Safari and try again.",
+    "help_title": "How to play",
+    "help_1": "<b>💡 Read a fact</b> about a mystery capital city.",
+    "help_2": "<b>⌨️ Type your guess.</b> Wrong guesses reveal the next fact.",
+    "help_3": "<b>🏆 Guess early for more points:</b> 20, 15, 10 or 5 per city.",
+    "help_4": "<b>📅 Five new cities every day.</b> The best score is 100.",
+    "help_5": "<b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the continent and first letter, Hard shows the continent. Each level has its own five cities.",
+    "help_6": "<b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.",
+    "got_it": "Got it",
+    "home_btn": "← Home",
+    "today": "Today",
+    "guess_btn": "Guess",
+    "next_fact": "Next fact",
+    "lucky_btn": "🍀 Lucky guess",
+    "next_city": "Next city",
+    "share_label": "Share my score",
+    "remind_btn": "📅 Remind me daily",
+    "back_home": "Back to homepage",
+    "todays_cities": "Today’s cities",
+    "promo_sub": "Cheapest flights from where you are",
+    "promo_go": "Go →",
+    "points": "Points",
+    "fact_1": "Fact 1",
+    "fact_2": "Fact 2",
+    "fact_3": "Fact 3",
+    "fact_4": "Fact 4",
+    "keys": "Keys",
+    "theme_classic": "Classic",
+    "theme_bright": "Bright",
+    "theme_dark": "Dark",
+    "theme_btn": "Change colours",
+    "help_btn": "How to play",
+    "level_group": "Level",
+    "install_hide": "Hide this tip",
+    "ig_img_alt": "Your Capiclue score card",
+    "remind_time": "Reminder time",
+    "brand_home": "Capiclue home",
+    "scorecard_label": "Today’s scorecard",
+    "board_label": "Answer board",
+    "choices_label": "Pick the capital",
+    "guess_placeholder": "Type a world capital",
+    "guess_label": "Your guess",
+    "lucky_title": "Let fate pick a random capital",
+    "share_on": "Share my score on",
+    "share_more": "More ways to share",
+    "side_label": "Points and keys",
+    "colours": "Colours",
+    "level_note_easy": "Famous capitals. Pick from 4 answers.",
+    "level_note_medium": "Well-known capitals. Type your answer, with the continent and first letter shown.",
+    "level_note_hard": "All 193 capitals. Type your answer, with the continent shown.",
+    "played_today": "Played today",
+    "done_today": "Done for today",
+    "status_done": "You’ve finished {level} today. Try another level, or come back tomorrow.",
+    "status_progress": "You have {pts} points so far. Keep going!",
+    "see_results": "See my results",
+    "continue": "Continue",
+    "play_fresh": "Guess the city",
+    "hero_fresh": "Guess the capital<br>from fun facts.",
+    "hero_progress": "Pick up where<br>you left off.",
+    "hero_done": "That’s today<br>done. Nice!",
+    "city_n_of": "City {n} of {total}",
+    "city_n": "City {n}",
+    "countdown": "New cities in <b>{time}</b>",
+    "install_android": "Get Capiclue as an app on your home screen.",
+    "install_ios": "Get the app: tap Share {share} then <b>Add to Home Screen</b>.",
+    "install_inapp": "Open capiclue.com in Safari or Chrome to add it to your home screen.",
+    "share_icon_label": "Share",
+    "round": "{level} · City {n} of {total} · <span class=\"score\">{pts} pts</span>",
+    "pts": "{n} pts",
+    "continent": "Continent: <b>{region}</b>",
+    "keys_easy": "<kbd>1</kbd>–<kbd>4</kbd> pick an answer",
+    "keys_typed": "<kbd>Enter</kbd> guess<br><kbd>↑</kbd> <kbd>↓</kbd> pick a name<br><kbd>Esc</kbd> close the list",
+    "n_letters": "{n} letters",
+    "fact_n": "Fact {n}:",
+    "next_fact_pts": "Next fact · {n} pts",
+    "res_lucky": "🍀 Lucky! It’s {city}. +{pts}",
+    "res_right": "Yes, it’s {city}. +{pts}",
+    "res_wrong": "It was {city}.",
+    "capital_of": "Capital of {country}.",
+    "see_score": "See my score",
+    "another_fact": " Here’s another fact.",
+    "lucky_miss": "🍀 Lucky guess: {guess}. Not this time.{more}",
+    "not_it": "Not {guess}.{more}",
+    "final_title": "Today’s score · {level}",
+    "promo_title": "✈️ Fancy {city} for real?",
+    "share_text": "Capiclue {date} · {level}: {pts}/100\n{emojis}\n{site}",
+    "app_messages": "Messages",
+    "app_copy": "Copy",
+    "app_more": "More",
+    "share_on_app": "Share on {app}",
+    "share_more_aria": "More ways to share",
+    "copy_aria": "Copy my score and link",
+    "copied": "Copied! Paste it anywhere.",
+    "copy_failed": "Couldn’t copy. Try another option.",
+    "card_beat": "Can you beat it?",
+    "card_tagline": "The capital city guessing game built on fun facts",
+    "ig_save": "Save card",
+    "ig_download": "Download card",
+    "ig_hold_phone": "Tip: you can also press and hold the picture to save it.",
+    "ig_hold_desktop": "Post the saved card on Instagram from your phone.",
+    "ig_shared": "Shared. Don’t forget the Link sticker so friends can tap through.",
+    "ig_share_failed": "Sharing didn’t open here. Press and hold the picture to save it instead.",
+    "ig_saved_phone": "If nothing saved, press and hold the picture to save it.",
+    "ig_saved_desktop": "Card downloaded. Post it on Instagram from your phone.",
+    "ig_link_copied": "Link copied. Now share the card.",
+    "ig_link_failed": "Couldn’t copy. Type capiclue.com into the Link sticker.",
+    "remind_event": "🌍 Capiclue: 5 new capitals",
+    "remind_details": "Today’s five mystery capitals are ready. Play at https://capiclue.com",
+    "region_Europe": "Europe",
+    "region_Asia": "Asia",
+    "region_Africa": "Africa",
+    "region_Americas": "Americas",
+    "region_Oceania": "Oceania"
+  }
+};
+const LOCALES = { en: "en-GB" };          // date format per language
+let LANG = "en";
+function t(key, vars){
+  let s = I18N[LANG]?.[key] ?? I18N.en[key];
+  if(s == null){ console.warn("Missing wording:", key); return key; }
+  return vars ? s.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m) : s;
+}
+const region = r => t("region_"+r);
+/* Fill in the fixed wording on the page (elements tagged data-i18n / data-i18n-attr). */
+function applyStaticWording(root=document){
+  root.querySelectorAll("[data-i18n]").forEach(el=>{ el.innerHTML=t(el.dataset.i18n) });
+  root.querySelectorAll("[data-i18n-attr]").forEach(el=>el.dataset.i18nAttr.split(";").forEach(pair=>{ const [attr,key]=pair.split(":"); el.setAttribute(attr,t(key)) }));
+}
+
 /* ---------- SETTINGS ---------- */
 const LAUNCH_DATE = "2026-10-31"; // First day of the game (sets the order of cities; not shown to players).
 const PER_DAY = 5;
@@ -910,7 +1079,7 @@ function shuffled(n,seed){const r=rng(seed),a=[...Array(n).keys()];for(let i=n-1
    Medium: famous + well-known capitals, type the answer, first letter shown.
    Hard: all 193 capitals, type the answer, no extra help.
    Every level uses all 12 facts per city (4 fresh sets of 3) so questions last as long as possible. */
-const LEVELS = {easy:"Easy", medium:"Medium", hard:"Hard"};
+const LEVELS = {easy:t("level_easy"), medium:t("level_medium"), hard:t("level_hard")};
 const EASY_CAPITALS = [
   "Paris","London","Rome","Berlin","Madrid","Lisbon","Athens","Vienna","Amsterdam","Brussels","Dublin","Moscow",
   "Prague","Stockholm","Oslo","Copenhagen","Warsaw","Budapest","Helsinki","Kyiv","Reykjavik","Monaco","Luxembourg","San Marino",
@@ -949,7 +1118,7 @@ function buildRound(cityIdx, cycle){
   const groups = Math.floor(facts.length / 3);      // 12 facts = 4 fresh sets of 3
   const g = cycle % groups;
   const clues = facts.slice(g*3, g*3+3);
-  clues.push(`Capital of ${n}.`);
+  clues.push(t("capital_of",{country:n}));
   return {c, n, alt, clues};
 }
 /* Spread regions out: each region's cities are spaced evenly through the cycle,
@@ -1020,22 +1189,22 @@ function init(){
 function renderScorecard(){
   const rows=set.map((c,i)=>{
     if(i<scores.length) return `<li class="${scores[i]>0?"win":"lose"}"><span>${c.c}</span><b>${scores[i]}</b></li>`;
-    if(i===idx&&!done) return `<li class="now"><span>City ${i+1}</span><b>…</b></li>`;
-    return `<li class="todo"><span>City ${i+1}</span><b>–</b></li>`;
+    if(i===idx&&!done) return `<li class="now"><span>${t("city_n",{n:i+1})}</span><b>…</b></li>`;
+    return `<li class="todo"><span>${t("city_n",{n:i+1})}</span><b>–</b></li>`;
   });
-  $("scorecard").innerHTML=rows.join(""); $("sideTotal").textContent=`${total()} pts`;
+  $("scorecard").innerHTML=rows.join(""); $("sideTotal").textContent=t("pts",{n:total()});
 }
 function blankTiles(name, firstLetter=false){ let i=0; return name.toUpperCase().split(" ").map(w=>`<span class="word">${[...w].map(ch=>`<span class="tile">${firstLetter&&(i++===0)?ch:""}</span>`).join("")}</span>`).join("") }
 const LEVEL_NOTES = {
-  easy:"Famous capitals. Pick from 4 answers.",
-  medium:"Well-known capitals. Type your answer, with the continent and first letter shown.",
-  hard:"All 193 capitals. Type your answer, with the continent shown."
+  easy:t("level_note_easy"),
+  medium:t("level_note_medium"),
+  hard:t("level_note_hard")
 };
 function renderLevels(){
   document.querySelectorAll("[data-level]").forEach(b=>{
     const on=b.dataset.level===level, doneHere=(loadSaved(b.dataset.level)?.scores.length||0)>=PER_DAY;
     b.setAttribute("aria-checked",on); b.classList.toggle("done",doneHere);
-    b.title=doneHere?"Played today":"";
+    b.title=doneHere?t("played_today"):"";
   });
   $("levelNote").textContent=LEVEL_NOTES[level];
 }
@@ -1049,20 +1218,20 @@ function renderHome(){
   const n=scores.length, saved=loadSaved(), fact=$("homeFact"), tiles=$("homeTiles");
   fact.classList.remove("big"); tiles.classList.remove("emo");
   if(n>=PER_DAY){
-    $("homeDay").textContent="Done for today";
+    $("homeDay").textContent=t("done_today");
     fact.classList.add("big"); fact.innerHTML=`${total()}<small>/100</small>`;
     tiles.classList.add("emo"); tiles.textContent=emojis();
-    $("homeStatus").textContent=`You’ve finished ${LEVELS[level]} today. Try another level, or come back tomorrow.`;
-    $("playBtn").textContent="See my results";
-    $("heroTitle").innerHTML="That’s today<br>done. Nice!";
+    $("homeStatus").textContent=t("status_done",{level:LEVELS[level]});
+    $("playBtn").textContent=t("see_results");
+    $("heroTitle").innerHTML=t("hero_done");
   }else{
     const started=n>0||saved?.clueNo>0, c=set[n];
-    $("homeDay").textContent=(started?`City ${n+1} of ${PER_DAY}`:"Today’s first fact")+(level!=="easy"?` · ${c.region}`:"");
+    $("homeDay").textContent=(started?t("city_n_of",{n:n+1,total:PER_DAY}):t("first_fact"))+(level!=="easy"?` · ${region(c.region)}`:"");
     fact.textContent=`“${c.clues[0]}”`;
     tiles.innerHTML=blankTiles(c.c, level==="medium"); fitTiles(tiles,c.c);
-    $("homeStatus").textContent=started?`You have ${total()} points so far. Keep going!`:"Can you name the city? Five mystery capitals, new every day.";
-    $("playBtn").textContent=started?"Continue":"Guess the city";
-    $("heroTitle").innerHTML=started?"Pick up where<br>you left off.":"Guess the capital<br>from fun facts.";
+    $("homeStatus").textContent=started?t("status_progress",{pts:total()}):t("status_fresh");
+    $("playBtn").textContent=started?t("continue"):t("play_fresh");
+    $("heroTitle").innerHTML=started?t("hero_progress"):t("hero_fresh");
   }
   $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
   tick();
@@ -1130,17 +1299,17 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
   if(standalone||dismissed||!matchMedia("(pointer:coarse)").matches) return;
   const ua=navigator.userAgent, iOS=/iPhone|iPad|iPod/.test(ua), inApp=/Instagram|FBAN|FBAV|WhatsApp|Line\//.test(ua);
   const tip=$("installTip"), text=$("installText"), btn=$("installBtn");
-  const SHARE='<svg class="share-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="Share"><path d="M12 3v12M7 8l5-5 5 5M5 12v8h14v-8"/></svg>';
+  const SHARE=`<svg class="share-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="${t("share_icon_label")}"><path d="M12 3v12M7 8l5-5 5 5M5 12v8h14v-8"/></svg>`;
   let deferred=null;
   addEventListener("beforeinstallprompt",e=>{   // Android (Chrome): real one-tap install
     e.preventDefault(); deferred=e;
-    text.textContent="Get Capiclue as an app on your home screen."; btn.classList.remove("hidden"); tip.classList.remove("hidden");
+    text.textContent=t("install_android"); btn.classList.remove("hidden"); tip.classList.remove("hidden");
   });
   btn.addEventListener("click",async()=>{ if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null; tip.classList.add("hidden") });
   if(iOS&&!inApp){   // iPhone (Safari): show the two taps
-    text.innerHTML=`Get the app: tap Share ${SHARE} then <b>Add to Home Screen</b>.`; tip.classList.remove("hidden");
+    text.innerHTML=t("install_ios",{share:SHARE}); tip.classList.remove("hidden");
   }else if(inApp){
-    text.innerHTML="Open capiclue.com in Safari or Chrome to add it to your home screen."; tip.classList.remove("hidden");
+    text.innerHTML=t("install_inapp"); tip.classList.remove("hidden");
   }
   $("installClose").addEventListener("click",()=>{ tip.classList.add("hidden"); try{ localStorage.setItem("capiclue-install-tip","hidden") }catch(e){} });
 })();
@@ -1153,23 +1322,23 @@ function tick(){
   }
   const now=new Date(), next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
   const s=Math.max(0,Math.floor((next-now)/1000));
-  const t=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(v=>String(v).padStart(2,"0")).join(":");
-  $("homeCountdown").innerHTML=`New cities in <b>${t}</b>`;
-  if(scores&&scores.length>=PER_DAY) $("finalNote").innerHTML=`New cities in <b>${t}</b>`;
+  const hms=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(v=>String(v).padStart(2,"0")).join(":");
+  $("homeCountdown").innerHTML=t("countdown",{time:hms});
+  if(scores&&scores.length>=PER_DAY) $("finalNote").innerHTML=t("countdown",{time:hms});
 }
 setInterval(tick,1000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) tick() });
 
-function setRound(){ $("round").innerHTML=`${LEVELS[level]} · City ${idx+1} of ${PER_DAY} · <span class="score">${total()} pts</span>` }
+function setRound(){ $("round").innerHTML=t("round",{level:LEVELS[level],n:idx+1,total:PER_DAY,pts:total()}) }
 const KEYS = {
-  easy:"<kbd>1</kbd>–<kbd>4</kbd> pick an answer",
-  typed:"<kbd>Enter</kbd> guess<br><kbd>↑</kbd> <kbd>↓</kbd> pick a name<br><kbd>Esc</kbd> close the list"
+  get easy(){ return t("keys_easy") },
+  get typed(){ return t("keys_typed") }
 };
 function loadCity(startClue=0, startWrongs=[]){
   clueNo=0; done=false; wrongs=[...startWrongs];
   // Medium and Hard show the continent; Easy already has 4 answers to choose from.
   $("hintline").classList.toggle("hidden",level==="easy");
-  $("hintline").innerHTML=`Continent: <b>${set[idx].region}</b>`;
+  $("hintline").innerHTML=t("continent",{region:region(set[idx].region)});
   const easy=level==="easy", city=set[idx];
   $("choices").classList.toggle("hidden",!easy); $("form").classList.toggle("hidden",easy); $("lucky").classList.toggle("hidden",easy);
   $("keysText").innerHTML=easy?KEYS.easy:KEYS.typed;
@@ -1193,19 +1362,19 @@ addEventListener("resize",()=>{ fitTiles(); if(!$("home").classList.contains("hi
 function drawTiles(reveal){
   const name=set[idx].c.toUpperCase(); let i=0;
   $("tiles").innerHTML=name.split(" ").map(word=>`<span class="word">${[...word].map(ch=>{
-    const show=reveal||((clueNo>=3||level==="medium")&&i===0)||!/[A-ZÀ-Ý]/.test(ch);
+    const show=reveal||((clueNo>=3||level==="medium")&&i===0)||!/\p{L}/u.test(ch);   // any alphabet (ready for Ñ, İ, Ş, Ğ…)
     return`<span class="tile ${reveal?"flip":""}" style="animation-delay:${(i++)*40}ms">${show?ch:""}</span>`;
   }).join("")}</span>`).join("");
-  $("tiles").setAttribute("aria-label",reveal?name:`${name.replace(/[^A-Z]/g,"").length} letters`);
+  $("tiles").setAttribute("aria-label",reveal?name:t("n_letters",{n:name.replace(/[^\p{L}]/gu,"").length}));
   fitTiles();
 }
 function showClue(){
   const li=document.createElement("li"); li.className="clue";
   const p=POINTS[clueNo];
-  li.innerHTML=`<span class="pts">${p} pts</span><span><strong>Fact ${clueNo+1}:</strong> ${set[idx].clues[clueNo]}</span>`;
+  li.innerHTML=`<span class="pts">${t("pts",{n:p})}</span><span><strong>${t("fact_n",{n:clueNo+1})}</strong> ${set[idx].clues[clueNo]}</span>`;
   $("clues").appendChild(li);
   if(clueNo===3)drawTiles(false);
-  $("skip").textContent=`Next fact · ${POINTS[clueNo+1]??0} pts`;
+  $("skip").textContent=t("next_fact_pts",{n:POINTS[clueNo+1]??0});
   $("skip").classList.toggle("hidden",clueNo===3);
 }
 function nextClue(){ if(clueNo<3){clueNo++;showClue();save()} else finish(false) }
@@ -1213,9 +1382,9 @@ function finish(won, lucky=false){
   done=true; hideSuggest(); const city=set[idx]; const pts=won?POINTS[clueNo]:0; scores.push(pts); save(); renderScorecard();
   drawTiles(true); $("play").classList.add("hidden"); $("result").classList.remove("hidden");
   setRound();
-  $("resTitle").textContent=won?(lucky?`🍀 Lucky! It’s ${city.c}. +${pts}`:`Yes, it’s ${city.c}. +${pts}`):`It was ${city.c}.`;
-  $("resText").textContent=`Capital of ${city.n}.`;
-  $("next").textContent=idx<PER_DAY-1?"Next city":"See my score";
+  $("resTitle").textContent=won?t(lucky?"res_lucky":"res_right",{city:city.c,pts}):t("res_wrong",{city:city.c});
+  $("resText").textContent=t("capital_of",{country:city.n});
+  $("next").textContent=idx<PER_DAY-1?t("next_city"):t("see_score");
   $("next").focus({preventScroll:true});
   $("result").scrollIntoView({block:"nearest",behavior:"smooth"});
 }
@@ -1226,8 +1395,8 @@ function submitGuess(raw, how="typed"){
   const city=set[idx];
   if([city.c,...city.alt].some(x=>norm(x)===g)) return finish(true, how==="lucky");
   if(!wrongs.includes(raw)) wrongs.push(raw);
-  const more=clueNo<3?" Here’s another fact.":"";
-  $("wrong").textContent=how==="lucky"?`🍀 Lucky guess: ${raw}. Not this time.${more}`:`Not ${raw}.${more}`;
+  const more=clueNo<3?t("another_fact"):"";
+  $("wrong").textContent=t(how==="lucky"?"lucky_miss":"not_it",{guess:raw,more});
   $("guess").value="";
   if(level==="easy") markChoices();
   nextClue();
@@ -1269,14 +1438,14 @@ function showFinal(){
   $("clues").innerHTML=""; $("tiles").innerHTML="";
   $("final").classList.remove("hidden"); $("game").classList.add("finalmode");
   $("recap").innerHTML=set.map((c,i)=>`<li class="${scores[i]>0?"win":"lose"}"><span>${c.c} <small class="soft">${c.n}</small></span><b>${scores[i]??0}</b></li>`).join("");
-  $("finalTitle").textContent=`Today’s score · ${LEVELS[level]}`;
+  $("finalTitle").textContent=t("final_title",{level:LEVELS[level]});
   $("finalScore").textContent=total();
   $("summary").textContent=emojis();
   tick();
   renderShare();
   // Ad: name the city the player did best on, to turn today's game into a trip idea.
   const best=set[scores.indexOf(Math.max(...scores))]||set[0];
-  $("promoTitle").textContent=`✈️ Fancy ${best.c} for real?`;
+  $("promoTitle").textContent=t("promo_title",{city:best.c});
   $("promo").href=`https://getmeoutofhere.live/?utm_source=capiclue&utm_medium=referral&utm_campaign=results_strip&utm_content=${encodeURIComponent(best.c)}`;
   window.scrollTo(0,0);
 }
@@ -1284,7 +1453,7 @@ function showFinal(){
 /* ---------- SHARING ---------- */
 const SITE = "https://capiclue.com";
 /* Share text uses the date (e.g. "31 Oct") rather than a day number, so nobody feels they joined late. */
-function shareText(){ const d=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"}); return `Capiclue ${d} · ${LEVELS[level]}: ${total()}/100\n${emojis()}\n${SITE}` }
+function shareText(){ const d=new Date().toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"}); return t("share_text",{date:d,level:LEVELS[level],pts:total(),emojis:emojis(),site:SITE}) }
 /* One button per app. Phones get the apps people use there; computers get the ones that work in a browser. */
 const IS_PHONE = matchMedia("(pointer:coarse)").matches;
 const ICON = {
@@ -1302,15 +1471,15 @@ const ICON = {
 /* Main row: WhatsApp, Messages (phones), X, Instagram, Copy, More.
    "More" opens the phone's own share menu (every other app). Where there is none, it reveals Telegram, Facebook etc. */
 function shareTargets(){
-  const t=encodeURIComponent(shareText()), u=encodeURIComponent(SITE);
+  const msg=encodeURIComponent(shareText()), u=encodeURIComponent(SITE);
   const tgText=encodeURIComponent(shareText().replace("\n"+SITE,""));
   const all=[
-    {k:"wa",   label:"WhatsApp",  bg:"#25D366", href:`https://wa.me/?text=${t}`},
-    {k:"sms",  label:"Messages",  bg:"#34C759", href:`sms:?&body=${t}`, phoneOnly:true},
-    {k:"x",    label:"X",         bg:"#000000", href:`https://twitter.com/intent/tweet?text=${t}`},
+    {k:"wa",   label:"WhatsApp",  bg:"#25D366", href:`https://wa.me/?text=${msg}`},
+    {k:"sms",  label:t("app_messages"),  bg:"#34C759", href:`sms:?&body=${msg}`, phoneOnly:true},
+    {k:"x",    label:"X",         bg:"#000000", href:`https://twitter.com/intent/tweet?text=${msg}`},
     {k:"ig",   label:"Instagram", bg:"linear-gradient(45deg,#F58529,#DD2A7B 50%,#8134AF)", act:"instagram"},
-    {k:"copy", label:"Copy",      bg:"var(--ink)", fg:"var(--paper)", act:"copy"},
-    {k:"more", label:"More",      bg:"var(--soft)", act:"more"},
+    {k:"copy", label:t("app_copy"),      bg:"var(--ink)", fg:"var(--paper)", act:"copy"},
+    {k:"more", label:t("app_more"),      bg:"var(--soft)", act:"more"},
     // Only shown after tapping More on devices without a built-in share menu (mostly computers):
     {k:"tg",   label:"Telegram",  bg:"#229ED9", href:`https://t.me/share/url?url=${u}&text=${tgText}`, extra:true},
     {k:"fb",   label:"Facebook",  bg:"#1877F2", href:`https://www.facebook.com/sharer/sharer.php?u=${u}`, extra:true},
@@ -1320,8 +1489,8 @@ function shareTargets(){
 }
 function shareItem(x){
   const inner=`<i style="background:${x.bg};color:${x.fg||"#fff"}">${ICON[x.k]}</i><span>${x.label}</span>`;
-  return x.href?`<a class="sh" href="${x.href}" target="_blank" rel="noopener" aria-label="Share on ${x.label}">${inner}</a>`
-               :`<button class="sh" type="button" data-act="${x.act}" aria-label="${x.label==="More"?"More ways to share":x.label==="Copy"?"Copy my score and link":"Share on "+x.label}">${inner}</button>`;
+  return x.href?`<a class="sh" href="${x.href}" target="_blank" rel="noopener" aria-label="${t("share_on_app",{app:x.label})}">${inner}</a>`
+               :`<button class="sh" type="button" data-act="${x.act}" aria-label="${x.k==="more"?t("share_more_aria"):x.k==="copy"?t("copy_aria"):t("share_on_app",{app:x.label})}">${inner}</button>`;
 }
 function renderShare(){
   const list=shareTargets(), main=list.filter(x=>!x.extra), extra=list.filter(x=>x.extra);
@@ -1342,8 +1511,8 @@ function updateRemindLinks(){
   const now=new Date(), p=n=>String(n).padStart(2,"0");
   const day=`${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}`, end=`${remindTime.slice(0,2)}1000`;
   const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
-  const q=new URLSearchParams({action:"TEMPLATE", text:"🌍 Capiclue: 5 new capitals",
-    details:"Today’s five mystery capitals are ready. Play at https://capiclue.com", location:"https://capiclue.com",
+  const q=new URLSearchParams({action:"TEMPLATE", text:t("remind_event"),
+    details:t("remind_details"), location:"https://capiclue.com",
     dates:`${day}T${remindTime}00/${day}T${end}`, recur:"RRULE:FREQ=DAILY"});
   if(tz) q.set("ctz",tz);
   $("remindGoogle").href="https://calendar.google.com/calendar/render?"+q.toString();
@@ -1379,20 +1548,20 @@ async function makeScoreCard(){
   g.fillStyle="rgba(0,0,0,.45)"; g.fillRect(lx+17,429,86,3);
   g.fillStyle="#FFFFFF"; g.font=`800 92px ${display}`; g.textAlign="left"; g.fillText("Capiclue",lx+148,433);
   // date and level
-  const d=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+  const d=new Date().toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"long"});
   g.textAlign="center"; g.fillStyle=SOFT; g.font=`600 46px ${display}`; g.fillText(`${d} · ${LEVELS[level]}`,W/2,640);
   // big score
-  g.fillStyle="#FFFFFF"; g.font=`500 300px ${mono}`; const t=String(total()); const tw=g.measureText(t).width;
+  g.fillStyle="#FFFFFF"; g.font=`500 300px ${mono}`; const sc=String(total()); const tw=g.measureText(sc).width;
   g.font=`500 90px ${mono}`; const sw=g.measureText("/100").width; const x0=W/2-(tw+sw)/2;
-  g.textAlign="left"; g.font=`500 300px ${mono}`; g.fillText(t,x0,900);
+  g.textAlign="left"; g.font=`500 300px ${mono}`; g.fillText(sc,x0,900);
   g.fillStyle=SOFT; g.font=`500 90px ${mono}`; g.fillText("/100",x0+tw+10,960);
   // five result squares (drawn, so they look the same on every phone)
   const COL={20:"#2E8B6A",15:"#F4B942",10:"#E8833A",5:"#C2483D"};
   scores.forEach((sc,i)=>rr(W/2-(5*130-30)/2+i*130,1090,100,100,20,COL[sc]||"#3A4964"));
   // footer
-  g.textAlign="center"; g.fillStyle="#FFFFFF"; g.font=`700 54px ${display}`; g.fillText("Can you beat it?",W/2,1360);
+  g.textAlign="center"; g.fillStyle="#FFFFFF"; g.font=`700 54px ${display}`; g.fillText(t("card_beat"),W/2,1360);
   g.fillStyle=AMBER; g.font=`800 64px ${display}`; g.fillText("capiclue.com",W/2,1470);
-  g.fillStyle=NAVY; g.font=`600 38px ${display}`; g.fillText("The capital city guessing game built on fun facts",W/2,1775);
+  g.fillStyle=NAVY; g.font=`600 38px ${display}`; g.fillText(t("card_tagline"),W/2,1775);
   try{
     const blob=await new Promise(r=>c.toBlob(r,"image/png"));
     if(blob) scoreCardFile=new File([blob],"capiclue-score.png",{type:"image/png"});
@@ -1407,24 +1576,24 @@ async function openInstagramSheet(){
   if(igImgURL) URL.revokeObjectURL(igImgURL);
   igImgURL=scoreCardFile?URL.createObjectURL(scoreCardFile):"";
   $("igImg").src=igImgURL; $("igImg").hidden=!igImgURL;
-  $("igShare").textContent=canFiles?"Share card to Instagram":(IS_PHONE?"Save card":"Download card");
+  $("igShare").textContent=canFiles?t("ig_share"):(IS_PHONE?t("ig_save"):t("ig_download"));
   $("igShare").hidden=!scoreCardFile;
-  $("igHold").textContent=IS_PHONE?"Tip: you can also press and hold the picture to save it.":"Post the saved card on Instagram from your phone.";
+  $("igHold").textContent=IS_PHONE?t("ig_hold_phone"):t("ig_hold_desktop");
   $("igNote").textContent="";
   $("igSheet").showModal();
 }
 $("igShare").addEventListener("click",async()=>{
   const files=scoreCardFile?[scoreCardFile]:null, note=$("igNote");
   if(files&&navigator.canShare?.({files})){
-    try{ await navigator.share({files}); note.textContent="Shared. Don’t forget the Link sticker so friends can tap through."; }
-    catch(err){ if(err.name!=="AbortError") note.textContent="Sharing didn’t open here. Press and hold the picture to save it instead."; }
+    try{ await navigator.share({files}); note.textContent=t("ig_shared"); }
+    catch(err){ if(err.name!=="AbortError") note.textContent=t("ig_share_failed"); }
   }else if(saveScoreCard()){
-    note.textContent=IS_PHONE?"If nothing saved, press and hold the picture to save it.":"Card downloaded. Post it on Instagram from your phone.";
+    note.textContent=IS_PHONE?t("ig_saved_phone"):t("ig_saved_desktop");
   }
 });
 $("igCopy").addEventListener("click",async()=>{
-  try{ await navigator.clipboard.writeText(SITE); $("igNote").textContent="Link copied. Now share the card."; }
-  catch(e){ $("igNote").textContent="Couldn’t copy. Type capiclue.com into the Link sticker."; }
+  try{ await navigator.clipboard.writeText(SITE); $("igNote").textContent=t("ig_link_copied"); }
+  catch(e){ $("igNote").textContent=t("ig_link_failed"); }
 });
 $("igClose").addEventListener("click",()=>$("igSheet").close());
 $("igSheet").addEventListener("click",e=>{ if(e.target===$("igSheet")) $("igSheet").close() });
@@ -1438,7 +1607,7 @@ async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()
 ["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",async e=>{
   const b=e.target.closest("button[data-act]"); if(!b) return;
   const act=b.dataset.act, note=$("shareNote");
-  if(act==="copy"){ note.textContent=await copyScore()?"Copied! Paste it anywhere.":"Couldn’t copy. Try another option." }
+  if(act==="copy"){ note.textContent=await copyScore()?t("copied"):t("copy_failed") }
   else if(act==="more"){
     if(IS_PHONE&&navigator.share){ try{ await navigator.share({text:shareText()}) }catch(err){} }
     else $("shareExtra").classList.toggle("hidden");
@@ -1488,6 +1657,7 @@ inp.addEventListener("keydown", e=>{
 box.addEventListener("mousedown", e=>{ const li=e.target.closest("li"); if(li){ e.preventDefault(); pick(+li.dataset.i) } });
 inp.addEventListener("blur", ()=>setTimeout(hideSuggest, 120));
 
+applyStaticWording();
 init();
 if(location.hash==="#play") openGame();
 </script>
