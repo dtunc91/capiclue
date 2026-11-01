@@ -10,6 +10,11 @@
 <script>try{var t=localStorage.getItem("capiclue-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Capiclue">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Capiclue">
 <meta property="og:url" content="https://capiclue.com/">
@@ -221,6 +226,13 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .ig-copy{width:100%;padding:13px;border-radius:10px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
 .ig-note{min-height:1.3em;margin:10px 0 0;color:var(--good);font-size:.9rem;text-align:center}
 #igClose{display:block;margin:4px auto 0}
+.installtip{display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:.9rem;color:var(--ink)}
+.installtip.hidden{display:none}
+.installtip p{margin:0;flex:1;min-width:0}
+.installtip-icon{font-size:1.3rem;flex:none}
+.installtip-btn{flex:none;padding:8px 14px;border-radius:9px;background:var(--amber);color:#1D2B45;font-weight:800}
+.installtip-x{flex:none;background:none;color:var(--soft);padding:4px 8px;font-size:1.3rem;line-height:1}
+.share-ico{display:inline-block;vertical-align:-3px}
 .about{margin-top:36px;padding-top:4px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0} .about p{margin:0 0 10px}
 /* Phones: About is folded into one tappable line. Bigger screens: always open. */
 .about summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:14px 0;min-height:44px}
@@ -293,6 +305,12 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
       <p class="level-note" id="levelNote"></p>
       <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk">or press <kbd>Enter</kbd></span></div>
       <p class="countdown hidden" id="homeCountdown"></p>
+      <div class="installtip hidden" id="installTip">
+        <span class="installtip-icon" aria-hidden="true">📲</span>
+        <p id="installText"></p>
+        <button type="button" class="installtip-btn hidden" id="installBtn">Install</button>
+        <button type="button" class="installtip-x" id="installClose" aria-label="Hide this tip">×</button>
+      </div>
     </div>
     <div class="board teaser">
       <p class="teaser-label" id="homeDay">Today’s first fact</p>
@@ -1065,6 +1083,29 @@ themeMenu.addEventListener("click",e=>{ const b=e.target.closest("[data-theme-ch
 document.addEventListener("click",e=>{ if(!themeMenu.contains(e.target)) closeThemeMenu() });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeThemeMenu() });
 addEventListener("resize",closeThemeMenu);
+
+/* ---------- HOME-SCREEN APP: offline support + "Add to Home Screen" tip on phones ---------- */
+if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("/sw.js").catch(()=>{});
+(function installTip(){
+  const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  let dismissed=false; try{ dismissed=localStorage.getItem("capiclue-install-tip")==="hidden" }catch(e){}
+  if(standalone||dismissed||!matchMedia("(pointer:coarse)").matches) return;
+  const ua=navigator.userAgent, iOS=/iPhone|iPad|iPod/.test(ua), inApp=/Instagram|FBAN|FBAV|WhatsApp|Line\//.test(ua);
+  const tip=$("installTip"), text=$("installText"), btn=$("installBtn");
+  const SHARE='<svg class="share-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="Share"><path d="M12 3v12M7 8l5-5 5 5M5 12v8h14v-8"/></svg>';
+  let deferred=null;
+  addEventListener("beforeinstallprompt",e=>{   // Android (Chrome): real one-tap install
+    e.preventDefault(); deferred=e;
+    text.textContent="Get Capiclue as an app on your home screen."; btn.classList.remove("hidden"); tip.classList.remove("hidden");
+  });
+  btn.addEventListener("click",async()=>{ if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null; tip.classList.add("hidden") });
+  if(iOS&&!inApp){   // iPhone (Safari): show the two taps
+    text.innerHTML=`Get the app: tap Share ${SHARE} then <b>Add to Home Screen</b>.`; tip.classList.remove("hidden");
+  }else if(inApp){
+    text.innerHTML="Open capiclue.com in Safari or Chrome to add it to your home screen."; tip.classList.remove("hidden");
+  }
+  $("installClose").addEventListener("click",()=>{ tip.classList.add("hidden"); try{ localStorage.setItem("capiclue-install-tip","hidden") }catch(e){} });
+})();
 
 /* ---------- DAILY REFRESH: countdown, and a new set at midnight even if the tab stays open ---------- */
 function tick(){
