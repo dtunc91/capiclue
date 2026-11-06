@@ -291,6 +291,14 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-score{font-family:"DM Mono",ui-monospace,monospace;font-size:1.05rem}
 .lg-score.none{font-family:inherit;font-size:.85rem;color:var(--soft)}
 .lg-leave{display:block;margin:16px auto 0;background:none;color:var(--bad);font-weight:600;text-decoration:underline}
+.lg-devbtn{display:block;width:100%;margin-top:12px;padding:12px;border-radius:10px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
+.lg-devbtn:hover{border-color:var(--amber);filter:none}
+.lg-center{display:block;margin:12px auto 0;text-align:center}
+.lg-qr{width:min(220px,60vw);margin:4px auto 14px;padding:10px;border-radius:12px;background:#fff;transition:opacity .3s}
+.lg-qr svg{display:block;width:100%;height:auto}
+.lg-code{margin:2px 0 0;text-align:center;font-family:"DM Mono",ui-monospace,monospace;font-size:1.6rem;letter-spacing:.12em}
+.lg-codein{text-align:center;font-family:"DM Mono",ui-monospace,monospace;font-size:1.3rem;letter-spacing:.12em;text-transform:uppercase}
+.lg-warn{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--paper);color:var(--soft);font-size:.88rem}
 .leaguecard{margin:16px auto 0;max-width:420px;display:flex;flex-direction:column;gap:8px}
 .leaguecard button{width:100%;padding:12px 14px;border-radius:12px;background:var(--card);color:var(--ink);border:2px solid var(--line);font-weight:600;text-align:left}
 .leaguecard button:hover{border-color:var(--amber);filter:none}
@@ -1134,6 +1142,24 @@ const I18N = {
     "lg_waiting": "Waiting for others in <b>{league}</b>",
     "lg_cta": "🏆 Play with friends: create a league",
     "lg_rename": "Rename",
+    "lg_device_btn": "📱 Play on another device",
+    "lg_device_title": "Play on another device",
+    "lg_device_sub": "Scan this with your other phone or tablet, or open the link there. That device will play as <b>{name}</b>, with the same leagues and scores.",
+    "lg_device_code": "Or type this code on the other device:",
+    "lg_device_copy": "Copy link",
+    "lg_device_copied": "Link copied.",
+    "lg_device_expires": "Works once, for the next {min} min.",
+    "lg_device_expired": "This code has expired.",
+    "lg_device_new": "Make a new code",
+    "lg_device_warn": "Only open this on your own devices: anyone with it can play as you.",
+    "lg_have_code": "Already playing on another device? <b>Enter your code</b>",
+    "lg_claim_title": "Continue on this device",
+    "lg_claim_sub": "Type the code shown on your other device (🏆 Leagues → Play on another device).",
+    "lg_claim_ph": "e.g. K7P2-9XQM",
+    "lg_claim_btn": "Continue",
+    "lg_claim_as": "Continue as <b>{name}</b> on this device?",
+    "lg_claim_switch": "This device is currently playing as <b>{old}</b>. It will switch to <b>{name}</b>.",
+    "lg_claim_done": "Done! You’re playing as {name} on this device.",
     "lg_cancel": "Cancel",
     "lg_level_note": "Each level has its own table.",
     "lg_all": "All levels",
@@ -1833,6 +1859,8 @@ async function lgRender(){
     return;
   }
   if(v.name==="table") return lgRenderTable(v);
+  if(v.name==="device") return lgRenderDevice();
+  if(v.name==="claim") return lgRenderClaim(v.code);
   // list
   lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-sub">${t("lg_loading")}</p>`;
   let leagues=[];
@@ -1843,10 +1871,65 @@ async function lgRender(){
     ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
     <button class="cta" id="lgNew" type="button">${t("lg_create")}</button>
     <p class="lg-hint">${t("lg_join_hint")}</p>
+    ${player?`<button type="button" class="lg-devbtn" id="lgDevice">${t("lg_device_btn")}</button>`:`<button type="button" class="lg-linkbtn lg-center" id="lgHaveCode">${t("lg_have_code")}</button>`}
     <button type="button" class="lg-linkbtn" id="lgX" style="display:block;margin:10px auto 0">${t("lg_close")}</button>`;
   $("lgNew").onclick=()=>lgOpen({name:"create"}); $("lgX").onclick=lgClose;
   if($("lgRename")) $("lgRename").onclick=()=>lgOpen({name:"nickname"});
+  if($("lgDevice")) $("lgDevice").onclick=()=>lgOpen({name:"device"});
+  if($("lgHaveCode")) $("lgHaveCode").onclick=()=>lgOpen({name:"claim"});
   lgBody.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level:"all"}));
+}
+
+/* ----- Play on another device ----- */
+let lgDeviceTimer=null;
+function lgLoadQR(){ return window.qrcode?Promise.resolve():new Promise((ok,fail)=>{ const sc=document.createElement("script"); sc.src="/lib/qrcode-generator.js"; sc.onload=ok; sc.onerror=fail; document.head.appendChild(sc) }) }
+async function lgRenderDevice(){
+  clearInterval(lgDeviceTimer);
+  lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
+  let r; try{ r=await lgApi("/api/player/link",{}) }catch(err){ lgBody.innerHTML=`<p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgBack">${t("lg_back")}</button>`; $("lgBack").onclick=()=>lgOpen(); return }
+  const link=`${location.origin}/?link=${r.code}`, pretty=r.code.slice(0,4)+"-"+r.code.slice(4);
+  lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
+    <h2 id="lgTitle">${t("lg_device_title")}</h2>
+    <p class="lg-sub">${t("lg_device_sub",{name:lgEsc(player.name)})}</p>
+    <div class="lg-qr" id="lgQR" aria-hidden="true"></div>
+    <button class="cta" id="lgCopyLink" type="button">${t("lg_device_copy")}</button>
+    <p class="lg-hint">${t("lg_device_code")}</p><p class="lg-code">${pretty}</p>
+    <p class="lg-hint" id="lgExpiry"></p><p class="lg-note" id="lgNote" aria-live="polite"></p>
+    <p class="lg-warn">🔒 ${t("lg_device_warn")}</p>`;
+  $("lgBack").onclick=()=>{ clearInterval(lgDeviceTimer); lgOpen() };
+  try{ await lgLoadQR(); const q=qrcode(0,"M"); q.addData(link); q.make(); $("lgQR").innerHTML=q.createSvgTag({cellSize:5,margin:2,scalable:true}) }catch(e){ $("lgQR").hidden=true }
+  $("lgCopyLink").onclick=async()=>{ try{ await navigator.clipboard.writeText(link); $("lgNote").textContent=t("lg_device_copied") }catch(e){ $("lgNote").textContent=link } };
+  const tickExp=()=>{ const left=Math.ceil((r.expires-Date.now())/60e3);
+    if(left<=0){ clearInterval(lgDeviceTimer); $("lgExpiry").innerHTML=`${t("lg_device_expired")} <button type="button" class="lg-linkbtn" id="lgNewCode">${t("lg_device_new")}</button>`; $("lgQR").style.opacity=.15; $("lgNewCode").onclick=()=>lgRenderDevice(); return }
+    $("lgExpiry").textContent=t("lg_device_expires",{min:left}) };
+  tickExp(); lgDeviceTimer=setInterval(()=>{ if(!$("lgExpiry")) return clearInterval(lgDeviceTimer); tickExp() },15000);
+  lgSheet.addEventListener("close",()=>clearInterval(lgDeviceTimer),{once:true});
+}
+async function lgClaim(code){
+  const old=player?.name, p=await lgApi("/api/player/claim",{code});
+  player=p; localStorage.setItem(PLAYER_KEY,JSON.stringify(player)); track("league",{result:"device"});
+  await syncLeagueScores(); return old;
+}
+async function lgRenderClaim(code){
+  if(!code){
+    lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
+      <h2 id="lgTitle">${t("lg_claim_title")}</h2><p class="lg-sub">${t("lg_claim_sub")}</p>
+      <form id="lgClaimForm"><input class="lg-input lg-codein" id="lgCodeIn" maxlength="9" autocapitalize="characters" autocomplete="one-time-code" placeholder="${lgEsc(t("lg_claim_ph"))}" aria-label="${lgEsc(t("lg_claim_title"))}">
+      <button class="cta" type="submit">${t("lg_claim_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>`;
+    $("lgBack").onclick=()=>lgOpen(); $("lgCodeIn").focus();
+    $("lgClaimForm").onsubmit=e=>{ e.preventDefault(); const c=$("lgCodeIn").value.toUpperCase().replace(/[^A-Z0-9]/g,""); if(c.length===8) lgOpen({name:"claim",code:c}); else $("lgErr").textContent=t("lg_device_expired") };
+    return;
+  }
+  lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
+  let info; try{ info=await lgApi(`/api/player/peek?code=${encodeURIComponent(code)}`) }
+  catch(err){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_claim_title")}</h2><p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgOk">${t("lg_back")}</button>`; $("lgOk").onclick=()=>lgOpen(); return }
+  const switching=player&&player.name!==info.name;
+  lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_claim_title")}</h2><p class="lg-sub">${t("lg_claim_as",{name:lgEsc(info.name)})}</p>
+    ${switching?`<p class="lg-warn">${t("lg_claim_switch",{old:lgEsc(player.name),name:lgEsc(info.name)})}</p>`:""}
+    <button class="cta" id="lgClaimGo">${t("lg_claim_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p>
+    <button type="button" class="lg-linkbtn lg-center" id="lgLater">${t("lg_not_now")}</button>`;
+  $("lgLater").onclick=lgClose;
+  $("lgClaimGo").onclick=async()=>{ try{ await lgClaim(code); lgOpen({name:"list"}) }catch(err){ $("lgErr").textContent=err.message } };
 }
 
 async function lgRenderTable(v){
@@ -1914,7 +1997,8 @@ async function renderLeagueCard(){
 
 /* ----- invite links: capiclue.com/?join=CODE ----- */
 const lgJoinCode=(new URLSearchParams(location.search).get("join")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
-if(lgJoinCode) history.replaceState(null,"",location.pathname+location.hash);
+const lgLinkCode=(new URLSearchParams(location.search).get("link")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8);
+if(lgJoinCode||lgLinkCode) history.replaceState(null,"",location.pathname+location.hash);   // keep codes out of the address bar
 
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
@@ -1963,7 +2047,8 @@ init();
 try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
 track("visit",{level});
 syncLeagueScores();
-if(lgJoinCode) lgOpen({name:"join",code:lgJoinCode});
+if(lgLinkCode) lgOpen({name:"claim",code:lgLinkCode});
+else if(lgJoinCode) lgOpen({name:"join",code:lgJoinCode});
 if(location.hash==="#play") openGame();
 </script>
 </body>

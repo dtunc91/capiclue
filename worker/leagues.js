@@ -4,6 +4,9 @@
 
    POST /api/player          {name}                        -> {id, token, name}
    POST /api/player/rename   {name}            (token)     -> {name}
+   POST /api/player/link                       (token)     -> {code, expires}   one-time code for another device (10 min)
+   GET  /api/player/peek?code=XXXXXXXX                     -> {name}
+   POST /api/player/claim    {code}                        -> {id, token, name}   that device becomes the same player
    GET  /api/leagues                           (token)     -> {player, leagues:[{code,name,members}]}
    POST /api/league/create   {name}            (token)     -> {code, name}
    GET  /api/league/info?code=ABC123                       -> {code, name, members}   (public: for the invite screen)
@@ -54,7 +57,18 @@ async function body(request) {
 async function currentPlayer(request, env) {
   const token = request.headers.get("x-player-token") || "";
   if (!/^[A-Za-z0-9]{32,64}$/.test(token)) return null;
-  return env.DB.prepare("SELECT id, name FROM players WHERE token_hash=?").bind(await sha256("capiclue-player:" + token)).first();
+  const h = await sha256("capiclue-player:" + token);
+  // a player's first device, or any extra device linked with "Play on another device"
+  return (await env.DB.prepare("SELECT id, name FROM players WHERE token_hash=?").bind(h).first())
+      || (await env.DB.prepare("SELECT p.id, p.name FROM player_tokens t JOIN players p ON p.id=t.player WHERE t.token_hash=?").bind(h).first());
+}
+const LINK_MINUTES = 10;
+const newToken = () => randomString(40, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+async function findLinkCode(env, raw) {
+  const code = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (code.length !== 8) return null;
+  return env.DB.prepare("SELECT l.code, l.player, p.name FROM link_codes l JOIN players p ON p.id=l.player WHERE l.code=? AND l.expires>?")
+    .bind(code, Date.now()).first();
 }
 
 export async function leagueRoutes(request, env, url) {
@@ -64,7 +78,7 @@ export async function leagueRoutes(request, env, url) {
     const d = await body(request); const name = cleanName(d.name, 20);
     if (!name) return bad("Please choose a nickname.");
     const id = randomString(12, CODE_CHARS.toLowerCase() + "abcdefghijkmnpqrstuvwxyz");
-    const token = randomString(40, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    const token = newToken();
     await env.DB.prepare("INSERT INTO players (id, token_hash, name, created) VALUES (?,?,?,?)")
       .bind(id, await sha256("capiclue-player:" + token), name, Date.now()).run();
     return json({ id, token, name });
@@ -78,8 +92,33 @@ export async function leagueRoutes(request, env, url) {
     return json({ ...lg, members: n });
   }
 
+  /* "Play on another device": the second device previews and then redeems a one-time code (no sign-in needed). */
+  if (p === "/api/player/peek" && m === "GET") {
+    const lc = await findLinkCode(env, url.searchParams.get("code"));
+    return lc ? json({ name: lc.name }) : bad("This code has expired or was already used. Make a new one on your other device.", 404);
+  }
+  if (p === "/api/player/claim" && m === "POST") {
+    const lc = await findLinkCode(env, (await body(request)).code);
+    if (!lc) return bad("This code has expired or was already used. Make a new one on your other device.", 404);
+    const token = newToken(), now = Date.now();
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM link_codes WHERE code=?").bind(lc.code),          // works once
+      env.DB.prepare("INSERT INTO player_tokens (token_hash, player, created) VALUES (?,?,?)").bind(await sha256("capiclue-player:" + token), lc.player, now),
+    ]);
+    return json({ id: lc.player, token, name: lc.name });
+  }
+
   const me = await currentPlayer(request, env);
   if (!me) return bad("Not signed in.", 401);
+
+  if (p === "/api/player/link" && m === "POST") {      // make a one-time code for another device
+    const code = randomString(8, CODE_CHARS), expires = Date.now() + LINK_MINUTES * 60e3;
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM link_codes WHERE expires<? OR player=?").bind(Date.now(), me.id),   // one live code per player
+      env.DB.prepare("INSERT INTO link_codes (code, player, expires) VALUES (?,?,?)").bind(code, me.id, expires),
+    ]);
+    return json({ code, expires });
+  }
 
   if (p === "/api/player/rename" && m === "POST") {
     const name = cleanName((await body(request)).name, 20);
