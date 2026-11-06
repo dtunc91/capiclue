@@ -253,6 +253,8 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 #remindClose{display:block;margin:0 auto}
 .homebtn{white-space:nowrap}
 @media (max-width:400px){ #game .brand .word{display:none} #game .topright{gap:8px} }
+.leaguesheet form{display:block;margin:0}
+.leaguesheet [hidden]{display:none!important}
 .leaguesheet{width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
 .leaguesheet h2{margin:0 0 6px;font-size:1.4rem}
 .lg-sub{margin:0 0 14px;color:var(--soft)}
@@ -274,6 +276,8 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
 .lg-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;border-radius:10px;background:var(--paper);margin:10px 0 6px}
 .lg-tabs.two{grid-template-columns:1fr 1fr}
+.lg-tabs.four{grid-template-columns:1.25fr 1fr 1.1fr 1fr}
+.lg-tabs small{font-weight:600;opacity:.75;font-size:.78em}
 .lg-tabs button{padding:8px 4px;border-radius:8px;background:none;color:var(--soft);font-weight:700;font-size:.9rem}
 .lg-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .lg-table{list-style:none;margin:10px 0 0;padding:0}
@@ -439,7 +443,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <li data-i18n="help_4"><b>📅 Five new cities every day.</b> The best score is 100.</li>
     <li data-i18n="help_5"><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the continent and first letter, Hard shows the continent. Each level has its own five cities.</li>
     <li data-i18n="help_6"><b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.</li>
-    <li data-i18n="help_7"><b>🏆 Play with friends:</b> tap the trophy to create a league and share the link. Everyone’s daily scores appear in one table.</li>
+    <li data-i18n="help_7"><b>🏆 Play with friends:</b> tap the trophy to create a league and share the link. In leagues, Medium scores count double and Hard scores triple.</li>
   </ul>
   <button id="helpClose" class="cta" type="button" data-i18n="got_it">Got it</button>
 </dialog>
@@ -1089,7 +1093,7 @@ const I18N = {
     "region_Africa": "Africa",
     "region_Americas": "Americas",
     "region_Oceania": "Oceania",
-    "help_7": "<b>🏆 Play with friends:</b> tap the trophy to create a league and share the link. Everyone’s daily scores appear in one table.",
+    "help_7": "<b>🏆 Play with friends:</b> tap the trophy to create a league and share the link. In leagues, Medium scores count double and Hard scores triple.",
     "lg_btn": "Leagues",
     "lg_title": "🏆 Leagues",
     "lg_intro": "Play against friends and family. Create a league, share the link, and see who knows their capitals best.",
@@ -1132,6 +1136,8 @@ const I18N = {
     "lg_rename": "Rename",
     "lg_cancel": "Cancel",
     "lg_level_note": "Each level has its own table.",
+    "lg_all": "All levels",
+    "lg_points_note": "League points: Easy ×1, Medium ×2, Hard ×3. “All levels” adds them together.",
     "lg_week_range": "Mon {from} – Sun {to}"
   }
 };
@@ -1740,6 +1746,7 @@ async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()
 const PLAYER_KEY="capiclue-player";
 let player=null; try{ player=JSON.parse(localStorage.getItem(PLAYER_KEY)) }catch(e){}
 const lgEsc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LG_MULT={easy:1,medium:2,hard:3};   // league points: Easy x1, Medium x2, Hard x3
 const lgPattern=sc=>sc.map(v=>({20:4,15:3,10:2,5:1}[v]||0)).join("");
 const lgSquares=p=>[...String(p||"")].map(d=>["⬛","🟥","🟧","🟨","🟩"][+d]||"").join("");
 async function lgApi(path,data){
@@ -1803,7 +1810,7 @@ async function lgRender(){
       <button type="button" class="lg-linkbtn" id="lgBack" style="display:block;margin:10px auto 0">${t("lg_back")}</button>`;
     $("lgBack").onclick=()=>lgOpen(); $("lgName").focus();
     $("lgCreateForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgName").value.trim(); if(!name) return;
-      try{ const lg=await lgApi("/api/league/create",{name}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level,justCreated:true}) }
+      try{ const lg=await lgApi("/api/league/create",{name}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level:"all",justCreated:true}) }
       catch(err){ $("lgErr").textContent=err.message } };
     return;
   }
@@ -1821,7 +1828,7 @@ async function lgRender(){
         if(!player){ const name=$("lgNick").value.trim(); if(!name){ $("lgNick").focus(); return }
           player=await lgApi("/api/player",{name}); localStorage.setItem(PLAYER_KEY,JSON.stringify(player)); }
         await lgApi("/api/league/join",{code:info.code}); track("league",{result:"join"});
-        await syncLeagueScores(); lgOpen({name:"table",code:info.code,period:"today",level});
+        await syncLeagueScores(); lgOpen({name:"table",code:info.code,period:"today",level:"all"});
       }catch(err){ $("lgErr").textContent=err.message } };
     return;
   }
@@ -1839,7 +1846,7 @@ async function lgRender(){
     <button type="button" class="lg-linkbtn" id="lgX" style="display:block;margin:10px auto 0">${t("lg_close")}</button>`;
   $("lgNew").onclick=()=>lgOpen({name:"create"}); $("lgX").onclick=lgClose;
   if($("lgRename")) $("lgRename").onclick=()=>lgOpen({name:"nickname"});
-  lgBody.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level}));
+  lgBody.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level:"all"}));
 }
 
 async function lgRenderTable(v){
@@ -1852,16 +1859,18 @@ async function lgRenderTable(v){
     <div class="lg-titlerow"><h2 id="lgTitle">${lgEsc(d.name)}</h2>${d.isOwner?`<button type="button" class="lg-linkbtn" id="lgRenameLeague">✏️ ${t("lg_rename")}</button>`:""}</div>
     <form id="lgRenameForm" hidden><input class="lg-input" id="lgNewName" maxlength="30" value="${lgEsc(d.name)}" aria-label="${lgEsc(t("lg_name_title"))}"><div class="lg-row2"><button class="cta" type="submit">${t("lg_save")}</button><button type="button" class="lg-linkbtn" id="lgRenameCancel">${t("lg_cancel")}</button></div><p class="lg-err" id="lgRenameErr" aria-live="polite"></p></form>
     <button class="cta" id="lgInvite" type="button">${t("lg_invite")}</button><p class="lg-note" id="lgNote" aria-live="polite"></p>
-    <div class="lg-tabs" role="group" aria-label="${lgEsc(t("level_group"))}">${Object.keys(LEVELS).map(l=>`<button type="button" data-lv="${l}" aria-pressed="${l===v.level}">${LEVELS[l]}</button>`).join("")}</div>
+    <div class="lg-tabs four" role="group" aria-label="${lgEsc(t("level_group"))}">${["all",...Object.keys(LEVELS)].map(l=>`<button type="button" data-lv="${l}" aria-pressed="${l===v.level}">${l==="all"?t("lg_all"):`${LEVELS[l]} <small>×${LG_MULT[l]}</small>`}</button>`).join("")}</div>
     <div class="lg-tabs two" role="group">${["today","week"].map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===v.period}">${t(p==="today"?"lg_today":"lg_week")}</button>`).join("")}</div>
     ${week?`<p class="lg-hint" style="margin:4px 0 0">${t("lg_week_range",{from:fmt(d.week[0]),to:fmt(d.week[1])})}</p>`:""}
     <ul class="lg-table">${rows.map(r=>{
       const me=r.id===d.me, nm=lgEsc(r.name)+(me?` <span class="soft">(${t("lg_you")})</span>`:"");
       const score=week?(r.week!=null?`<span class="lg-score">${r.week}</span>`:`<span class="lg-score none">${t("lg_not_played")}</span>`)
                       :(r.today!=null?`<span class="lg-score">${r.today}</span>`:`<span class="lg-score none">${t("lg_not_played")}</span>`);
-      const sub=week?(r.days?`<small>${r.days===1?t("lg_week_day1"):t("lg_week_days",{n:r.days})}</small>`:""):(r.pattern?`<small class="sq">${lgSquares(r.pattern)}</small>`:"");
+      const sub=week?(r.days?`<small>${r.days===1?t("lg_week_day1"):t("lg_week_days",{n:r.days})}</small>`:"")
+        :v.level==="all"?(r.today!=null?`<small>${["easy","medium","hard"].filter(l=>r[l]!=null).map(l=>LG_MULT[l]>1?`${LEVELS[l]} ${r[l]}×${LG_MULT[l]}`:`${LEVELS[l]} ${r[l]}`).join(" · ")}</small>`:"")
+        :(r.pattern?`<small class="sq">${lgSquares(r.pattern)}</small>`:"");
       return `<li class="${me?"me":""}"><span class="lg-rank ${r.rank===1?"top":""}">${r.rank??"–"}</span><span class="lg-name">${nm}${sub}</span>${score}</li>`}).join("")}</ul>
-    <p class="lg-hint">${t("lg_level_note")}</p>
+    <p class="lg-hint">${t("lg_points_note")}</p>
     <button type="button" class="lg-leave" id="lgLeave">${t("lg_leave")}</button>`;
   $("lgBack").onclick=()=>lgOpen();
   if($("lgRenameLeague")){
@@ -1893,13 +1902,13 @@ async function renderLeagueCard(){
     const leagues=(await lgApi("/api/leagues")).leagues.slice(0,3);
     if(!leagues.length){ card.innerHTML=`<button type="button" id="lgCta">${t("lg_cta")}</button>`; card.hidden=false; $("lgCta").onclick=()=>lgOpen({name:"create"}); return }
     const lines=await Promise.all(leagues.map(async l=>{
-      const d=await lgApi(`/api/league/table?code=${l.code}&day=${dayKey}&level=${level}`);
+      const d=await lgApi(`/api/league/table?code=${l.code}&day=${dayKey}&level=all`);
       const rows=lgRank(d.members.map(m=>({...m})),"today"), me=rows.find(r=>r.id===d.me), played=rows.filter(r=>r.rank!=null).length;
       const txt=(me?.rank&&played>1)?t("lg_rank_today",{place:lgOrdinal(me.rank),total:played,league:lgEsc(l.name)}):t("lg_waiting",{league:lgEsc(l.name)});
       return `<button type="button" data-code="${lgEsc(l.code)}">🏆 ${txt} ›</button>`;
     }));
     card.innerHTML=lines.join(""); card.hidden=false;
-    card.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level}));
+    card.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level:"all"}));
   }catch(e){}
 }
 

@@ -159,17 +159,23 @@ export async function leagueRoutes(request, env, url) {
 
   if (p === "/api/league/table" && m === "GET") {
     const code = (url.searchParams.get("code") || "").toUpperCase(), day = url.searchParams.get("day") || "", level = url.searchParams.get("level") || "";
-    if (!validDay(day) || !LEVELS.has(level)) return bad("Invalid request.");
+    if (!validDay(day) || !(LEVELS.has(level) || level === "all")) return bad("Invalid request.");
     const lg = await env.DB.prepare("SELECT code, name, owner FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
     if (!(await env.DB.prepare("SELECT 1 FROM members WHERE league=? AND player=?").bind(code, me.id).first())) return bad("You’re not in this league.", 403);
     const [mon, sun] = weekRange(day);
+    // League points: Easy x1, Medium x2, Hard x3. "all" adds every level together.
+    const MULT = "(CASE s.level WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END)";
+    const LV = "(?3='all' OR s.level=?3)";
     const rows = await env.DB.prepare(
       `SELECT p.id, p.name,
-         (SELECT score   FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level=?3) today,
-         (SELECT pattern FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level=?3) pattern,
-         (SELECT SUM(score) FROM scores s WHERE s.player=p.id AND s.level=?3 AND s.day BETWEEN ?4 AND ?5) week,
-         (SELECT COUNT(*)   FROM scores s WHERE s.player=p.id AND s.level=?3 AND s.day BETWEEN ?4 AND ?5) days
+         (SELECT SUM(s.score*${MULT}) FROM scores s WHERE s.player=p.id AND s.day=?2 AND ${LV}) today,
+         (SELECT s.pattern FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level=?3) pattern,
+         (SELECT s.score FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level='easy') easy,
+         (SELECT s.score FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level='medium') medium,
+         (SELECT s.score FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level='hard') hard,
+         (SELECT SUM(s.score*${MULT}) FROM scores s WHERE s.player=p.id AND ${LV} AND s.day BETWEEN ?4 AND ?5) week,
+         (SELECT COUNT(DISTINCT s.day) FROM scores s WHERE s.player=p.id AND ${LV} AND s.day BETWEEN ?4 AND ?5) days
        FROM members mb JOIN players p ON p.id=mb.player WHERE mb.league=?1`).bind(code, day, level, mon, sun).all();
     return json({ code: lg.code, name: lg.name, isOwner: lg.owner === me.id, me: me.id, day, level, week: [mon, sun], members: rows.results });
   }
