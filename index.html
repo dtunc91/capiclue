@@ -209,6 +209,9 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .levels button.done::after{content:"✓";position:absolute;top:3px;right:7px;font-size:.7rem;color:var(--good)}
 .levels button[aria-checked="true"].done::after{color:var(--amber)}
 .level-note{margin:0 0 16px;font-size:.9rem;color:var(--soft);min-height:1.4em}
+.lg-status{display:block;margin:-6px 0 14px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;color:var(--soft);text-align:inherit;cursor:pointer}
+.lg-status b{color:var(--ink)}
+.lg-status:hover b{text-decoration:underline}
 .hintline{margin:12px 0 0;text-align:center;color:#B8C4D6;font-size:.9rem}
 .hintline b{color:var(--amber);font-weight:600}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
@@ -403,6 +406,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
         <button type="button" role="radio" data-level="hard" data-i18n="level_hard">Hard</button>
       </div>
       <p class="level-note" id="levelNote"></p>
+      <button type="button" class="lg-status" id="lgStatus" hidden></button>
       <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk" data-i18n="enter_hint">or press <kbd>Enter</kbd></span></div>
       <p class="countdown hidden" id="homeCountdown"></p>
       <div class="installtip hidden" id="installTip">
@@ -1201,6 +1205,12 @@ const I18N = {
     "lg_all": "All levels",
     "lg_points_note": "League points: Easy ×1, Medium ×2, Hard ×3. “All levels” adds them together.",
     "lg_week_range": "Mon {from} – Sun {to}",
+    "lg_status_as": "🏆 Playing as <b>{name}</b>",
+    "lg_status_in": "in {league}",
+    "lg_status_many": "in {n} leagues",
+    "lg_status_none": "no leagues yet",
+    "lg_status_rank": "{place} in {league} today",
+    "lg_status_new": "🏆 Play with friends · Already in a league? <b>Link this device</b>",
     "lg_week_range_wd": "Mon {from} – Fri {to}",
     "lg_len_title": "How long should it run?",
     "lg_len_7": "1 week",
@@ -1880,6 +1890,27 @@ const lgSheet=$("leagueSheet"), lgBody=$("leagueBody");
 let lgView={name:"list"};
 function lgOpen(view={name:"list"}){ lgView=view; lgRender(); if(!lgSheet.open) lgSheet.showModal() }
 function lgClose(){ lgSheet.close() }
+/* Home screen line above Play: shows who you're playing as before you start, so a device that has
+   forgotten your nickname (cleared data, private window) is obvious straight away. */
+async function renderLeagueStatus(){
+  const el=$("lgStatus"); if(!el) return;
+  if(!player){ el.innerHTML=t("lg_status_new"); el.hidden=false; return }
+  const as=t("lg_status_as",{name:lgEsc(player.name)});
+  el.innerHTML=as; el.hidden=false;
+  try{
+    const ls=(await lgApi("/api/leagues")).leagues;
+    if(!player) return renderLeagueStatus();         // token no longer valid
+    let extra=!ls.length?t("lg_status_none"):ls.length>1?t("lg_status_many",{n:ls.length}):t("lg_status_in",{league:lgEsc(ls[0].name)});
+    if(ls.length===1){
+      const d=await lgApi(`/api/league/table?code=${ls[0].code}&day=${dayKey}&level=all`);
+      const rows=lgRank(d.members.map(m=>({...m})),"today"), me=rows.find(r=>r.id===d.me), played=rows.filter(r=>r.rank!=null).length;
+      if(me?.rank&&played>1&&!d.round?.finished) extra=t("lg_status_rank",{place:lgOrdinal(me.rank),league:lgEsc(ls[0].name)});
+    }
+    el.innerHTML=`${as} · ${extra}`;
+  }catch(e){}
+}
+$("lgStatus").onclick=()=>lgOpen();
+lgSheet.addEventListener("close",()=>renderLeagueStatus());
 lgSheet.addEventListener("click",e=>{ if(e.target===lgSheet) lgClose() });
 document.querySelectorAll("[data-leagues-btn]").forEach(b=>b.addEventListener("click",()=>{ hideSuggest?.(); lgOpen() }));
 
@@ -2118,6 +2149,7 @@ async function renderLeagueCard(){
     }));
     card.innerHTML=lines.join(""); card.hidden=false;
     card.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level:"all"}));
+    renderLeagueStatus();
   }catch(e){}
 }
 
@@ -2172,7 +2204,7 @@ applyStaticWording();
 init();
 try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
 track("visit",{level});
-syncLeagueScores();
+syncLeagueScores().finally(renderLeagueStatus);
 if(lgLinkCode) lgOpen({name:"claim",code:lgLinkCode});
 else if(lgJoinCode) lgOpen({name:"join",code:lgJoinCode});
 if(location.hash==="#play") openGame();
