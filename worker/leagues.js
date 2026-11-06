@@ -24,6 +24,20 @@ const MAX_MEMBERS = 50;
 const SCHEDULES = new Set(["all", "weekdays"]);   // league counts every day, or Monday to Friday only
 const LENGTHS = new Set([7, 14, 30]);              // a league round runs 1 week, 2 weeks or 30 days, then has a winner
 const addDays = (d, n) => new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+// Mon–Fri leagues always start on a Monday (the next one, or today if it is Monday)
+function roundStart(day, weekdays) {
+  if (!weekdays) return day;
+  const dow = new Date(day + "T00:00:00Z").getUTCDay();
+  return addDays(day, (8 - dow) % 7);
+}
+// last counted day; Mon–Fri rounds end on the last weekday, so the winner is known on Saturday
+function roundEnd(start, length, weekdays) {
+  let end = addDays(start, length - 1);
+  const dow = new Date(end + "T00:00:00Z").getUTCDay();
+  if (weekdays && dow === 6) end = addDays(end, -1);
+  if (weekdays && dow === 0) end = addDays(end, -2);
+  return end;
+}
 const MULT = "(CASE s.level WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END)";   // league points: Easy x1, Medium x2, Hard x3
 const NO_WEEKEND = " AND strftime('%w', s.day) NOT IN ('0','6')";
 // everyone's points in a league between two days (all levels), best first
@@ -150,7 +164,7 @@ export async function leagueRoutes(request, env, url) {
   if (p === "/api/league/create" && m === "POST") {
     const d = await body(request), name = cleanName(d.name, 30), days = SCHEDULES.has(d.days) ? d.days : "all";
     const length = LENGTHS.has(d.length) ? d.length : 14;
-    const start = validDay(d.day) && dayWithinReach(d.day) ? d.day : new Date().toISOString().slice(0, 10);
+    const start = roundStart(validDay(d.day) && dayWithinReach(d.day) ? d.day : new Date().toISOString().slice(0, 10), days === "weekdays");
     if (!name) return bad("Please give your league a name.");
     const count = await env.DB.prepare("SELECT COUNT(*) n FROM members WHERE player=?").bind(me.id).first("n");
     if (count >= MAX_LEAGUES_PER_PLAYER) return bad("You’re in the maximum number of leagues.");
@@ -218,19 +232,20 @@ export async function leagueRoutes(request, env, url) {
     const lg = await env.DB.prepare("SELECT owner, days, start, length FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
     if (lg.owner !== me.id) return bad("Only the person who created this league can start a new round.", 403);
-    const length = LENGTHS.has(d.length) ? d.length : (lg.length || 14);
+    const length = LENGTHS.has(d.length) ? d.length : (lg.length || 14), weekdays = lg.days === "weekdays";
+    const start = roundStart(d.day, weekdays);
     const stmts = [];
     if (lg.start && lg.length) {
-      const end = addDays(lg.start, lg.length - 1);
+      const end = roundEnd(lg.start, lg.length, weekdays);
       if (d.day <= end) return bad("This round hasn’t finished yet.");
       const t = (await totals(env, code, lg.start, end, lg.days === "weekdays")).results;
       const top = t.length ? t[0].pts : null, winners = t.filter((r) => r.pts === top).map((r) => r.name);
       stmts.push(env.DB.prepare("INSERT OR IGNORE INTO league_rounds (league, start, end, winners, points) VALUES (?,?,?,?,?)")
         .bind(code, lg.start, end, JSON.stringify(winners), top));
     }
-    stmts.push(env.DB.prepare("UPDATE leagues SET start=?, length=? WHERE code=?").bind(d.day, length, code));
+    stmts.push(env.DB.prepare("UPDATE leagues SET start=?, length=? WHERE code=?").bind(start, length, code));
     await env.DB.batch(stmts);
-    return json({ code, start: d.day, length });
+    return json({ code, start, length });
   }
 
   if (p === "/api/league/table" && m === "GET") {
@@ -242,7 +257,7 @@ export async function leagueRoutes(request, env, url) {
     // A league with a length runs in rounds: "overall" covers the round so far. Older leagues without one use the calendar week.
     let [from, to] = weekRange(day), round = null;
     if (lg.start && lg.length) {
-      const end = addDays(lg.start, lg.length - 1);
+      const end = roundEnd(lg.start, lg.length, lg.days === "weekdays");
       from = lg.start; to = end;
       round = { start: lg.start, end, length: lg.length, dayNo: Math.round((Date.parse(day) - Date.parse(lg.start)) / 864e5) + 1, finished: day > end };
     }

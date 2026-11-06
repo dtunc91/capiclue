@@ -1210,7 +1210,8 @@ const I18N = {
     "lg_overall": "Overall",
     "lg_round_day": "Day {n} of {total} · ends {end}",
     "lg_round_last": "Final day! Ends tonight.",
-    "lg_round_starts": "Starts {start}",
+    "lg_round_starts": "📅 Starts Monday {start}. Games before then don’t count.",
+    "lg_list_starts": "Starts {start}",
     "lg_round_done": "Finished {end}",
     "lg_winner": "🏆 Winner: <b>{name}</b>",
     "lg_winners": "🏆 Joint winners: <b>{names}</b>",
@@ -1228,7 +1229,7 @@ const I18N = {
     "lg_days_all": "Every day",
     "lg_days_all_sub": "Monday to Sunday",
     "lg_days_wd": "Weekdays only",
-    "lg_days_wd_sub": "Monday to Friday. Weekend games don’t count.",
+    "lg_days_wd_sub": "Monday to Friday. Starts on a Monday; weekend games don’t count.",
     "lg_tag_wd": "Mon–Fri",
     "lg_edit": "Edit league",
     "lg_weekend_off": "🏖️ It’s the weekend: games today don’t count in this Mon–Fri league. Scores below are just for fun.",
@@ -2024,15 +2025,18 @@ async function lgRenderClaim(code){
 }
 
 const lgAddDays=(s,n)=>new Date(Date.parse(s+"T00:00:00Z")+n*864e5).toISOString().slice(0,10);
+const lgLastWeekday=d=>{ const w=new Date(d+"T00:00:00Z").getUTCDay(); return w===6?lgAddDays(d,-1):w===0?lgAddDays(d,-2):d };
 const lgDayNo=l=>Math.round((Date.parse(dayKey)-Date.parse(l.start))/864e5)+1;
 function lgRoundLabel(l){   // small progress note in the leagues list
   if(!l.start||!l.length) return "";
-  const n=lgDayNo(l); return (n>l.length?t("lg_list_done"):n<1?"":t("lg_list_day",{n,total:l.length}))+" · ";
+  const n=lgDayNo(l), fmt=s=>new Date(s+"T12:00:00Z").toLocaleDateString(LOCALES[LANG]||"en-GB",{weekday:"short",day:"numeric",month:"short"});
+  const end=lgAddDays(l.start,l.length-1), last=l.days==="weekdays"?lgLastWeekday(end):end;
+  return (dayKey>last?t("lg_list_done"):n<1?t("lg_list_starts",{start:fmt(l.start)}):t("lg_list_day",{n,total:l.length}))+" · ";
 }
 function lgRoundHead(d,rows,fmt){   // "Day 3 of 14", or the winner once the round is over
   const R=d.round;
   if(!R.finished){
-    const line=R.dayNo<1?t("lg_round_starts",{start:fmt(R.start)}):R.dayNo>=R.length?t("lg_round_last"):t("lg_round_day",{n:R.dayNo,total:R.length,end:fmt(R.end)});
+    const line=R.dayNo<1?t("lg_round_starts",{start:fmt(R.start)}):d.day===R.end?t("lg_round_last"):t("lg_round_day",{n:R.dayNo,total:R.length,end:fmt(R.end)});
     return `<p class="lg-round">${line}</p>`;
   }
   const win=rows.filter(r=>r.rank===1&&r.week!=null);
