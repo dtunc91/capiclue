@@ -178,7 +178,8 @@ export async function leagueRoutes(request, env, url) {
     const rows = await env.DB.prepare(
       `SELECT l.code, l.name, COALESCE(l.days,'all') days, l.start, l.length, (SELECT COUNT(*) FROM members x WHERE x.league=l.code) members
        FROM members mb JOIN leagues l ON l.code=mb.league WHERE mb.player=? ORDER BY mb.joined`).bind(me.id).all();
-    return json({ player: me, leagues: rows.results });
+    const hasBackup = !!(await env.DB.prepare("SELECT 1 FROM backup_codes WHERE player=?").bind(me.id).first());
+    return json({ player: me, leagues: rows.results, hasBackup });
   }
 
   if (p === "/api/league/create" && m === "POST") {

@@ -211,6 +211,12 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .level-note{margin:0 0 16px;font-size:.9rem;color:var(--soft);min-height:1.4em}
 .lg-status{display:block;margin:-6px 0 14px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;color:var(--soft);text-align:inherit;cursor:pointer}
 .lg-status b{color:var(--ink)}
+.lg-nudge{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;padding:10px 12px;border-radius:12px;border:2px dashed var(--amber);background:var(--card)}
+.lg-nudge p{margin:0;flex:1;font-size:.88rem;line-height:1.4;color:var(--soft)}
+.lg-nudge b{color:var(--ink)}
+.lg-nudge-go{flex:none;padding:8px 12px;border-radius:10px;background:var(--ink);color:var(--paper);font-weight:700;font-size:.85rem}
+.lg-nudge[hidden],.lg-status[hidden]{display:none}
+.lg-nudge-x{flex:none;background:none;border:0;font-size:1.3rem;line-height:1;color:var(--soft);padding:4px}
 .lg-status:hover b{text-decoration:underline}
 .hintline{margin:12px 0 0;text-align:center;color:#B8C4D6;font-size:.9rem}
 .hintline b{color:var(--amber);font-weight:600}
@@ -423,6 +429,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
       </div>
       <p class="level-note" id="levelNote"></p>
       <button type="button" class="lg-status" id="lgStatus" hidden></button>
+      <div class="lg-nudge" id="lgNudge" hidden><p></p><button type="button" class="lg-nudge-go" id="lgNudgeGo"></button><button type="button" class="lg-nudge-x" id="lgNudgeX" aria-label="Hide">×</button></div>
       <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk" data-i18n="enter_hint">or press <kbd>Enter</kbd></span></div>
       <p class="countdown hidden" id="homeCountdown"></p>
       <div class="installtip hidden" id="installTip">
@@ -1270,6 +1277,9 @@ const I18N = {
     "lg_nick_elsewhere": "Already have a nickname on another device? <b>Use it here instead</b>",
     "lg_new_device_short": "<b>🔑 Already have a nickname?</b> Get back in with your backup code, a code from your other device, or one from your league’s creator.",
     "lg_backup_btn": "🔑 Backup code",
+    "lg_nudge": "🔑 <b>New:</b> save a backup code, so you can always get back to {name} and your leagues, even on a new browser.",
+    "lg_nudge_go": "Get my code",
+    "lg_nudge_hide": "Hide",
     "lg_backup_title": "🔑 Your backup code",
     "lg_backup_first": "Save this now. If this browser ever forgets you, it’s how you get back to <b>{name}</b> and your leagues.",
     "lg_backup_sub": "Use it on any browser or device to get back to <b>{name}</b> and your leagues: tap 🏆 then <b>Enter a code</b>.",
@@ -1936,7 +1946,8 @@ async function renderLeagueStatus(){
   const as=t("lg_status_as",{name:lgEsc(player.name)});
   el.innerHTML=as; el.hidden=false;
   try{
-    const ls=(await lgApi("/api/leagues")).leagues;
+    const res=await lgApi("/api/leagues"), ls=res.leagues;
+    lgBackupNudge(ls.length&&!res.hasBackup&&!lgSavedBackup());
     if(!player) return renderLeagueStatus();         // token no longer valid
     let extra=!ls.length?t("lg_status_none"):ls.length>1?t("lg_status_many",{n:ls.length}):t("lg_status_in",{league:lgEsc(ls[0].name)});
     if(ls.length===1){
@@ -1948,6 +1959,17 @@ async function renderLeagueStatus(){
   }catch(e){}
 }
 $("lgStatus").onclick=()=>lgOpen();
+/* One-time reminder for players who joined leagues before backup codes existed */
+const NUDGE_KEY="capiclue-backup-nudge";
+function lgBackupNudge(show){
+  const el=$("lgNudge"); let seen=false; try{ seen=localStorage.getItem(NUDGE_KEY)===player?.id }catch(e){}
+  if(!show||seen||!player){ el.hidden=true; return }
+  el.querySelector("p").innerHTML=t("lg_nudge",{name:lgEsc(player.name)}); $("lgNudgeGo").textContent=t("lg_nudge_go");
+  $("lgNudgeX").setAttribute("aria-label",t("lg_nudge_hide")); el.hidden=false;
+}
+function lgNudgeDone(){ try{ localStorage.setItem(NUDGE_KEY,player?.id||"") }catch(e){} $("lgNudge").hidden=true }
+$("lgNudgeGo").onclick=()=>{ lgNudgeDone(); lgOpen({name:"backup"}) };
+$("lgNudgeX").onclick=lgNudgeDone;
 lgSheet.addEventListener("close",()=>renderLeagueStatus());
 lgSheet.addEventListener("click",e=>{ if(e.target===lgSheet) lgClose() });
 document.querySelectorAll("[data-leagues-btn]").forEach(b=>b.addEventListener("click",()=>{ hideSuggest?.(); lgOpen() }));
