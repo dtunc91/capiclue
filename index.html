@@ -291,10 +291,19 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-score{font-family:"DM Mono",ui-monospace,monospace;font-size:1.05rem}
 .lg-score.none{font-family:inherit;font-size:.85rem;color:var(--soft)}
 .lg-leave{display:block;margin:16px auto 0;background:none;color:var(--bad);font-weight:600;text-decoration:underline}
-.lg-banner{margin:4px 0 14px;padding:14px 16px;border-radius:12px;background:var(--paper);border:2px dashed var(--line)}
-.lg-banner p{margin:0 0 6px;font-size:.92rem;color:var(--soft)}
-.lg-banner .lg-banner-title{color:var(--ink);font-weight:800;font-size:1rem}
-.lg-banner-btn{margin-top:4px;padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--paper);font-weight:700}
+.lg-banner{display:flex;gap:12px;align-items:center;margin:4px 0 14px;padding:12px 14px;border-radius:12px;background:var(--paper);border:2px dashed var(--line)}
+.lg-banner p{margin:0;font-size:.88rem;line-height:1.4;color:var(--soft)}
+.lg-banner p b:first-child{color:var(--ink)}
+.lg-banner-btn{flex:none;padding:9px 12px;border-radius:10px;background:var(--ink);color:var(--paper);font-weight:700;font-size:.88rem}
+.lg-days{border:0;padding:0;margin:12px 0 4px}
+.lg-days legend{font-weight:700;margin-bottom:6px;padding:0}
+.lg-days label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:2px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.lg-days label:has(input:checked){border-color:var(--ink)}
+.lg-days input{flex:none;width:20px;height:20px;padding:0;margin:3px 0 0;border:0;border-radius:50%;background:none;accent-color:var(--ink)}
+.lg-days span{display:flex;flex-direction:column}
+.lg-days small{color:var(--soft);font-size:.85rem}
+.lg-tag{font-style:normal;font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--line);color:var(--ink);vertical-align:2px;white-space:nowrap}
+.lg-weekend{margin:8px 0 0;padding:10px 12px;border-radius:10px;background:var(--paper);font-size:.9rem;color:var(--soft)}
 .lg-devbtn{display:block;width:100%;margin-top:12px;padding:12px;border-radius:10px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
 .lg-devbtn:hover{border-color:var(--amber);filter:none}
 .lg-center{display:block;margin:12px auto 0;text-align:center}
@@ -308,6 +317,8 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .leaguecard button{width:100%;padding:12px 14px;border-radius:12px;background:var(--card);color:var(--ink);border:2px solid var(--line);font-weight:600;text-align:left}
 .leaguecard button:hover{border-color:var(--amber);filter:none}
 .final-main .leaguecard button{text-align:center}
+.leaguecard #lgCtaLink{border:0;background:none;padding:4px 8px;font-weight:500;font-size:.9rem;color:var(--soft)}
+.leaguecard #lgCtaLink b{color:var(--ink);text-decoration:underline}
 .about{margin-top:36px;padding-top:4px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0} .about p{margin:0 0 10px}
 /* Phones: About is folded into one tappable line. Bigger screens: always open. */
 .about summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:14px 0;min-height:44px}
@@ -1153,9 +1164,6 @@ const I18N = {
     "lg_device_scan": "<b>Phone or tablet:</b> scan this with the camera.",
     "lg_device_laptop": "<b>Laptop or computer:</b> go to capiclue.com, tap 🏆 then <b>Enter a code</b>, and type:",
     "lg_enter_code": "Enter a code from another device",
-    "lg_new_device_title": "📱 New device?",
-    "lg_new_device_sub": "Already playing in a league on your phone or another computer? Keep the same nickname and scores here.",
-    "lg_new_device_how": "<b>How:</b> on your other device tap 🏆 then <b>Play on another device</b>, and enter the code here.",
     "lg_new_device_btn": "Enter a code",
     "lg_join_elsewhere": "Already play on another device? <b>Use your code</b> instead, so you keep one nickname.",
     "lg_device_code": "Or type this code on the other device:",
@@ -1178,7 +1186,21 @@ const I18N = {
     "lg_level_note": "Each level has its own table.",
     "lg_all": "All levels",
     "lg_points_note": "League points: Easy ×1, Medium ×2, Hard ×3. “All levels” adds them together.",
-    "lg_week_range": "Mon {from} – Sun {to}"
+    "lg_week_range": "Mon {from} – Sun {to}",
+    "lg_week_range_wd": "Mon {from} – Fri {to}",
+    "lg_days_title": "Which days count?",
+    "lg_days_all": "Every day",
+    "lg_days_all_sub": "Monday to Sunday",
+    "lg_days_wd": "Weekdays only",
+    "lg_days_wd_sub": "Monday to Friday. Weekend games don’t count.",
+    "lg_tag_wd": "Mon–Fri",
+    "lg_edit": "Edit league",
+    "lg_weekend_off": "🏖️ It’s the weekend: games today don’t count in this Mon–Fri league. Scores below are just for fun.",
+    "lg_wd_note": "Mon–Fri league: Saturday and Sunday games don’t count.",
+    "lg_rank_weekend": "<b>{league}</b> is Mon–Fri: back on Monday",
+    "lg_link_here": "📱 Already in a league on your phone? <b>Use the same nickname here</b>",
+    "lg_nick_elsewhere": "Already have a nickname on another device? <b>Use it here instead</b>",
+    "lg_new_device_short": "<b>📱 Already in a league on another device?</b> Use the same nickname here: on that device tap 🏆 then <b>Play on another device</b>."
   }
 };
 const LOCALES = { en: "en-GB" };          // date format per language
@@ -1828,8 +1850,10 @@ function lgNicknameForm(after){
   lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_nick_title")}</h2><p class="lg-sub">${t("lg_nick_sub")}</p>
     <form id="lgNickForm"><input class="lg-input" id="lgNick" maxlength="20" autocomplete="nickname" placeholder="${lgEsc(t("lg_nick_ph"))}" value="${lgEsc(player?.name||"")}" aria-label="${lgEsc(t("lg_nick_ph"))}">
     <button class="cta" type="submit">${t("lg_save")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>
+    ${player?"":`<button type="button" class="lg-linkbtn lg-center" id="lgNickCode">${t("lg_nick_elsewhere")}</button>`}
     <button type="button" class="lg-linkbtn" id="lgBack" style="display:block;margin:10px auto 0">${t("lg_back")}</button>`;
   $("lgBack").onclick=()=>lgOpen();
+  if($("lgNickCode")) $("lgNickCode").onclick=()=>lgOpen({name:"claim"});
   $("lgNick").focus();
   $("lgNickForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgNick").value.trim(); if(!name) return;
     try{
@@ -1846,11 +1870,14 @@ async function lgRender(){
     if(!player) return lgNicknameForm(()=>lgOpen({name:"create"}));
     lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_name_title")}</h2>
       <form id="lgCreateForm"><input class="lg-input" id="lgName" maxlength="30" placeholder="${lgEsc(t("lg_name_ph"))}" aria-label="${lgEsc(t("lg_name_title"))}">
+      <fieldset class="lg-days"><legend>${t("lg_days_title")}</legend>
+        <label><input type="radio" name="lgDays" value="all" ${"all"==="all"?"checked":""}><span><b>${t("lg_days_all")}</b><small>${t("lg_days_all_sub")}</small></span></label>
+        <label><input type="radio" name="lgDays" value="weekdays" ${"all"==="weekdays"?"checked":""}><span><b>${t("lg_days_wd")}</b><small>${t("lg_days_wd_sub")}</small></span></label></fieldset>
       <button class="cta" type="submit">${t("lg_create_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>
       <button type="button" class="lg-linkbtn" id="lgBack" style="display:block;margin:10px auto 0">${t("lg_back")}</button>`;
     $("lgBack").onclick=()=>lgOpen(); $("lgName").focus();
     $("lgCreateForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgName").value.trim(); if(!name) return;
-      try{ const lg=await lgApi("/api/league/create",{name}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level:"all",justCreated:true}) }
+      try{ const days=lgBody.querySelector("[name=lgDays]:checked")?.value||"all"; const lg=await lgApi("/api/league/create",{name,days}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level:"all",justCreated:true}) }
       catch(err){ $("lgErr").textContent=err.message } };
     return;
   }
@@ -1858,7 +1885,7 @@ async function lgRender(){
     lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
     let info; try{ info=await lgApi(`/api/league/info?code=${encodeURIComponent(v.code)}`) }catch(err){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgOk">${t("lg_close")}</button>`; $("lgOk").onclick=lgClose; return }
     const members=info.members===1?t("lg_member1"):t("lg_members",{n:info.members});
-    lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_invited")}</h2><p class="lg-sub">${t("lg_invited_sub",{name:lgEsc(info.name),members})}</p>
+    lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_invited")}</h2><p class="lg-sub">${t("lg_invited_sub",{name:lgEsc(info.name),members})}${info.days==="weekdays"?` <em class="lg-tag">${t("lg_tag_wd")}</em>`:""}</p>
       ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span></div>`:`<input class="lg-input" id="lgNick" maxlength="20" placeholder="${lgEsc(t("lg_nick_ph"))}" aria-label="${lgEsc(t("lg_nick_ph"))}">`}
       <button class="cta" id="lgJoin">${t("lg_join_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p>
       ${player?"":`<button type="button" class="lg-linkbtn lg-center" id="lgJoinCode">${t("lg_join_elsewhere")}</button>`}
@@ -1882,10 +1909,10 @@ async function lgRender(){
   let leagues=[];
   if(player){ try{ leagues=(await lgApi("/api/leagues")).leagues }catch(err){ if(!navigator.onLine){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-err">${t("lg_offline")}</p>`; return } } }
   lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2>
-    ${player?"":`<div class="lg-banner" role="note"><p class="lg-banner-title">${t("lg_new_device_title")}</p><p>${t("lg_new_device_sub")}</p><p>${t("lg_new_device_how")}</p><button type="button" class="lg-banner-btn" id="lgBannerCode">${t("lg_new_device_btn")}</button></div>`}
+    ${player?"":`<div class="lg-banner" role="note"><p>${t("lg_new_device_short")}</p><button type="button" class="lg-banner-btn" id="lgBannerCode">${t("lg_new_device_btn")}</button></div>`}
     ${leagues.length?"":`<p class="lg-sub">${t("lg_intro")}</p>`}
     ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span><button type="button" id="lgRename">${t("lg_change")}</button></div>`:""}
-    ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
+    ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}${l.days==="weekdays"?` <em class="lg-tag">${t("lg_tag_wd")}</em>`:""}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
     <button class="cta" id="lgNew" type="button">${t("lg_create")}</button>
     <p class="lg-hint">${t("lg_join_hint")}</p>
     ${player?`<button type="button" class="lg-devbtn" id="lgDevice">${t("lg_device_btn")}</button>`:""}
@@ -1956,6 +1983,7 @@ async function lgRenderClaim(code){
       lgOpen({name:"list"}) }catch(err){ $("lgErr").textContent=err.message } };
 }
 
+const lgAddDays=(s,n)=>new Date(Date.parse(s+"T00:00:00Z")+n*864e5).toISOString().slice(0,10);
 async function lgRenderTable(v){
   if(!lgBody.querySelector(".lg-table")) lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
   let d; try{ d=await lgApi(`/api/league/table?code=${encodeURIComponent(v.code)}&day=${dayKey}&level=${v.level}`) }
@@ -1963,12 +1991,15 @@ async function lgRenderTable(v){
   const week=v.period==="week", rows=lgRank(d.members.map(m=>({...m})),week?"week":"today");
   const fmt=s=>new Date(s+"T12:00:00Z").toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"});
   lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
-    <div class="lg-titlerow"><h2 id="lgTitle">${lgEsc(d.name)}</h2>${d.isOwner?`<button type="button" class="lg-linkbtn" id="lgRenameLeague">✏️ ${t("lg_rename")}</button>`:""}</div>
-    <form id="lgRenameForm" hidden><input class="lg-input" id="lgNewName" maxlength="30" value="${lgEsc(d.name)}" aria-label="${lgEsc(t("lg_name_title"))}"><div class="lg-row2"><button class="cta" type="submit">${t("lg_save")}</button><button type="button" class="lg-linkbtn" id="lgRenameCancel">${t("lg_cancel")}</button></div><p class="lg-err" id="lgRenameErr" aria-live="polite"></p></form>
+    <div class="lg-titlerow"><h2 id="lgTitle">${lgEsc(d.name)}</h2>${d.isOwner?`<button type="button" class="lg-linkbtn" id="lgRenameLeague">✏️ ${t("lg_edit")}</button>`:""}</div>
+    <form id="lgRenameForm" hidden><input class="lg-input" id="lgNewName" maxlength="30" value="${lgEsc(d.name)}" aria-label="${lgEsc(t("lg_name_title"))}"><fieldset class="lg-days"><legend>${t("lg_days_title")}</legend>
+        <label><input type="radio" name="lgDays" value="all" ${d.days==="all"?"checked":""}><span><b>${t("lg_days_all")}</b><small>${t("lg_days_all_sub")}</small></span></label>
+        <label><input type="radio" name="lgDays" value="weekdays" ${d.days==="weekdays"?"checked":""}><span><b>${t("lg_days_wd")}</b><small>${t("lg_days_wd_sub")}</small></span></label></fieldset><div class="lg-row2"><button class="cta" type="submit">${t("lg_save")}</button><button type="button" class="lg-linkbtn" id="lgRenameCancel">${t("lg_cancel")}</button></div><p class="lg-err" id="lgRenameErr" aria-live="polite"></p></form>
     <button class="cta" id="lgInvite" type="button">${t("lg_invite")}</button><p class="lg-note" id="lgNote" aria-live="polite"></p>
     <div class="lg-tabs four" role="group" aria-label="${lgEsc(t("level_group"))}">${["all",...Object.keys(LEVELS)].map(l=>`<button type="button" data-lv="${l}" aria-pressed="${l===v.level}">${l==="all"?t("lg_all"):`${LEVELS[l]} <small>×${LG_MULT[l]}</small>`}</button>`).join("")}</div>
     <div class="lg-tabs two" role="group">${["today","week"].map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===v.period}">${t(p==="today"?"lg_today":"lg_week")}</button>`).join("")}</div>
-    ${week?`<p class="lg-hint" style="margin:4px 0 0">${t("lg_week_range",{from:fmt(d.week[0]),to:fmt(d.week[1])})}</p>`:""}
+    ${week?`<p class="lg-hint" style="margin:4px 0 0">${d.days==="weekdays"?t("lg_week_range_wd",{from:fmt(d.week[0]),to:fmt(lgAddDays(d.week[0],4))}):t("lg_week_range",{from:fmt(d.week[0]),to:fmt(d.week[1])})}</p>`:""}
+    ${!week&&d.offDay?`<p class="lg-weekend">${t("lg_weekend_off")}</p>`:""}
     <ul class="lg-table">${rows.map(r=>{
       const me=r.id===d.me, nm=lgEsc(r.name)+(me?` <span class="soft">(${t("lg_you")})</span>`:"");
       const score=week?(r.week!=null?`<span class="lg-score">${r.week}</span>`:`<span class="lg-score none">${t("lg_not_played")}</span>`)
@@ -1977,14 +2008,15 @@ async function lgRenderTable(v){
         :v.level==="all"?(r.today!=null?`<small>${["easy","medium","hard"].filter(l=>r[l]!=null).map(l=>LG_MULT[l]>1?`${LEVELS[l]} ${r[l]}×${LG_MULT[l]}`:`${LEVELS[l]} ${r[l]}`).join(" · ")}</small>`:"")
         :(r.pattern?`<small class="sq">${lgSquares(r.pattern)}</small>`:"");
       return `<li class="${me?"me":""}"><span class="lg-rank ${r.rank===1?"top":""}">${r.rank??"–"}</span><span class="lg-name">${nm}${sub}</span>${score}</li>`}).join("")}</ul>
-    <p class="lg-hint">${t("lg_points_note")}</p>
+    <p class="lg-hint">${t("lg_points_note")}${d.days==="weekdays"?" "+t("lg_wd_note"):""}</p>
     <button type="button" class="lg-leave" id="lgLeave">${t("lg_leave")}</button>`;
   $("lgBack").onclick=()=>lgOpen();
   if($("lgRenameLeague")){
     const show=on=>{ $("lgRenameForm").hidden=!on; $("lgRenameLeague").hidden=on; if(on){ $("lgNewName").focus(); $("lgNewName").select() } };
     $("lgRenameLeague").onclick=()=>show(true); $("lgRenameCancel").onclick=()=>show(false);
     $("lgRenameForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgNewName").value.trim(); if(!name) return;
-      try{ await lgApi("/api/league/rename",{code:d.code,name}); lgOpen({...v,justCreated:false}) }catch(err){ $("lgRenameErr").textContent=err.message } };
+      const days=lgBody.querySelector("[name=lgDays]:checked")?.value||d.days;
+      try{ await lgApi("/api/league/rename",{code:d.code,name,days}); lgOpen({...v,justCreated:false}) }catch(err){ $("lgRenameErr").textContent=err.message } };
   }
   lgBody.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>lgOpen({...v,level:b.dataset.lv,justCreated:false}));
   lgBody.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>lgOpen({...v,period:b.dataset.p,justCreated:false}));
@@ -2003,7 +2035,9 @@ async function lgRenderTable(v){
 /* ----- results screen card: "2nd of 5 in Family today" ----- */
 async function renderLeagueCard(){
   const card=$("leagueCard"); card.hidden=true; card.innerHTML="";
-  if(!player){ card.innerHTML=`<button type="button" id="lgCta">${t("lg_cta")}</button>`; card.hidden=false; $("lgCta").onclick=()=>lgOpen({name:"create"}); return }
+  if(!player){   // this device has no nickname: offer a league, or linking for people who play elsewhere
+    card.innerHTML=`<button type="button" id="lgCta">${t("lg_cta")}</button><button type="button" id="lgCtaLink">${t("lg_link_here")} ›</button>`; card.hidden=false;
+    $("lgCta").onclick=()=>lgOpen({name:"create"}); $("lgCtaLink").onclick=()=>lgOpen({name:"claim"}); return }
   try{
     await syncLeagueScores();
     const leagues=(await lgApi("/api/leagues")).leagues.slice(0,3);
@@ -2011,7 +2045,7 @@ async function renderLeagueCard(){
     const lines=await Promise.all(leagues.map(async l=>{
       const d=await lgApi(`/api/league/table?code=${l.code}&day=${dayKey}&level=all`);
       const rows=lgRank(d.members.map(m=>({...m})),"today"), me=rows.find(r=>r.id===d.me), played=rows.filter(r=>r.rank!=null).length;
-      const txt=(me?.rank&&played>1)?t("lg_rank_today",{place:lgOrdinal(me.rank),total:played,league:lgEsc(l.name)}):t("lg_waiting",{league:lgEsc(l.name)});
+      const txt=d.offDay?t("lg_rank_weekend",{league:lgEsc(l.name)}):(me?.rank&&played>1)?t("lg_rank_today",{place:lgOrdinal(me.rank),total:played,league:lgEsc(l.name)}):t("lg_waiting",{league:lgEsc(l.name)});
       return `<button type="button" data-code="${lgEsc(l.code)}">🏆 ${txt} ›</button>`;
     }));
     card.innerHTML=lines.join(""); card.hidden=false;

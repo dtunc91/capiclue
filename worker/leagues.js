@@ -20,6 +20,7 @@
 const LEVELS = new Set(["easy", "medium", "hard"]);
 const MAX_LEAGUES_PER_PLAYER = 20;
 const MAX_MEMBERS = 50;
+const SCHEDULES = new Set(["all", "weekdays"]);   // league counts every day, or Monday to Friday only
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O, 1/I to avoid typos
 
 const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
@@ -86,7 +87,7 @@ export async function leagueRoutes(request, env, url) {
 
   if (p === "/api/league/info" && m === "GET") {          // public, for "You're invited to …"
     const code = (url.searchParams.get("code") || "").toUpperCase();
-    const lg = await env.DB.prepare("SELECT code, name FROM leagues WHERE code=?").bind(code).first();
+    const lg = await env.DB.prepare("SELECT code, name, COALESCE(days,'all') days FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
     const n = await env.DB.prepare("SELECT COUNT(*) n FROM members WHERE league=?").bind(code).first("n");
     return json({ ...lg, members: n });
@@ -129,13 +130,13 @@ export async function leagueRoutes(request, env, url) {
 
   if (p === "/api/leagues" && m === "GET") {
     const rows = await env.DB.prepare(
-      `SELECT l.code, l.name, (SELECT COUNT(*) FROM members x WHERE x.league=l.code) members
+      `SELECT l.code, l.name, COALESCE(l.days,'all') days, (SELECT COUNT(*) FROM members x WHERE x.league=l.code) members
        FROM members mb JOIN leagues l ON l.code=mb.league WHERE mb.player=? ORDER BY mb.joined`).bind(me.id).all();
     return json({ player: me, leagues: rows.results });
   }
 
   if (p === "/api/league/create" && m === "POST") {
-    const name = cleanName((await body(request)).name, 30);
+    const d = await body(request), name = cleanName(d.name, 30), days = SCHEDULES.has(d.days) ? d.days : "all";
     if (!name) return bad("Please give your league a name.");
     const count = await env.DB.prepare("SELECT COUNT(*) n FROM members WHERE player=?").bind(me.id).first("n");
     if (count >= MAX_LEAGUES_PER_PLAYER) return bad("You’re in the maximum number of leagues.");
@@ -146,10 +147,10 @@ export async function leagueRoutes(request, env, url) {
     }
     const now = Date.now();
     await env.DB.batch([
-      env.DB.prepare("INSERT INTO leagues (code, name, owner, created) VALUES (?,?,?,?)").bind(code, name, me.id, now),
+      env.DB.prepare("INSERT INTO leagues (code, name, owner, created, days) VALUES (?,?,?,?,?)").bind(code, name, me.id, now, days),
       env.DB.prepare("INSERT INTO members (league, player, joined) VALUES (?,?,?)").bind(code, me.id, now),
     ]);
-    return json({ code, name });
+    return json({ code, name, days });
   }
 
   if (p === "/api/league/join" && m === "POST") {
@@ -171,11 +172,12 @@ export async function leagueRoutes(request, env, url) {
 
   if (p === "/api/league/rename" && m === "POST") {      // only the person who created the league
     const d = await body(request), code = String(d.code || "").toUpperCase(), name = cleanName(d.name, 30);
+    const days = SCHEDULES.has(d.days) ? d.days : null;
     if (!name) return bad("Please give your league a name.");
     const lg = await env.DB.prepare("SELECT owner FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
     if (lg.owner !== me.id) return bad("Only the person who created this league can rename it.", 403);
-    await env.DB.prepare("UPDATE leagues SET name=? WHERE code=?").bind(name, code).run();
+    await env.DB.prepare("UPDATE leagues SET name=?, days=COALESCE(?, days) WHERE code=?").bind(name, days, code).run();
     return json({ code, name });
   }
 
@@ -199,16 +201,19 @@ export async function leagueRoutes(request, env, url) {
   if (p === "/api/league/table" && m === "GET") {
     const code = (url.searchParams.get("code") || "").toUpperCase(), day = url.searchParams.get("day") || "", level = url.searchParams.get("level") || "";
     if (!validDay(day) || !(LEVELS.has(level) || level === "all")) return bad("Invalid request.");
-    const lg = await env.DB.prepare("SELECT code, name, owner FROM leagues WHERE code=?").bind(code).first();
+    const lg = await env.DB.prepare("SELECT code, name, owner, days FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
     if (!(await env.DB.prepare("SELECT 1 FROM members WHERE league=? AND player=?").bind(code, me.id).first())) return bad("You’re not in this league.", 403);
     const [mon, sun] = weekRange(day);
     // League points: Easy x1, Medium x2, Hard x3. "all" adds every level together.
     const MULT = "(CASE s.level WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END)";
-    const LV = "(?3='all' OR s.level=?3)";
+    const weekdays = lg.days === "weekdays";
+    // Mon–Fri leagues: Saturday and Sunday games don't count towards the week
+    const LV = "(?3='all' OR s.level=?3)" + (weekdays ? " AND strftime('%w', s.day) NOT IN ('0','6')" : "");
+    const dow = new Date(day + "T00:00:00Z").getUTCDay(), offDay = weekdays && (dow === 0 || dow === 6);
     const rows = await env.DB.prepare(
       `SELECT p.id, p.name,
-         (SELECT SUM(s.score*${MULT}) FROM scores s WHERE s.player=p.id AND s.day=?2 AND ${LV}) today,
+         (SELECT SUM(s.score*${MULT}) FROM scores s WHERE s.player=p.id AND s.day=?2 AND (?3='all' OR s.level=?3)) today,
          (SELECT s.pattern FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level=?3) pattern,
          (SELECT s.score FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level='easy') easy,
          (SELECT s.score FROM scores s WHERE s.player=p.id AND s.day=?2 AND s.level='medium') medium,
@@ -216,7 +221,7 @@ export async function leagueRoutes(request, env, url) {
          (SELECT SUM(s.score*${MULT}) FROM scores s WHERE s.player=p.id AND ${LV} AND s.day BETWEEN ?4 AND ?5) week,
          (SELECT COUNT(DISTINCT s.day) FROM scores s WHERE s.player=p.id AND ${LV} AND s.day BETWEEN ?4 AND ?5) days
        FROM members mb JOIN players p ON p.id=mb.player WHERE mb.league=?1`).bind(code, day, level, mon, sun).all();
-    return json({ code: lg.code, name: lg.name, isOwner: lg.owner === me.id, me: me.id, day, level, week: [mon, sun], members: rows.results });
+    return json({ code: lg.code, name: lg.name, isOwner: lg.owner === me.id, me: me.id, day, level, days: lg.days || "all", offDay, week: [mon, sun], members: rows.results });
   }
 
   return bad("Not found", 404);
