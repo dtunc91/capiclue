@@ -296,7 +296,8 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-center{display:block;margin:12px auto 0;text-align:center}
 .lg-qr{width:min(220px,60vw);margin:4px auto 14px;padding:10px;border-radius:12px;background:#fff;transition:opacity .3s}
 .lg-qr svg{display:block;width:100%;height:auto}
-.lg-code{margin:2px 0 0;text-align:center;font-family:"DM Mono",ui-monospace,monospace;font-size:1.6rem;letter-spacing:.12em}
+.lg-step{margin:14px 0 6px;font-size:.92rem;color:var(--ink)}
+.lg-code{margin:2px 0 4px;text-align:center;font-family:"DM Mono",ui-monospace,monospace;font-size:1.6rem;letter-spacing:.12em}
 .lg-codein{text-align:center;font-family:"DM Mono",ui-monospace,monospace;font-size:1.3rem;letter-spacing:.12em;text-transform:uppercase}
 .lg-warn{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--paper);color:var(--soft);font-size:.88rem}
 .leaguecard{margin:16px auto 0;max-width:420px;display:flex;flex-direction:column;gap:8px}
@@ -1144,8 +1145,12 @@ const I18N = {
     "lg_rename": "Rename",
     "lg_device_btn": "📱 Play on another device",
     "lg_device_title": "Play on another device",
-    "lg_device_sub": "Scan this with your other phone or tablet, or open the link there. That device will play as <b>{name}</b>, with the same leagues and scores.",
+    "lg_device_sub": "Your other device will play as <b>{name}</b>, with the same leagues and scores.",
+    "lg_device_scan": "<b>Phone or tablet:</b> scan this with the camera.",
+    "lg_device_laptop": "<b>Laptop or computer:</b> go to capiclue.com, tap 🏆 then <b>Enter a code</b>, and type:",
+    "lg_enter_code": "Enter a code from another device",
     "lg_device_code": "Or type this code on the other device:",
+    "lg_device_send": "Or copy the link and send it to yourself:",
     "lg_device_copy": "Copy link",
     "lg_device_copied": "Link copied.",
     "lg_device_expires": "Works once, for the next {min} min.",
@@ -1871,7 +1876,8 @@ async function lgRender(){
     ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
     <button class="cta" id="lgNew" type="button">${t("lg_create")}</button>
     <p class="lg-hint">${t("lg_join_hint")}</p>
-    ${player?`<button type="button" class="lg-devbtn" id="lgDevice">${t("lg_device_btn")}</button>`:`<button type="button" class="lg-linkbtn lg-center" id="lgHaveCode">${t("lg_have_code")}</button>`}
+    ${player?`<button type="button" class="lg-devbtn" id="lgDevice">${t("lg_device_btn")}</button>`:""}
+    <button type="button" class="lg-linkbtn lg-center" id="lgHaveCode">${player?t("lg_enter_code"):t("lg_have_code")}</button>
     <button type="button" class="lg-linkbtn" id="lgX" style="display:block;margin:10px auto 0">${t("lg_close")}</button>`;
   $("lgNew").onclick=()=>lgOpen({name:"create"}); $("lgX").onclick=lgClose;
   if($("lgRename")) $("lgRename").onclick=()=>lgOpen({name:"nickname"});
@@ -1891,9 +1897,11 @@ async function lgRenderDevice(){
   lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
     <h2 id="lgTitle">${t("lg_device_title")}</h2>
     <p class="lg-sub">${t("lg_device_sub",{name:lgEsc(player.name)})}</p>
+    <p class="lg-step">${t("lg_device_laptop")}</p><p class="lg-code">${pretty}</p>
+    <p class="lg-step">${t("lg_device_scan")}</p>
     <div class="lg-qr" id="lgQR" aria-hidden="true"></div>
+    <p class="lg-step">${t("lg_device_send")}</p>
     <button class="cta" id="lgCopyLink" type="button">${t("lg_device_copy")}</button>
-    <p class="lg-hint">${t("lg_device_code")}</p><p class="lg-code">${pretty}</p>
     <p class="lg-hint" id="lgExpiry"></p><p class="lg-note" id="lgNote" aria-live="polite"></p>
     <p class="lg-warn">🔒 ${t("lg_device_warn")}</p>`;
   $("lgBack").onclick=()=>{ clearInterval(lgDeviceTimer); lgOpen() };
