@@ -15,6 +15,8 @@
    POST /api/league/rename   {code, name}      (token)     -> {code, name}   (creator only)
    GET  /api/league/table?code&day&level       (token)     -> today + this round (or week) tables, past winners
    POST /api/league/restart  {code, day, length?}  (token)  -> new round  (any member, after the round ends)
+   POST /api/player/backup                     (token)     -> {code}  personal backup code (12 characters, reusable)
+   POST /api/league/reentry  {code, player}    (token)     -> {code, expires, name}  one-time code for a locked-out member (creator only)
    POST /api/league/remove   {code, player}    (token)     -> {ok}   (creator only; removed players can't rejoin)
    POST /api/score           {day, level, score, pattern} (token)
    The token travels in the "x-player-token" header. */
@@ -94,6 +96,11 @@ const LINK_MINUTES = 10;
 const newToken = () => randomString(40, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 async function findLinkCode(env, raw) {
   const code = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (code.length === 12) {   // a player's own backup code: works any number of times, until they make a new one
+    const b = await env.DB.prepare("SELECT b.player, p.name FROM backup_codes b JOIN players p ON p.id=b.player WHERE b.code_hash=?")
+      .bind(await sha256("capiclue-backup:" + code)).first();
+    return b ? { ...b, code, backup: true } : null;
+  }
   if (code.length !== 8) return null;
   return env.DB.prepare("SELECT l.code, l.player, p.name FROM link_codes l JOIN players p ON p.id=l.player WHERE l.code=? AND l.expires>?")
     .bind(code, Date.now()).first();
@@ -123,14 +130,14 @@ export async function leagueRoutes(request, env, url) {
   /* "Play on another device": the second device previews and then redeems a one-time code (no sign-in needed). */
   if (p === "/api/player/peek" && m === "GET") {
     const lc = await findLinkCode(env, url.searchParams.get("code"));
-    return lc ? json({ name: lc.name }) : bad("This code has expired or was already used. Make a new one on your other device.", 404);
+    return lc ? json({ name: lc.name }) : bad("This code doesn’t work. It may have expired, been used already, or been replaced by a newer backup code.", 404);
   }
   if (p === "/api/player/claim" && m === "POST") {
     const lc = await findLinkCode(env, (await body(request)).code);
-    if (!lc) return bad("This code has expired or was already used. Make a new one on your other device.", 404);
+    if (!lc) return bad("This code doesn’t work. It may have expired, been used already, or been replaced by a newer backup code.", 404);
     const token = newToken(), now = Date.now();
     await env.DB.batch([
-      env.DB.prepare("DELETE FROM link_codes WHERE code=?").bind(lc.code),          // works once
+      env.DB.prepare("DELETE FROM link_codes WHERE code=?").bind(lc.backup ? "" : lc.code),   // device and re-entry codes work once
       env.DB.prepare("INSERT INTO player_tokens (token_hash, player, created) VALUES (?,?,?)").bind(await sha256("capiclue-player:" + token), lc.player, now),
     ]);
     return json({ id: lc.player, token, name: lc.name });
@@ -146,6 +153,13 @@ export async function leagueRoutes(request, env, url) {
       env.DB.prepare("INSERT INTO link_codes (code, player, expires) VALUES (?,?,?)").bind(code, me.id, expires),
     ]);
     return json({ code, expires });
+  }
+
+  if (p === "/api/player/backup" && m === "POST") {    // personal backup code; making a new one replaces the old one
+    const code = randomString(12, CODE_CHARS);
+    await env.DB.prepare("INSERT INTO backup_codes (player, code_hash, created) VALUES (?,?,?) ON CONFLICT(player) DO UPDATE SET code_hash=excluded.code_hash, created=excluded.created")
+      .bind(me.id, await sha256("capiclue-backup:" + code), Date.now()).run();
+    return json({ code });
   }
 
   if (p === "/api/player/rename" && m === "POST") {
@@ -236,6 +250,22 @@ export async function leagueRoutes(request, env, url) {
       `UPDATE leagues SET owner=(SELECT player FROM members WHERE league=?1 ORDER BY joined LIMIT 1)
        WHERE code=?1 AND owner=?2 AND EXISTS (SELECT 1 FROM members WHERE league=?1)`).bind(code, me.id).run();
     return json({ ok: true });
+  }
+
+  if (p === "/api/league/reentry" && m === "POST") {     // creator helps a locked-out player back in with a one-time code
+    const d = await body(request), code = String(d.code || "").toUpperCase(), who = String(d.player || "");
+    const lg = await env.DB.prepare("SELECT owner FROM leagues WHERE code=?").bind(code).first();
+    if (!lg) return bad("This league doesn’t exist.", 404);
+    if (lg.owner !== me.id) return bad("Only the person who created this league can do this.", 403);
+    if (who === me.id) return bad("Use “Play on another device” for yourself.");
+    const m2 = await env.DB.prepare("SELECT p.name FROM members mb JOIN players p ON p.id=mb.player WHERE mb.league=? AND mb.player=?").bind(code, who).first();
+    if (!m2) return bad("This player isn’t in the league.", 404);
+    const link = randomString(8, CODE_CHARS), expires = Date.now() + LINK_MINUTES * 60e3;
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM link_codes WHERE expires<? OR player=?").bind(Date.now(), who),
+      env.DB.prepare("INSERT INTO link_codes (code, player, expires) VALUES (?,?,?)").bind(link, who, expires),
+    ]);
+    return json({ code: link, expires, name: m2.name });
   }
 
   if (p === "/api/league/remove" && m === "POST") {      // creator removes a player; they can't rejoin with the link
