@@ -251,6 +251,42 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .remind-google{border:2px solid var(--line);color:var(--ink);font-weight:700}
 .remind-foot{font-size:.85rem;color:var(--soft);margin:6px 0 4px;text-align:center}
 #remindClose{display:block;margin:0 auto}
+.homebtn{white-space:nowrap}
+@media (max-width:400px){ #game .brand .word{display:none} #game .topright{gap:8px} }
+.leaguesheet{width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
+.leaguesheet h2{margin:0 0 6px;font-size:1.4rem}
+.lg-sub{margin:0 0 14px;color:var(--soft)}
+.lg-who{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--paper);margin-bottom:12px;font-size:.95rem}
+.lg-who button,.lg-linkbtn{background:none;color:var(--soft);padding:4px 0;font-weight:600;text-decoration:underline}
+.lg-list{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:8px}
+.lg-list button{display:flex;justify-content:space-between;align-items:center;width:100%;padding:13px 14px;border-radius:12px;background:var(--card);color:var(--ink);border:2px solid var(--line);font-weight:700;text-align:left}
+.lg-list button:hover{border-color:var(--amber);filter:none}
+.lg-list small{color:var(--soft);font-weight:600}
+.lg-input{width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:2px solid var(--line);background:var(--paper);color:var(--ink);margin:0 0 12px}
+.lg-input:focus{outline:none;border-color:var(--amber)}
+.lg-err{color:var(--bad);min-height:1.3em;margin:6px 0 0;font-size:.92rem}
+.lg-note{color:var(--good);min-height:1.3em;margin:8px 0 0;font-size:.92rem;text-align:center}
+.lg-hint{color:var(--soft);font-size:.88rem;text-align:center;margin:10px 0 0}
+.lg-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.lg-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;border-radius:10px;background:var(--paper);margin:10px 0 6px}
+.lg-tabs.two{grid-template-columns:1fr 1fr}
+.lg-tabs button{padding:8px 4px;border-radius:8px;background:none;color:var(--soft);font-weight:700;font-size:.9rem}
+.lg-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.lg-table{list-style:none;margin:10px 0 0;padding:0}
+.lg-table li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}
+.lg-table li.me{font-weight:800}
+.lg-rank{font-family:"DM Mono",ui-monospace,monospace;color:var(--soft);text-align:center}
+.lg-table li:nth-child(1) .lg-rank.top{color:var(--amber)}
+.lg-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-name small{display:block;font-weight:500;color:var(--soft);font-size:.8rem}
+.lg-name small.sq{letter-spacing:2px}
+.lg-score{font-family:"DM Mono",ui-monospace,monospace;font-size:1.05rem}
+.lg-score.none{font-family:inherit;font-size:.85rem;color:var(--soft)}
+.lg-leave{display:block;margin:16px auto 0;background:none;color:var(--bad);font-weight:600;text-decoration:underline}
+.leaguecard{margin:16px auto 0;max-width:420px;display:flex;flex-direction:column;gap:8px}
+.leaguecard button{width:100%;padding:12px 14px;border-radius:12px;background:var(--card);color:var(--ink);border:2px solid var(--line);font-weight:600;text-align:left}
+.leaguecard button:hover{border-color:var(--amber);filter:none}
+.final-main .leaguecard button{text-align:center}
 .about{margin-top:36px;padding-top:4px;border-top:1px solid var(--line);color:var(--soft);font-size:.95rem} .about h2{font-size:1.05rem;color:var(--ink);margin:0} .about p{margin:0 0 10px}
 /* Phones: About is folded into one tappable line. Bigger screens: always open. */
 .about summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:14px 0;min-height:44px}
@@ -309,7 +345,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="home">
   <div class="topbar">
     <h1 class="brandh"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></h1>
-    <span class="topright"><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
+    <span class="topright"><button class="help leaguebtn" type="button" aria-label="Leagues" data-i18n-attr="aria-label:lg_btn" data-leagues-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
   </div>
   <div class="hero">
     <div class="hero-text">
@@ -387,6 +423,9 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   <p class="remind-foot" id="remindInApp" hidden data-i18n="remind_inapp">On iPhone, this works best in Safari. If nothing happens, open capiclue.com in Safari and try again.</p>
   <button type="button" class="link" id="remindClose" data-i18n="close">Close</button>
 </dialog>
+<dialog id="leagueSheet" class="leaguesheet" aria-labelledby="lgTitle">
+  <div id="leagueBody"></div>
+</dialog>
 <dialog id="help" aria-labelledby="helpTitle">
   <h2 id="helpTitle" data-i18n="help_title">How to play</h2>
   <ul class="how">
@@ -396,6 +435,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <li data-i18n="help_4"><b>📅 Five new cities every day.</b> The best score is 100.</li>
     <li data-i18n="help_5"><b>🎚️ Pick a level:</b> Easy gives you 4 answers to choose from, Medium shows the continent and first letter, Hard shows the continent. Each level has its own five cities.</li>
     <li data-i18n="help_6"><b>🍀 Feeling lucky?</b> On Medium and Hard, Lucky guess picks a random capital for you. If it’s right, you get the full points for that fact.</li>
+    <li data-i18n="help_7"><b>🏆 Play with friends:</b> tap the trophy to create a league and share the link. Everyone’s daily scores appear in one table.</li>
   </ul>
   <button id="helpClose" class="cta" type="button" data-i18n="got_it">Got it</button>
 </dialog>
@@ -404,7 +444,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="game" class="hidden">
   <div class="topbar">
     <button class="brand" id="brand" type="button" aria-label="Capiclue home" data-i18n-attr="aria-label:brand_home"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></button>
-    <span class="topright"><button class="homebtn" id="homeTop" type="button" data-i18n="home_btn">← Home</button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
+    <span class="topright"><button class="homebtn" id="homeTop" type="button" data-i18n="home_btn">← Home</button><button class="help leaguebtn" type="button" aria-label="Leagues" data-i18n-attr="aria-label:lg_btn" data-leagues-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
   </div>
 
   <div class="gamegrid">
@@ -452,6 +492,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div class="sharegrid" id="shareGrid" aria-label="Share my score on" data-i18n-attr="aria-label:share_on"></div>
     <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share" data-i18n-attr="aria-label:share_more"></div>
     <p class="share-note" id="shareNote" aria-live="polite"></p>
+    <div class="leaguecard" id="leagueCard" hidden></div>
     <button type="button" class="remindbtn" id="remindBtn" data-i18n="remind_btn">📅 Remind me daily</button>
     <p class="countdown" id="finalNote"></p>
     <button id="backHome" class="link" type="button" data-i18n="back_home">Back to homepage</button>
@@ -1043,7 +1084,49 @@ const I18N = {
     "region_Asia": "Asia",
     "region_Africa": "Africa",
     "region_Americas": "Americas",
-    "region_Oceania": "Oceania"
+    "region_Oceania": "Oceania",
+    "help_7": "<b>🏆 Play with friends:</b> tap the trophy to create a league and share the link. Everyone’s daily scores appear in one table.",
+    "lg_btn": "Leagues",
+    "lg_title": "🏆 Leagues",
+    "lg_intro": "Play against friends and family. Create a league, share the link, and see who knows their capitals best.",
+    "lg_playing_as": "Playing as <b>{name}</b>",
+    "lg_change": "Change",
+    "lg_create": "Create a league",
+    "lg_join_hint": "Got an invite link? Just open it.",
+    "lg_nick_title": "Pick a nickname",
+    "lg_nick_sub": "Your friends will see this in the league table.",
+    "lg_nick_ph": "Your nickname",
+    "lg_save": "Save",
+    "lg_name_title": "Name your league",
+    "lg_name_ph": "e.g. Family, Office, Uni friends",
+    "lg_create_btn": "Create league",
+    "lg_members": "{n} players",
+    "lg_member1": "1 player",
+    "lg_back": "← Leagues",
+    "lg_invite": "Invite friends",
+    "lg_invite_text": "Join my Capiclue league “{name}” and let’s see who knows their capitals best! {link}",
+    "lg_link_copied": "Invite link copied. Paste it to your friends.",
+    "lg_today": "Today",
+    "lg_week": "This week",
+    "lg_not_played": "Not played yet",
+    "lg_you": "you",
+    "lg_week_days": "{n} days",
+    "lg_week_day1": "1 day",
+    "lg_leave": "Leave this league",
+    "lg_leave_confirm": "Tap again to leave",
+    "lg_close": "Close",
+    "lg_invited": "You’re invited!",
+    "lg_invited_sub": "Join <b>{name}</b> ({members}) and compare your daily scores.",
+    "lg_join_btn": "Join league",
+    "lg_not_now": "Not now",
+    "lg_error": "Something went wrong. Please try again.",
+    "lg_loading": "Loading…",
+    "lg_offline": "Leagues need an internet connection.",
+    "lg_rank_today": "{place} of {total} in <b>{league}</b> today",
+    "lg_waiting": "Waiting for others in <b>{league}</b>",
+    "lg_cta": "🏆 Play with friends: create a league",
+    "lg_level_note": "Each level has its own table.",
+    "lg_week_range": "Mon {from} – Sun {to}"
   }
 };
 const LOCALES = { en: "en-GB" };          // date format per language
@@ -1453,6 +1536,7 @@ $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
 $("next").addEventListener("click",()=>{
   if(idx<PER_DAY-1){idx++;loadCity();window.scrollTo({top:0,behavior:"smooth"});return}
   track("finish",{level,gid,score:total()});
+  syncLeagueScores();
   showFinal();
 });
 function showFinal(){
@@ -1466,6 +1550,7 @@ function showFinal(){
   $("summary").textContent=emojis();
   tick();
   renderShare();
+  renderLeagueCard();
   // Ad: name the city the player did best on, to turn today's game into a trip idea.
   const best=set[scores.indexOf(Math.max(...scores))]||set[0];
   $("promoTitle").textContent=t("promo_title",{city:best.c});
@@ -1643,6 +1728,172 @@ async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()
   else if(act==="instagram") openInstagramSheet();
 }));
 
+/* ---------- FRIEND LEAGUES ----------
+   A nickname plus a private code kept on this device (no email or password).
+   Finished games are sent to /api/score; each league shows Today and This week tables per level. */
+const PLAYER_KEY="capiclue-player";
+let player=null; try{ player=JSON.parse(localStorage.getItem(PLAYER_KEY)) }catch(e){}
+const lgEsc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lgPattern=sc=>sc.map(v=>({20:4,15:3,10:2,5:1}[v]||0)).join("");
+const lgSquares=p=>[...String(p||"")].map(d=>["⬛","🟥","🟧","🟨","🟩"][+d]||"").join("");
+async function lgApi(path,data){
+  const r=await fetch(path,{method:data?"POST":"GET",headers:{"Content-Type":"application/json",...(player?{"x-player-token":player.token}:{})},body:data?JSON.stringify(data):undefined});
+  let j={}; try{ j=await r.json() }catch(e){}
+  if(r.status===401&&player){ player=null; try{ localStorage.removeItem(PLAYER_KEY) }catch(e){} }
+  if(!r.ok) throw new Error(j.error||t("lg_error"));
+  return j;
+}
+function lgOrdinal(n){ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]) }
+function lgRank(rows,key){   // sort by score, players without a score go last; equal scores share a rank
+  const played=rows.filter(r=>r[key]!=null).sort((a,b)=>b[key]-a[key]||a.name.localeCompare(b.name));
+  let rank=0,prev=null; played.forEach((r,i)=>{ if(r[key]!==prev){ rank=i+1; prev=r[key] } r.rank=rank });
+  return [...played,...rows.filter(r=>r[key]==null).sort((a,b)=>a.name.localeCompare(b.name)).map(r=>({...r,rank:null}))];
+}
+
+/* Send any finished games from today that haven't been sent yet (also after joining a league later the same day). */
+async function syncLeagueScores(){
+  if(!player) return;
+  for(const lv of Object.keys(LEVELS)){
+    const sv=loadSaved(lv);
+    if(!sv||sv.submitted||(sv.scores||[]).length<PER_DAY) continue;
+    try{
+      await lgApi("/api/score",{day:dayKey,level:lv,score:sv.scores.reduce((a,b)=>a+b,0),pattern:lgPattern(sv.scores)});
+      localStorage.setItem(saveKey(lv),JSON.stringify({...sv,submitted:true}));
+    }catch(e){}
+  }
+}
+
+/* ----- the Leagues panel ----- */
+const lgSheet=$("leagueSheet"), lgBody=$("leagueBody");
+let lgView={name:"list"};
+function lgOpen(view={name:"list"}){ lgView=view; lgRender(); if(!lgSheet.open) lgSheet.showModal() }
+function lgClose(){ lgSheet.close() }
+lgSheet.addEventListener("click",e=>{ if(e.target===lgSheet) lgClose() });
+document.querySelectorAll("[data-leagues-btn]").forEach(b=>b.addEventListener("click",()=>{ hideSuggest?.(); lgOpen() }));
+
+function lgNicknameForm(after){
+  lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_nick_title")}</h2><p class="lg-sub">${t("lg_nick_sub")}</p>
+    <form id="lgNickForm"><input class="lg-input" id="lgNick" maxlength="20" autocomplete="nickname" placeholder="${lgEsc(t("lg_nick_ph"))}" value="${lgEsc(player?.name||"")}" aria-label="${lgEsc(t("lg_nick_ph"))}">
+    <button class="cta" type="submit">${t("lg_save")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>
+    <button type="button" class="lg-linkbtn" id="lgBack" style="display:block;margin:10px auto 0">${t("lg_back")}</button>`;
+  $("lgBack").onclick=()=>lgOpen();
+  $("lgNick").focus();
+  $("lgNickForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgNick").value.trim(); if(!name) return;
+    try{
+      if(player){ const r=await lgApi("/api/player/rename",{name}); player={...player,name:r.name} }
+      else { player=await lgApi("/api/player",{name}); track("league",{result:"player"}) }
+      localStorage.setItem(PLAYER_KEY,JSON.stringify(player)); await syncLeagueScores(); after();
+    }catch(err){ $("lgErr").textContent=err.message } };
+}
+
+async function lgRender(){
+  const v=lgView;
+  if(v.name==="nickname") return lgNicknameForm(v.after||(()=>lgOpen()));
+  if(v.name==="create"){
+    if(!player) return lgNicknameForm(()=>lgOpen({name:"create"}));
+    lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_name_title")}</h2>
+      <form id="lgCreateForm"><input class="lg-input" id="lgName" maxlength="30" placeholder="${lgEsc(t("lg_name_ph"))}" aria-label="${lgEsc(t("lg_name_title"))}">
+      <button class="cta" type="submit">${t("lg_create_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>
+      <button type="button" class="lg-linkbtn" id="lgBack" style="display:block;margin:10px auto 0">${t("lg_back")}</button>`;
+    $("lgBack").onclick=()=>lgOpen(); $("lgName").focus();
+    $("lgCreateForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgName").value.trim(); if(!name) return;
+      try{ const lg=await lgApi("/api/league/create",{name}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level,justCreated:true}) }
+      catch(err){ $("lgErr").textContent=err.message } };
+    return;
+  }
+  if(v.name==="join"){
+    lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
+    let info; try{ info=await lgApi(`/api/league/info?code=${encodeURIComponent(v.code)}`) }catch(err){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgOk">${t("lg_close")}</button>`; $("lgOk").onclick=lgClose; return }
+    const members=info.members===1?t("lg_member1"):t("lg_members",{n:info.members});
+    lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_invited")}</h2><p class="lg-sub">${t("lg_invited_sub",{name:lgEsc(info.name),members})}</p>
+      ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span></div>`:`<input class="lg-input" id="lgNick" maxlength="20" placeholder="${lgEsc(t("lg_nick_ph"))}" aria-label="${lgEsc(t("lg_nick_ph"))}">`}
+      <button class="cta" id="lgJoin">${t("lg_join_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p>
+      <button type="button" class="lg-linkbtn" id="lgLater" style="display:block;margin:10px auto 0">${t("lg_not_now")}</button>`;
+    $("lgLater").onclick=lgClose;
+    $("lgJoin").onclick=async()=>{
+      try{
+        if(!player){ const name=$("lgNick").value.trim(); if(!name){ $("lgNick").focus(); return }
+          player=await lgApi("/api/player",{name}); localStorage.setItem(PLAYER_KEY,JSON.stringify(player)); }
+        await lgApi("/api/league/join",{code:info.code}); track("league",{result:"join"});
+        await syncLeagueScores(); lgOpen({name:"table",code:info.code,period:"today",level});
+      }catch(err){ $("lgErr").textContent=err.message } };
+    return;
+  }
+  if(v.name==="table") return lgRenderTable(v);
+  // list
+  lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-sub">${t("lg_loading")}</p>`;
+  let leagues=[];
+  if(player){ try{ leagues=(await lgApi("/api/leagues")).leagues }catch(err){ if(!navigator.onLine){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-err">${t("lg_offline")}</p>`; return } } }
+  lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2>
+    ${leagues.length?"":`<p class="lg-sub">${t("lg_intro")}</p>`}
+    ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span><button type="button" id="lgRename">${t("lg_change")}</button></div>`:""}
+    ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
+    <button class="cta" id="lgNew" type="button">${t("lg_create")}</button>
+    <p class="lg-hint">${t("lg_join_hint")}</p>
+    <button type="button" class="lg-linkbtn" id="lgX" style="display:block;margin:10px auto 0">${t("lg_close")}</button>`;
+  $("lgNew").onclick=()=>lgOpen({name:"create"}); $("lgX").onclick=lgClose;
+  if($("lgRename")) $("lgRename").onclick=()=>lgOpen({name:"nickname"});
+  lgBody.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level}));
+}
+
+async function lgRenderTable(v){
+  if(!lgBody.querySelector(".lg-table")) lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
+  let d; try{ d=await lgApi(`/api/league/table?code=${encodeURIComponent(v.code)}&day=${dayKey}&level=${v.level}`) }
+  catch(err){ lgBody.innerHTML=`<p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgBack">${t("lg_back")}</button>`; $("lgBack").onclick=()=>lgOpen(); return }
+  const week=v.period==="week", rows=lgRank(d.members.map(m=>({...m})),week?"week":"today");
+  const fmt=s=>new Date(s+"T12:00:00Z").toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"});
+  lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
+    <h2 id="lgTitle">${lgEsc(d.name)}</h2>
+    <button class="cta" id="lgInvite" type="button">${t("lg_invite")}</button><p class="lg-note" id="lgNote" aria-live="polite"></p>
+    <div class="lg-tabs" role="group" aria-label="${lgEsc(t("level_group"))}">${Object.keys(LEVELS).map(l=>`<button type="button" data-lv="${l}" aria-pressed="${l===v.level}">${LEVELS[l]}</button>`).join("")}</div>
+    <div class="lg-tabs two" role="group">${["today","week"].map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===v.period}">${t(p==="today"?"lg_today":"lg_week")}</button>`).join("")}</div>
+    ${week?`<p class="lg-hint" style="margin:4px 0 0">${t("lg_week_range",{from:fmt(d.week[0]),to:fmt(d.week[1])})}</p>`:""}
+    <ul class="lg-table">${rows.map(r=>{
+      const me=r.id===d.me, nm=lgEsc(r.name)+(me?` <span class="soft">(${t("lg_you")})</span>`:"");
+      const score=week?(r.week!=null?`<span class="lg-score">${r.week}</span>`:`<span class="lg-score none">${t("lg_not_played")}</span>`)
+                      :(r.today!=null?`<span class="lg-score">${r.today}</span>`:`<span class="lg-score none">${t("lg_not_played")}</span>`);
+      const sub=week?(r.days?`<small>${r.days===1?t("lg_week_day1"):t("lg_week_days",{n:r.days})}</small>`:""):(r.pattern?`<small class="sq">${lgSquares(r.pattern)}</small>`:"");
+      return `<li class="${me?"me":""}"><span class="lg-rank ${r.rank===1?"top":""}">${r.rank??"–"}</span><span class="lg-name">${nm}${sub}</span>${score}</li>`}).join("")}</ul>
+    <p class="lg-hint">${t("lg_level_note")}</p>
+    <button type="button" class="lg-leave" id="lgLeave">${t("lg_leave")}</button>`;
+  $("lgBack").onclick=()=>lgOpen();
+  lgBody.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>lgOpen({...v,level:b.dataset.lv,justCreated:false}));
+  lgBody.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>lgOpen({...v,period:b.dataset.p,justCreated:false}));
+  $("lgInvite").onclick=async()=>{
+    const link=`${location.origin}/?join=${d.code}`, text=t("lg_invite_text",{name:d.name,link});
+    track("share",{level,app:"league_invite"});
+    if(IS_PHONE&&navigator.share){ try{ await navigator.share({text}) }catch(e){} return }
+    try{ await navigator.clipboard.writeText(text); $("lgNote").textContent=t("lg_link_copied") }catch(e){ $("lgNote").textContent=link }
+  };
+  let armed=false;
+  $("lgLeave").onclick=async()=>{ if(!armed){ armed=true; $("lgLeave").textContent=t("lg_leave_confirm"); return }
+    try{ await lgApi("/api/league/leave",{code:d.code}); lgOpen() }catch(err){ $("lgNote").textContent=err.message } };
+  if(v.justCreated) $("lgNote").textContent="";
+}
+
+/* ----- results screen card: "2nd of 5 in Family today" ----- */
+async function renderLeagueCard(){
+  const card=$("leagueCard"); card.hidden=true; card.innerHTML="";
+  if(!player){ card.innerHTML=`<button type="button" id="lgCta">${t("lg_cta")}</button>`; card.hidden=false; $("lgCta").onclick=()=>lgOpen({name:"create"}); return }
+  try{
+    await syncLeagueScores();
+    const leagues=(await lgApi("/api/leagues")).leagues.slice(0,3);
+    if(!leagues.length){ card.innerHTML=`<button type="button" id="lgCta">${t("lg_cta")}</button>`; card.hidden=false; $("lgCta").onclick=()=>lgOpen({name:"create"}); return }
+    const lines=await Promise.all(leagues.map(async l=>{
+      const d=await lgApi(`/api/league/table?code=${l.code}&day=${dayKey}&level=${level}`);
+      const rows=lgRank(d.members.map(m=>({...m})),"today"), me=rows.find(r=>r.id===d.me), played=rows.filter(r=>r.rank!=null).length;
+      const txt=(me?.rank&&played>1)?t("lg_rank_today",{place:lgOrdinal(me.rank),total:played,league:lgEsc(l.name)}):t("lg_waiting",{league:lgEsc(l.name)});
+      return `<button type="button" data-code="${lgEsc(l.code)}">🏆 ${txt} ›</button>`;
+    }));
+    card.innerHTML=lines.join(""); card.hidden=false;
+    card.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level}));
+  }catch(e){}
+}
+
+/* ----- invite links: capiclue.com/?join=CODE ----- */
+const lgJoinCode=(new URLSearchParams(location.search).get("join")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
+if(lgJoinCode) history.replaceState(null,"",location.pathname+location.hash);
+
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
 const NAMES = [...new Set(CITIES.map(c=>c[0]))].sort((a,b)=>a.localeCompare(b));
@@ -1689,6 +1940,8 @@ applyStaticWording();
 init();
 try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
 track("visit",{level});
+syncLeagueScores();
+if(lgJoinCode) lgOpen({name:"join",code:lgJoinCode});
 if(location.hash==="#play") openGame();
 </script>
 </body>

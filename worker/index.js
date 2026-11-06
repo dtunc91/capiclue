@@ -3,7 +3,9 @@
    - GET  /api/stats : totals for the private stats page (needs the stats password)
    - everything else : the normal website files, unchanged */
 
-const EVENTS = new Set(["visit", "start", "city", "finish", "lucky", "share", "remind", "install", "level"]);
+import { leagueRoutes } from "./leagues.js";
+
+const EVENTS = new Set(["visit", "start", "city", "finish", "lucky", "share", "remind", "install", "level", "league"]);
 const LEVELS = new Set(["easy", "medium", "hard"]);
 const WORD = /^[a-z0-9_-]{1,24}$/;
 
@@ -12,6 +14,10 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/api/event" && request.method === "POST") return saveEvent(request, env, ctx);
     if (url.pathname === "/api/stats" && request.method === "GET") return stats(request, env, url);
+    if (url.pathname === "/api/player" || url.pathname.startsWith("/api/player/") || url.pathname.startsWith("/api/league") || url.pathname === "/api/score") {
+      try { return await leagueRoutes(request, env, url); }
+      catch (e) { return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), { status: 500, headers: { "Content-Type": "application/json" } }); }
+    }
     if (url.pathname.startsWith("/api/")) return new Response("Not found", { status: 404 });
     return env.ASSETS.fetch(request);
   },
