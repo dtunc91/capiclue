@@ -291,6 +291,10 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-score{font-family:"DM Mono",ui-monospace,monospace;font-size:1.05rem}
 .lg-score.none{font-family:inherit;font-size:.85rem;color:var(--soft)}
 .lg-leave{display:block;margin:16px auto 0;background:none;color:var(--bad);font-weight:600;text-decoration:underline}
+.lg-banner{margin:4px 0 14px;padding:14px 16px;border-radius:12px;background:var(--paper);border:2px dashed var(--line)}
+.lg-banner p{margin:0 0 6px;font-size:.92rem;color:var(--soft)}
+.lg-banner .lg-banner-title{color:var(--ink);font-weight:800;font-size:1rem}
+.lg-banner-btn{margin-top:4px;padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--paper);font-weight:700}
 .lg-devbtn{display:block;width:100%;margin-top:12px;padding:12px;border-radius:10px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
 .lg-devbtn:hover{border-color:var(--amber);filter:none}
 .lg-center{display:block;margin:12px auto 0;text-align:center}
@@ -1149,6 +1153,11 @@ const I18N = {
     "lg_device_scan": "<b>Phone or tablet:</b> scan this with the camera.",
     "lg_device_laptop": "<b>Laptop or computer:</b> go to capiclue.com, tap 🏆 then <b>Enter a code</b>, and type:",
     "lg_enter_code": "Enter a code from another device",
+    "lg_new_device_title": "📱 New device?",
+    "lg_new_device_sub": "Already playing in a league on your phone or another computer? Keep the same nickname and scores here.",
+    "lg_new_device_how": "<b>How:</b> on your other device tap 🏆 then <b>Play on another device</b>, and enter the code here.",
+    "lg_new_device_btn": "Enter a code",
+    "lg_join_elsewhere": "Already play on another device? <b>Use your code</b> instead, so you keep one nickname.",
     "lg_device_code": "Or type this code on the other device:",
     "lg_device_send": "Or copy the link and send it to yourself:",
     "lg_device_copy": "Copy link",
@@ -1852,8 +1861,10 @@ async function lgRender(){
     lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_invited")}</h2><p class="lg-sub">${t("lg_invited_sub",{name:lgEsc(info.name),members})}</p>
       ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span></div>`:`<input class="lg-input" id="lgNick" maxlength="20" placeholder="${lgEsc(t("lg_nick_ph"))}" aria-label="${lgEsc(t("lg_nick_ph"))}">`}
       <button class="cta" id="lgJoin">${t("lg_join_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p>
+      ${player?"":`<button type="button" class="lg-linkbtn lg-center" id="lgJoinCode">${t("lg_join_elsewhere")}</button>`}
       <button type="button" class="lg-linkbtn" id="lgLater" style="display:block;margin:10px auto 0">${t("lg_not_now")}</button>`;
     $("lgLater").onclick=lgClose;
+    if($("lgJoinCode")) $("lgJoinCode").onclick=()=>{ lgPendingJoin=info.code; lgOpen({name:"claim"}) };
     $("lgJoin").onclick=async()=>{
       try{
         if(!player){ const name=$("lgNick").value.trim(); if(!name){ $("lgNick").focus(); return }
@@ -1871,23 +1882,25 @@ async function lgRender(){
   let leagues=[];
   if(player){ try{ leagues=(await lgApi("/api/leagues")).leagues }catch(err){ if(!navigator.onLine){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-err">${t("lg_offline")}</p>`; return } } }
   lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2>
+    ${player?"":`<div class="lg-banner" role="note"><p class="lg-banner-title">${t("lg_new_device_title")}</p><p>${t("lg_new_device_sub")}</p><p>${t("lg_new_device_how")}</p><button type="button" class="lg-banner-btn" id="lgBannerCode">${t("lg_new_device_btn")}</button></div>`}
     ${leagues.length?"":`<p class="lg-sub">${t("lg_intro")}</p>`}
     ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span><button type="button" id="lgRename">${t("lg_change")}</button></div>`:""}
     ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
     <button class="cta" id="lgNew" type="button">${t("lg_create")}</button>
     <p class="lg-hint">${t("lg_join_hint")}</p>
     ${player?`<button type="button" class="lg-devbtn" id="lgDevice">${t("lg_device_btn")}</button>`:""}
-    <button type="button" class="lg-linkbtn lg-center" id="lgHaveCode">${player?t("lg_enter_code"):t("lg_have_code")}</button>
+    ${player?`<button type="button" class="lg-linkbtn lg-center" id="lgHaveCode">${t("lg_enter_code")}</button>`:""}
     <button type="button" class="lg-linkbtn" id="lgX" style="display:block;margin:10px auto 0">${t("lg_close")}</button>`;
   $("lgNew").onclick=()=>lgOpen({name:"create"}); $("lgX").onclick=lgClose;
   if($("lgRename")) $("lgRename").onclick=()=>lgOpen({name:"nickname"});
   if($("lgDevice")) $("lgDevice").onclick=()=>lgOpen({name:"device"});
   if($("lgHaveCode")) $("lgHaveCode").onclick=()=>lgOpen({name:"claim"});
+  if($("lgBannerCode")) $("lgBannerCode").onclick=()=>lgOpen({name:"claim"});
   lgBody.querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>lgOpen({name:"table",code:b.dataset.code,period:"today",level:"all"}));
 }
 
 /* ----- Play on another device ----- */
-let lgDeviceTimer=null;
+let lgDeviceTimer=null, lgPendingJoin=null;
 function lgLoadQR(){ return window.qrcode?Promise.resolve():new Promise((ok,fail)=>{ const sc=document.createElement("script"); sc.src="/lib/qrcode-generator.js"; sc.onload=ok; sc.onerror=fail; document.head.appendChild(sc) }) }
 async function lgRenderDevice(){
   clearInterval(lgDeviceTimer);
@@ -1937,7 +1950,10 @@ async function lgRenderClaim(code){
     <button class="cta" id="lgClaimGo">${t("lg_claim_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p>
     <button type="button" class="lg-linkbtn lg-center" id="lgLater">${t("lg_not_now")}</button>`;
   $("lgLater").onclick=lgClose;
-  $("lgClaimGo").onclick=async()=>{ try{ await lgClaim(code); lgOpen({name:"list"}) }catch(err){ $("lgErr").textContent=err.message } };
+  $("lgClaimGo").onclick=async()=>{ try{
+      await lgClaim(code);
+      if(lgPendingJoin){ const c=lgPendingJoin; lgPendingJoin=null; await lgApi("/api/league/join",{code:c}); return lgOpen({name:"table",code:c,period:"today",level:"all"}) }
+      lgOpen({name:"list"}) }catch(err){ $("lgErr").textContent=err.message } };
 }
 
 async function lgRenderTable(v){
