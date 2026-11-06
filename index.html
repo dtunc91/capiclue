@@ -303,6 +303,20 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-days span{display:flex;flex-direction:column}
 .lg-days small{color:var(--soft);font-size:.85rem}
 .lg-tag{font-style:normal;font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--line);color:var(--ink);vertical-align:2px;white-space:nowrap}
+.lg-len{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lg-len label{margin:0;padding:10px 8px;align-items:center;justify-content:center;gap:6px}
+.lg-len b{white-space:nowrap;font-size:.92rem}
+.lg-round{margin:8px 0 0;font-weight:700;font-size:.92rem}
+.lg-winner{margin:12px 0 4px;padding:16px;border-radius:14px;background:var(--amber);color:#1D2B45;text-align:center}
+.lg-winner p{margin:0;color:#1D2B45}
+.lg-winner .lg-winner-name{font-size:1.2rem}
+.lg-winner .lg-hint{color:#1D2B45;opacity:.75}
+.lg-winner .cta{margin-top:12px;background:#1D2B45;color:#fff}
+.lg-past{margin-top:16px}
+.lg-past h3{font-size:.95rem;margin:0 0 6px}
+.lg-past ul{list-style:none;margin:0;padding:0}
+.lg-past li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:.9rem;color:var(--soft)}
+.lg-past b{color:var(--ink)}
 .lg-weekend{margin:8px 0 0;padding:10px 12px;border-radius:10px;background:var(--paper);font-size:.9rem;color:var(--soft)}
 .lg-devbtn{display:block;width:100%;margin-top:12px;padding:12px;border-radius:10px;background:none;color:var(--ink);border:2px solid var(--line);font-weight:700}
 .lg-devbtn:hover{border-color:var(--amber);filter:none}
@@ -1188,6 +1202,28 @@ const I18N = {
     "lg_points_note": "League points: Easy ×1, Medium ×2, Hard ×3. “All levels” adds them together.",
     "lg_week_range": "Mon {from} – Sun {to}",
     "lg_week_range_wd": "Mon {from} – Fri {to}",
+    "lg_len_title": "How long should it run?",
+    "lg_len_7": "1 week",
+    "lg_len_14": "2 weeks",
+    "lg_len_30": "30 days",
+    "lg_len_sub": "Highest total at the end wins. You can start a new round after.",
+    "lg_overall": "Overall",
+    "lg_round_day": "Day {n} of {total} · ends {end}",
+    "lg_round_last": "Final day! Ends tonight.",
+    "lg_round_starts": "Starts {start}",
+    "lg_round_done": "Finished {end}",
+    "lg_winner": "🏆 Winner: <b>{name}</b>",
+    "lg_winners": "🏆 Joint winners: <b>{names}</b>",
+    "lg_winner_pts": "{pts} points",
+    "lg_no_winner": "No one played this round.",
+    "lg_restart": "Start a new round",
+    "lg_restart_wait": "The league’s creator can start a new round.",
+    "lg_past": "Past winners",
+    "lg_list_day": "Day {n}/{total}",
+    "lg_list_done": "Finished 🏆",
+    "lg_rank_done": "<b>{league}</b> finished: {name} won!",
+    "lg_rank_done_you": "<b>{league}</b> finished: you won! 🎉",
+    "lg_invite_len": "{len} league",
     "lg_days_title": "Which days count?",
     "lg_days_all": "Every day",
     "lg_days_all_sub": "Monday to Sunday",
@@ -1873,11 +1909,15 @@ async function lgRender(){
       <fieldset class="lg-days"><legend>${t("lg_days_title")}</legend>
         <label><input type="radio" name="lgDays" value="all" ${"all"==="all"?"checked":""}><span><b>${t("lg_days_all")}</b><small>${t("lg_days_all_sub")}</small></span></label>
         <label><input type="radio" name="lgDays" value="weekdays" ${"all"==="weekdays"?"checked":""}><span><b>${t("lg_days_wd")}</b><small>${t("lg_days_wd_sub")}</small></span></label></fieldset>
+      <fieldset class="lg-days"><legend>${t("lg_len_title")}</legend>
+        <div class="lg-len">${[7,14,30].map(n=>`<label><input type="radio" name="lgLen" value="${n}" ${14===n?"checked":""}><span><b>${t("lg_len_"+n)}</b></span></label>`).join("")}</div>
+        <p class="lg-hint" style="margin:6px 0 0">${t("lg_len_sub")}</p></fieldset>
       <button class="cta" type="submit">${t("lg_create_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>
       <button type="button" class="lg-linkbtn" id="lgBack" style="display:block;margin:10px auto 0">${t("lg_back")}</button>`;
     $("lgBack").onclick=()=>lgOpen(); $("lgName").focus();
     $("lgCreateForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgName").value.trim(); if(!name) return;
-      try{ const days=lgBody.querySelector("[name=lgDays]:checked")?.value||"all"; const lg=await lgApi("/api/league/create",{name,days}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level:"all",justCreated:true}) }
+      try{ const days=lgBody.querySelector("[name=lgDays]:checked")?.value||"all", length=+(lgBody.querySelector("[name=lgLen]:checked")?.value||14);
+        const lg=await lgApi("/api/league/create",{name,days,length,day:dayKey}); track("league",{result:"create"}); lgOpen({name:"table",code:lg.code,period:"today",level:"all",justCreated:true}) }
       catch(err){ $("lgErr").textContent=err.message } };
     return;
   }
@@ -1885,7 +1925,7 @@ async function lgRender(){
     lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
     let info; try{ info=await lgApi(`/api/league/info?code=${encodeURIComponent(v.code)}`) }catch(err){ lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgOk">${t("lg_close")}</button>`; $("lgOk").onclick=lgClose; return }
     const members=info.members===1?t("lg_member1"):t("lg_members",{n:info.members});
-    lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_invited")}</h2><p class="lg-sub">${t("lg_invited_sub",{name:lgEsc(info.name),members})}${info.days==="weekdays"?` <em class="lg-tag">${t("lg_tag_wd")}</em>`:""}</p>
+    lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_invited")}</h2><p class="lg-sub">${t("lg_invited_sub",{name:lgEsc(info.name),members})}${info.length?` <em class="lg-tag">${t("lg_invite_len",{len:t("lg_len_"+info.length)})}</em>`:""}${info.days==="weekdays"?` <em class="lg-tag">${t("lg_tag_wd")}</em>`:""}</p>
       ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span></div>`:`<input class="lg-input" id="lgNick" maxlength="20" placeholder="${lgEsc(t("lg_nick_ph"))}" aria-label="${lgEsc(t("lg_nick_ph"))}">`}
       <button class="cta" id="lgJoin">${t("lg_join_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p>
       ${player?"":`<button type="button" class="lg-linkbtn lg-center" id="lgJoinCode">${t("lg_join_elsewhere")}</button>`}
@@ -1912,7 +1952,7 @@ async function lgRender(){
     ${player?"":`<div class="lg-banner" role="note"><p>${t("lg_new_device_short")}</p><button type="button" class="lg-banner-btn" id="lgBannerCode">${t("lg_new_device_btn")}</button></div>`}
     ${leagues.length?"":`<p class="lg-sub">${t("lg_intro")}</p>`}
     ${player?`<div class="lg-who"><span>${t("lg_playing_as",{name:lgEsc(player.name)})}</span><button type="button" id="lgRename">${t("lg_change")}</button></div>`:""}
-    ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}${l.days==="weekdays"?` <em class="lg-tag">${t("lg_tag_wd")}</em>`:""}</span><small>${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
+    ${leagues.length?`<ul class="lg-list">${leagues.map(l=>`<li><button type="button" data-code="${lgEsc(l.code)}"><span>${lgEsc(l.name)}${l.days==="weekdays"?` <em class="lg-tag">${t("lg_tag_wd")}</em>`:""}</span><small>${lgRoundLabel(l)}${l.members===1?t("lg_member1"):t("lg_members",{n:l.members})} ›</small></button></li>`).join("")}</ul>`:""}
     <button class="cta" id="lgNew" type="button">${t("lg_create")}</button>
     <p class="lg-hint">${t("lg_join_hint")}</p>
     ${player?`<button type="button" class="lg-devbtn" id="lgDevice">${t("lg_device_btn")}</button>`:""}
@@ -1984,22 +2024,42 @@ async function lgRenderClaim(code){
 }
 
 const lgAddDays=(s,n)=>new Date(Date.parse(s+"T00:00:00Z")+n*864e5).toISOString().slice(0,10);
+const lgDayNo=l=>Math.round((Date.parse(dayKey)-Date.parse(l.start))/864e5)+1;
+function lgRoundLabel(l){   // small progress note in the leagues list
+  if(!l.start||!l.length) return "";
+  const n=lgDayNo(l); return (n>l.length?t("lg_list_done"):n<1?"":t("lg_list_day",{n,total:l.length}))+" · ";
+}
+function lgRoundHead(d,rows,fmt){   // "Day 3 of 14", or the winner once the round is over
+  const R=d.round;
+  if(!R.finished){
+    const line=R.dayNo<1?t("lg_round_starts",{start:fmt(R.start)}):R.dayNo>=R.length?t("lg_round_last"):t("lg_round_day",{n:R.dayNo,total:R.length,end:fmt(R.end)});
+    return `<p class="lg-round">${line}</p>`;
+  }
+  const win=rows.filter(r=>r.rank===1&&r.week!=null);
+  const who=!win.length?t("lg_no_winner"):win.length===1?t("lg_winner",{name:lgEsc(win[0].name)}):t("lg_winners",{names:win.map(r=>lgEsc(r.name)).join(", ")});
+  return `<div class="lg-winner"><p class="lg-winner-name">${who}</p>${win.length?`<p>${t("lg_winner_pts",{pts:win[0].week})}</p>`:""}
+    <p class="lg-hint" style="margin:4px 0 0">${t("lg_round_done",{end:fmt(R.end)})}</p>
+    ${d.isOwner?`<button class="cta" id="lgRestart" type="button">${t("lg_restart")}</button>`:`<p class="lg-hint" style="margin:6px 0 0">${t("lg_restart_wait")}</p>`}</div>`;
+}
 async function lgRenderTable(v){
   if(!lgBody.querySelector(".lg-table")) lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
   let d; try{ d=await lgApi(`/api/league/table?code=${encodeURIComponent(v.code)}&day=${dayKey}&level=${v.level}`) }
   catch(err){ lgBody.innerHTML=`<p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgBack">${t("lg_back")}</button>`; $("lgBack").onclick=()=>lgOpen(); return }
-  const week=v.period==="week", rows=lgRank(d.members.map(m=>({...m})),week?"week":"today");
+  const R=d.round, done=R?.finished, week=done||v.period==="week", rows=lgRank(d.members.map(m=>({...m})),week?"week":"today");
   const fmt=s=>new Date(s+"T12:00:00Z").toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"});
   lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
     <div class="lg-titlerow"><h2 id="lgTitle">${lgEsc(d.name)}</h2>${d.isOwner?`<button type="button" class="lg-linkbtn" id="lgRenameLeague">✏️ ${t("lg_edit")}</button>`:""}</div>
     <form id="lgRenameForm" hidden><input class="lg-input" id="lgNewName" maxlength="30" value="${lgEsc(d.name)}" aria-label="${lgEsc(t("lg_name_title"))}"><fieldset class="lg-days"><legend>${t("lg_days_title")}</legend>
         <label><input type="radio" name="lgDays" value="all" ${d.days==="all"?"checked":""}><span><b>${t("lg_days_all")}</b><small>${t("lg_days_all_sub")}</small></span></label>
-        <label><input type="radio" name="lgDays" value="weekdays" ${d.days==="weekdays"?"checked":""}><span><b>${t("lg_days_wd")}</b><small>${t("lg_days_wd_sub")}</small></span></label></fieldset><div class="lg-row2"><button class="cta" type="submit">${t("lg_save")}</button><button type="button" class="lg-linkbtn" id="lgRenameCancel">${t("lg_cancel")}</button></div><p class="lg-err" id="lgRenameErr" aria-live="polite"></p></form>
+        <label><input type="radio" name="lgDays" value="weekdays" ${d.days==="weekdays"?"checked":""}><span><b>${t("lg_days_wd")}</b><small>${t("lg_days_wd_sub")}</small></span></label></fieldset>${d.round?`<fieldset class="lg-days"><legend>${t("lg_len_title")}</legend>
+        <div class="lg-len">${[7,14,30].map(n=>`<label><input type="radio" name="lgLen" value="${n}" ${d.round.length===n?"checked":""}><span><b>${t("lg_len_"+n)}</b></span></label>`).join("")}</div>
+        <p class="lg-hint" style="margin:6px 0 0">${t("lg_len_sub")}</p></fieldset>`:""}<div class="lg-row2"><button class="cta" type="submit">${t("lg_save")}</button><button type="button" class="lg-linkbtn" id="lgRenameCancel">${t("lg_cancel")}</button></div><p class="lg-err" id="lgRenameErr" aria-live="polite"></p></form>
     <button class="cta" id="lgInvite" type="button">${t("lg_invite")}</button><p class="lg-note" id="lgNote" aria-live="polite"></p>
     <div class="lg-tabs four" role="group" aria-label="${lgEsc(t("level_group"))}">${["all",...Object.keys(LEVELS)].map(l=>`<button type="button" data-lv="${l}" aria-pressed="${l===v.level}">${l==="all"?t("lg_all"):`${LEVELS[l]} <small>×${LG_MULT[l]}</small>`}</button>`).join("")}</div>
-    <div class="lg-tabs two" role="group">${["today","week"].map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===v.period}">${t(p==="today"?"lg_today":"lg_week")}</button>`).join("")}</div>
-    ${week?`<p class="lg-hint" style="margin:4px 0 0">${d.days==="weekdays"?t("lg_week_range_wd",{from:fmt(d.week[0]),to:fmt(lgAddDays(d.week[0],4))}):t("lg_week_range",{from:fmt(d.week[0]),to:fmt(d.week[1])})}</p>`:""}
-    ${!week&&d.offDay?`<p class="lg-weekend">${t("lg_weekend_off")}</p>`:""}
+    ${R?lgRoundHead(d,rows,fmt):""}
+    ${done?"":`<div class="lg-tabs two" role="group">${["today","week"].map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===v.period}">${t(p==="today"?"lg_today":R?"lg_overall":"lg_week")}</button>`).join("")}</div>`}
+    ${week&&!R?`<p class="lg-hint" style="margin:4px 0 0">${d.days==="weekdays"?t("lg_week_range_wd",{from:fmt(d.week[0]),to:fmt(lgAddDays(d.week[0],4))}):t("lg_week_range",{from:fmt(d.week[0]),to:fmt(d.week[1])})}</p>`:""}
+    ${!week&&d.offDay&&!done?`<p class="lg-weekend">${t("lg_weekend_off")}</p>`:""}
     <ul class="lg-table">${rows.map(r=>{
       const me=r.id===d.me, nm=lgEsc(r.name)+(me?` <span class="soft">(${t("lg_you")})</span>`:"");
       const score=week?(r.week!=null?`<span class="lg-score">${r.week}</span>`:`<span class="lg-score none">${t("lg_not_played")}</span>`)
@@ -2009,6 +2069,7 @@ async function lgRenderTable(v){
         :(r.pattern?`<small class="sq">${lgSquares(r.pattern)}</small>`:"");
       return `<li class="${me?"me":""}"><span class="lg-rank ${r.rank===1?"top":""}">${r.rank??"–"}</span><span class="lg-name">${nm}${sub}</span>${score}</li>`}).join("")}</ul>
     <p class="lg-hint">${t("lg_points_note")}${d.days==="weekdays"?" "+t("lg_wd_note"):""}</p>
+    ${d.past?.length?`<div class="lg-past"><h3>${t("lg_past")}</h3><ul>${d.past.map(r=>`<li><span>${fmt(r.start)} – ${fmt(r.end)}</span><b>${r.winners.length?r.winners.map(lgEsc).join(", "):"–"}</b></li>`).join("")}</ul></div>`:""}
     <button type="button" class="lg-leave" id="lgLeave">${t("lg_leave")}</button>`;
   $("lgBack").onclick=()=>lgOpen();
   if($("lgRenameLeague")){
@@ -2016,8 +2077,10 @@ async function lgRenderTable(v){
     $("lgRenameLeague").onclick=()=>show(true); $("lgRenameCancel").onclick=()=>show(false);
     $("lgRenameForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgNewName").value.trim(); if(!name) return;
       const days=lgBody.querySelector("[name=lgDays]:checked")?.value||d.days;
-      try{ await lgApi("/api/league/rename",{code:d.code,name,days}); lgOpen({...v,justCreated:false}) }catch(err){ $("lgRenameErr").textContent=err.message } };
+      const length=+(lgBody.querySelector("#lgRenameForm [name=lgLen]:checked")?.value||0)||undefined;
+      try{ await lgApi("/api/league/rename",{code:d.code,name,days,length}); lgOpen({...v,justCreated:false}) }catch(err){ $("lgRenameErr").textContent=err.message } };
   }
+  if($("lgRestart")) $("lgRestart").onclick=async()=>{ try{ await lgApi("/api/league/restart",{code:d.code,day:dayKey}); track("league",{result:"restart"}); lgOpen({...v,period:"today",justCreated:false}) }catch(err){ $("lgNote").textContent=err.message } };
   lgBody.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>lgOpen({...v,level:b.dataset.lv,justCreated:false}));
   lgBody.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>lgOpen({...v,period:b.dataset.p,justCreated:false}));
   $("lgInvite").onclick=async()=>{
@@ -2045,7 +2108,8 @@ async function renderLeagueCard(){
     const lines=await Promise.all(leagues.map(async l=>{
       const d=await lgApi(`/api/league/table?code=${l.code}&day=${dayKey}&level=all`);
       const rows=lgRank(d.members.map(m=>({...m})),"today"), me=rows.find(r=>r.id===d.me), played=rows.filter(r=>r.rank!=null).length;
-      const txt=d.offDay?t("lg_rank_weekend",{league:lgEsc(l.name)}):(me?.rank&&played>1)?t("lg_rank_today",{place:lgOrdinal(me.rank),total:played,league:lgEsc(l.name)}):t("lg_waiting",{league:lgEsc(l.name)});
+      const winTop=d.round?.finished?lgRank(d.members.map(m=>({...m})),"week").filter(r=>r.rank===1&&r.week!=null):[];
+      const txt=winTop.length?(winTop.some(r=>r.id===d.me)?t("lg_rank_done_you",{league:lgEsc(l.name)}):t("lg_rank_done",{league:lgEsc(l.name),name:winTop.map(r=>lgEsc(r.name)).join(" & ")})):d.offDay?t("lg_rank_weekend",{league:lgEsc(l.name)}):(me?.rank&&played>1)?t("lg_rank_today",{place:lgOrdinal(me.rank),total:played,league:lgEsc(l.name)}):t("lg_waiting",{league:lgEsc(l.name)});
       return `<button type="button" data-code="${lgEsc(l.code)}">🏆 ${txt} ›</button>`;
     }));
     card.innerHTML=lines.join(""); card.hidden=false;
