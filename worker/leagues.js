@@ -14,7 +14,8 @@
    POST /api/league/leave    {code}            (token)     -> {ok}
    POST /api/league/rename   {code, name}      (token)     -> {code, name}   (creator only)
    GET  /api/league/table?code&day&level       (token)     -> today + this round (or week) tables, past winners
-   POST /api/league/restart  {code, day, length?}  (token)  -> new round  (creator only, after the round ends)
+   POST /api/league/restart  {code, day, length?}  (token)  -> new round  (any member, after the round ends)
+   POST /api/league/remove   {code, player}    (token)     -> {ok}   (creator only; removed players can't rejoin)
    POST /api/score           {day, level, score, pattern} (token)
    The token travels in the "x-player-token" header. */
 
@@ -150,6 +151,11 @@ export async function leagueRoutes(request, env, url) {
   if (p === "/api/player/rename" && m === "POST") {
     const name = cleanName((await body(request)).name, 20);
     if (!name) return bad("Please choose a nickname.");
+    const clash = await env.DB.prepare(
+      `SELECT l.name FROM members mine JOIN members other ON other.league=mine.league AND other.player<>mine.player
+         JOIN players o ON o.id=other.player JOIN leagues l ON l.code=mine.league
+       WHERE mine.player=? AND lower(o.name)=lower(?) LIMIT 1`).bind(me.id, name).first();
+    if (clash) return bad(`Someone in “${clash.name}” is already called ${name}. Please pick another nickname.`);
     await env.DB.prepare("UPDATE players SET name=? WHERE id=?").bind(name, me.id).run();
     return json({ name });
   }
@@ -193,6 +199,10 @@ export async function leagueRoutes(request, env, url) {
       ]);
       if (mine >= MAX_LEAGUES_PER_PLAYER) return bad("You’re in the maximum number of leagues.");
       if (size >= MAX_MEMBERS) return bad("This league is full.");
+      if (await env.DB.prepare("SELECT 1 FROM league_bans WHERE league=? AND player=?").bind(code, me.id).first())
+        return bad("You can’t join this league.", 403);
+      if (await env.DB.prepare("SELECT 1 FROM members mb JOIN players p ON p.id=mb.player WHERE mb.league=? AND lower(p.name)=lower(?)").bind(code, me.name).first())
+        return bad(`Someone in this league is already called ${me.name}. Change your nickname, then join.`, 409);
       await env.DB.prepare("INSERT INTO members (league, player, joined) VALUES (?,?,?)").bind(code, me.id, Date.now()).run();
     }
     return json(lg);
@@ -202,16 +212,42 @@ export async function leagueRoutes(request, env, url) {
     const d = await body(request), code = String(d.code || "").toUpperCase(), name = cleanName(d.name, 30);
     const days = SCHEDULES.has(d.days) ? d.days : null, length = LENGTHS.has(d.length) ? d.length : null;
     if (!name) return bad("Please give your league a name.");
-    const lg = await env.DB.prepare("SELECT owner FROM leagues WHERE code=?").bind(code).first();
+    const lg = await env.DB.prepare("SELECT owner, days, start, length FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
-    if (lg.owner !== me.id) return bad("Only the person who created this league can rename it.", 403);
-    await env.DB.prepare("UPDATE leagues SET name=?, days=COALESCE(?, days), length=COALESCE(?, length) WHERE code=?").bind(name, days, length, code).run();
+    if (lg.owner !== me.id) return bad("Only the person who created this league can change it.", 403);
+    let start = lg.start;
+    const changing = (days && days !== (lg.days || "all")) || (length && length !== lg.length);
+    if (changing && lg.start && lg.length) {
+      // days and length can't change mid-round (it would rewrite the results); fine before it starts or after it ends
+      const today = validDay(d.day) ? d.day : new Date().toISOString().slice(0, 10);
+      const end = roundEnd(lg.start, lg.length, lg.days === "weekdays");
+      if (today >= lg.start && today <= end) return bad("Days and length can be changed between rounds, not during one.");
+      if (today < lg.start && days) start = roundStart(today, days === "weekdays");   // not started yet: re-pick the start day
+    }
+    await env.DB.prepare("UPDATE leagues SET name=?, days=COALESCE(?, days), length=COALESCE(?, length), start=? WHERE code=?").bind(name, days, length, start, code).run();
     return json({ code, name });
   }
 
   if (p === "/api/league/leave" && m === "POST") {
     const code = String((await body(request)).code || "").toUpperCase();
     await env.DB.prepare("DELETE FROM members WHERE league=? AND player=?").bind(code, me.id).run();
+    // if the creator leaves, the longest-standing member takes over
+    await env.DB.prepare(
+      `UPDATE leagues SET owner=(SELECT player FROM members WHERE league=?1 ORDER BY joined LIMIT 1)
+       WHERE code=?1 AND owner=?2 AND EXISTS (SELECT 1 FROM members WHERE league=?1)`).bind(code, me.id).run();
+    return json({ ok: true });
+  }
+
+  if (p === "/api/league/remove" && m === "POST") {      // creator removes a player; they can't rejoin with the link
+    const d = await body(request), code = String(d.code || "").toUpperCase(), who = String(d.player || "");
+    const lg = await env.DB.prepare("SELECT owner FROM leagues WHERE code=?").bind(code).first();
+    if (!lg) return bad("This league doesn’t exist.", 404);
+    if (lg.owner !== me.id) return bad("Only the person who created this league can remove players.", 403);
+    if (who === me.id) return bad("You can’t remove yourself. Use “Leave this league” instead.");
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM members WHERE league=? AND player=?").bind(code, who),
+      env.DB.prepare("INSERT OR IGNORE INTO league_bans (league, player) VALUES (?,?)").bind(code, who),
+    ]);
     return json({ ok: true });
   }
 
@@ -231,8 +267,9 @@ export async function leagueRoutes(request, env, url) {
     if (!validDay(d.day) || !dayWithinReach(d.day)) return bad("Invalid request.");
     const lg = await env.DB.prepare("SELECT owner, days, start, length FROM leagues WHERE code=?").bind(code).first();
     if (!lg) return bad("This league doesn’t exist.", 404);
-    if (lg.owner !== me.id) return bad("Only the person who created this league can start a new round.", 403);
-    const length = LENGTHS.has(d.length) ? d.length : (lg.length || 14), weekdays = lg.days === "weekdays";
+    // any member may start the next round, so a league never gets stuck if its creator disappears
+    if (!(await env.DB.prepare("SELECT 1 FROM members WHERE league=? AND player=?").bind(code, me.id).first())) return bad("You’re not in this league.", 403);
+    const length = (lg.owner === me.id && LENGTHS.has(d.length)) ? d.length : (lg.length || 14), weekdays = lg.days === "weekdays";
     const start = roundStart(d.day, weekdays);
     const stmts = [];
     if (lg.start && lg.length) {
