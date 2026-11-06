@@ -267,6 +267,10 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .lg-err{color:var(--bad);min-height:1.3em;margin:6px 0 0;font-size:.92rem}
 .lg-note{color:var(--good);min-height:1.3em;margin:8px 0 0;font-size:.92rem;text-align:center}
 .lg-hint{color:var(--soft);font-size:.88rem;text-align:center;margin:10px 0 0}
+.lg-titlerow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.lg-titlerow h2{min-width:0;overflow-wrap:anywhere}
+.lg-titlerow .lg-linkbtn{flex:none}
+.lg-row2{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:6px}
 .lg-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
 .lg-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;border-radius:10px;background:var(--paper);margin:10px 0 6px}
 .lg-tabs.two{grid-template-columns:1fr 1fr}
@@ -1125,6 +1129,8 @@ const I18N = {
     "lg_rank_today": "{place} of {total} in <b>{league}</b> today",
     "lg_waiting": "Waiting for others in <b>{league}</b>",
     "lg_cta": "🏆 Play with friends: create a league",
+    "lg_rename": "Rename",
+    "lg_cancel": "Cancel",
     "lg_level_note": "Each level has its own table.",
     "lg_week_range": "Mon {from} – Sun {to}"
   }
@@ -1843,7 +1849,8 @@ async function lgRenderTable(v){
   const week=v.period==="week", rows=lgRank(d.members.map(m=>({...m})),week?"week":"today");
   const fmt=s=>new Date(s+"T12:00:00Z").toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"});
   lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
-    <h2 id="lgTitle">${lgEsc(d.name)}</h2>
+    <div class="lg-titlerow"><h2 id="lgTitle">${lgEsc(d.name)}</h2>${d.isOwner?`<button type="button" class="lg-linkbtn" id="lgRenameLeague">✏️ ${t("lg_rename")}</button>`:""}</div>
+    <form id="lgRenameForm" hidden><input class="lg-input" id="lgNewName" maxlength="30" value="${lgEsc(d.name)}" aria-label="${lgEsc(t("lg_name_title"))}"><div class="lg-row2"><button class="cta" type="submit">${t("lg_save")}</button><button type="button" class="lg-linkbtn" id="lgRenameCancel">${t("lg_cancel")}</button></div><p class="lg-err" id="lgRenameErr" aria-live="polite"></p></form>
     <button class="cta" id="lgInvite" type="button">${t("lg_invite")}</button><p class="lg-note" id="lgNote" aria-live="polite"></p>
     <div class="lg-tabs" role="group" aria-label="${lgEsc(t("level_group"))}">${Object.keys(LEVELS).map(l=>`<button type="button" data-lv="${l}" aria-pressed="${l===v.level}">${LEVELS[l]}</button>`).join("")}</div>
     <div class="lg-tabs two" role="group">${["today","week"].map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===v.period}">${t(p==="today"?"lg_today":"lg_week")}</button>`).join("")}</div>
@@ -1857,6 +1864,12 @@ async function lgRenderTable(v){
     <p class="lg-hint">${t("lg_level_note")}</p>
     <button type="button" class="lg-leave" id="lgLeave">${t("lg_leave")}</button>`;
   $("lgBack").onclick=()=>lgOpen();
+  if($("lgRenameLeague")){
+    const show=on=>{ $("lgRenameForm").hidden=!on; $("lgRenameLeague").hidden=on; if(on){ $("lgNewName").focus(); $("lgNewName").select() } };
+    $("lgRenameLeague").onclick=()=>show(true); $("lgRenameCancel").onclick=()=>show(false);
+    $("lgRenameForm").onsubmit=async e=>{ e.preventDefault(); const name=$("lgNewName").value.trim(); if(!name) return;
+      try{ await lgApi("/api/league/rename",{code:d.code,name}); lgOpen({...v,justCreated:false}) }catch(err){ $("lgRenameErr").textContent=err.message } };
+  }
   lgBody.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>lgOpen({...v,level:b.dataset.lv,justCreated:false}));
   lgBody.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>lgOpen({...v,period:b.dataset.p,justCreated:false}));
   $("lgInvite").onclick=async()=>{

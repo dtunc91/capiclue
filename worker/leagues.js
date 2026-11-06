@@ -9,6 +9,7 @@
    GET  /api/league/info?code=ABC123                       -> {code, name, members}   (public: for the invite screen)
    POST /api/league/join     {code}            (token)     -> {code, name}
    POST /api/league/leave    {code}            (token)     -> {ok}
+   POST /api/league/rename   {code, name}      (token)     -> {code, name}   (creator only)
    GET  /api/league/table?code&day&level       (token)     -> today + this week tables
    POST /api/score           {day, level, score, pattern} (token)
    The token travels in the "x-player-token" header. */
@@ -127,6 +128,16 @@ export async function leagueRoutes(request, env, url) {
       await env.DB.prepare("INSERT INTO members (league, player, joined) VALUES (?,?,?)").bind(code, me.id, Date.now()).run();
     }
     return json(lg);
+  }
+
+  if (p === "/api/league/rename" && m === "POST") {      // only the person who created the league
+    const d = await body(request), code = String(d.code || "").toUpperCase(), name = cleanName(d.name, 30);
+    if (!name) return bad("Please give your league a name.");
+    const lg = await env.DB.prepare("SELECT owner FROM leagues WHERE code=?").bind(code).first();
+    if (!lg) return bad("This league doesn’t exist.", 404);
+    if (lg.owner !== me.id) return bad("Only the person who created this league can rename it.", 403);
+    await env.DB.prepare("UPDATE leagues SET name=? WHERE code=?").bind(name, code).run();
+    return json({ code, name });
   }
 
   if (p === "/api/league/leave" && m === "POST") {
