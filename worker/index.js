@@ -65,7 +65,7 @@ async function stats(request, env, url) {
   const days = Math.min(Math.max(parseInt(url.searchParams.get("days") || "7", 10) || 7, 1), 365);
   const since = new Date(Date.now() - (days - 1) * 864e5).toISOString().slice(0, 10);
   const q = (sql) => env.DB.prepare(sql).bind(since);
-  const [daily, funnel, results, scores, shares, reminders, lucky, visits, countries, levels] = await env.DB.batch([
+  const [daily, funnel, results, scores, shares, reminders, lucky, visits, countries, levels, lgActions, lgTotals, lgSetup, lgDaily] = await env.DB.batch([
     q(`SELECT day,
          SUM(ev='visit') visits, SUM(ev='visit' AND ret=1) returning_visits,
          COUNT(DISTINCT CASE WHEN ev='start' THEN gid END) games_started,
@@ -83,8 +83,18 @@ async function stats(request, env, url) {
     q(`SELECT dev, inst, ret, COUNT(*) n FROM events WHERE day>=? AND ev='visit' GROUP BY dev, inst, ret`),
     q(`SELECT country, COUNT(*) n FROM events WHERE day>=? AND ev='visit' GROUP BY country ORDER BY n DESC LIMIT 15`),
     q(`SELECT level, COUNT(*) n FROM events WHERE day>=? AND ev='level' GROUP BY level`),
+    // Leagues: totals only, never names or nicknames
+    q(`SELECT result, COUNT(*) n FROM events WHERE day>=? AND ev='league' GROUP BY result`),
+    env.DB.prepare(`SELECT (SELECT COUNT(*) FROM leagues) leagues,
+         (SELECT COUNT(DISTINCT player) FROM members) players,
+         (SELECT COUNT(*) FROM members) memberships,
+         (SELECT COUNT(*) FROM backup_codes b WHERE b.player IN (SELECT player FROM members)) with_backup,
+         (SELECT COUNT(*) FROM league_rounds) rounds_finished`),
+    env.DB.prepare(`SELECT COALESCE(days,'all') days, length, COUNT(*) n FROM leagues GROUP BY 1, 2`),
+    q(`SELECT day, COUNT(DISTINCT player) players, COUNT(*) games FROM scores WHERE day>=? AND player IN (SELECT player FROM members) GROUP BY day ORDER BY day`),
   ]);
   const r = (x) => x.results;
   return json({ days, since, daily: r(daily), funnel: r(funnel), results: r(results), scores: r(scores),
-    shares: r(shares), reminders: r(reminders), lucky: r(lucky), visits: r(visits), countries: r(countries), levels: r(levels) });
+    shares: r(shares), reminders: r(reminders), lucky: r(lucky), visits: r(visits), countries: r(countries), levels: r(levels),
+    leagues: { actions: r(lgActions), totals: r(lgTotals)[0] || {}, setup: r(lgSetup), daily: r(lgDaily) } });
 }

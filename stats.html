@@ -79,6 +79,10 @@ td.num,th.num{text-align:right}
       <section><h2>Countries</h2><p class="sub">Top countries by visits.</p><div id="countries"></div></section>
       <section><h2>Reminders</h2><p class="sub">Daily calendar reminders added.</p><div id="reminders"></div></section>
       <section><h2>Level switches</h2><p class="sub">Times players tapped each level.</p><div id="levels"></div></section>
+      <section><h2>🏆 Leagues now</h2><p class="sub">All time, totals only.</p><div id="lgTotals"></div></section>
+      <section><h2>🏆 League activity</h2><p class="sub">In the chosen period.</p><div id="lgActions"></div></section>
+      <section><h2>🏆 League settings</h2><p class="sub">How leagues are set up.</p><div id="lgSetup"></div></section>
+      <section><h2>🏆 League players by day</h2><p class="sub">League players who finished a game.</p><div id="lgDaily"></div></section>
     </div>
     <p class="foot">Anonymous: no names, emails or IP addresses are stored. Each game has a random id used only for that day.</p>
   </div>
@@ -142,6 +146,15 @@ function render(d){
   $("countries").innerHTML=bars(d.countries.map(x=>[x.country?(names?.of(x.country.toUpperCase())||x.country.toUpperCase()):"Unknown",x.n]));
   $("reminders").innerHTML=bars(d.reminders.map(x=>[`${x.app==="apple"?"Apple/Outlook":"Google"} ${String(x.time||"").replace(/^t(\d\d)(\d\d)$/,"$1:$2")}`,x.n]));
   $("levels").innerHTML=bars(LV.map(lv=>[LVN[lv],(d.levels.find(x=>x.level===lv)||{}).n||0]));
+  // leagues
+  const L=d.leagues||{actions:[],totals:{},setup:[],daily:[]}, T=L.totals;
+  $("lgTotals").innerHTML=T.leagues?table(["",""],[["Leagues",T.leagues],["Players in leagues",T.players],["Average players per league",(T.memberships/T.leagues).toFixed(1)],
+    ["Saved a backup code",`${T.with_backup} · ${pct(T.with_backup,T.players)}`],["Rounds finished",T.rounds_finished]],[1]):'<p class="empty">No leagues yet.</p>';
+  const A=k=>(L.actions.find(x=>x.result===k)||{}).n||0;
+  $("lgActions").innerHTML=bars([["Nicknames made",A("player")],["Leagues created",A("create")],["Joined from an invite",A("join")],["Devices linked / codes used",A("device")],["New rounds started",A("restart")]]);
+  const S=f=>sum(L.setup.filter(f),x=>x.n);
+  $("lgSetup").innerHTML=L.setup.length?bars([["Every day",S(x=>x.days==="all")],["Mon–Fri",S(x=>x.days==="weekdays")],["1 week",S(x=>x.length===7)],["2 weeks",S(x=>x.length===14)],["30 days",S(x=>x.length===30)]]):'<p class="empty">No leagues yet.</p>';
+  $("lgDaily").innerHTML=table(["Day","Players","Games"],L.daily.slice().reverse().map(x=>[x.day,x.players,x.games]),[1,2]);
 }
 $("loginForm").addEventListener("submit",e=>{ e.preventDefault(); key=$("pw").value.trim(); try{ sessionStorage.setItem("capiclue-stats-key",key) }catch(e){} load() });
 $("ranges").addEventListener("click",e=>{ const b=e.target.closest("button[data-d]"); if(!b) return; days=+b.dataset.d;
