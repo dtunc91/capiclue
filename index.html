@@ -1350,6 +1350,14 @@ const MEDIUM_EXTRA = [
   "Brasilia","Quito","Montevideo","Asuncion","San Jose","Managua","San Salvador","Santo Domingo","Port-au-Prince","Nassau","Port of Spain",
   "Suva","Port Moresby","Apia"
 ];
+/* From Monday 9 November 2026 Easy also includes these well-known capitals (100 in total),
+   so it takes 20 days before an Easy city comes back. */
+const EASY_ADDED = [
+  "Bern","Bucharest","Sofia","Belgrade","Zagreb","Valletta","Tallinn","Riga","Vilnius","Bratislava","Minsk",
+  "Ankara","Islamabad","Dhaka","Ulaanbaatar","Pyongyang","Phnom Penh","Muscat","Amman","Tbilisi","Baku","Tashkent",
+  "Rabat","Accra","Abuja","Pretoria","Dakar","Kampala",
+  "Brasilia","Quito","Montevideo","San Jose","Santo Domingo","Suva"
+];
 const capIndex = name => { const i=CITIES.findIndex(c=>c[0]===name); if(i<0) throw new Error("Unknown capital in level list: "+name); return i };
 const POOLS = {
   easy:   EASY_CAPITALS.map(capIndex).sort((a,b)=>a-b),
@@ -1357,6 +1365,10 @@ const POOLS = {
   hard:   CITIES.map((_,i)=>i)
 };
 const SALT = {hard:0, medium:500009, easy:900007};   // each level gets its own daily order
+/* The schedule changed on day 9 (Monday 9 November 2026): bigger Easy list, and a city never comes back
+   soon after it was played. Days before that keep their original cities. */
+const NEW_SCHEDULE_FROM = 9;
+const POOLS2 = {...POOLS, easy:[...new Set([...EASY_CAPITALS,...EASY_ADDED])].map(capIndex).sort((a,b)=>a-b)};
 /* The day follows the player's own clock: a fresh set of five appears at their local midnight. */
 const [ly,lm,ld] = LAUNCH_DATE.split("-").map(Number);
 let dayIndex, dayKey;
@@ -1377,20 +1389,34 @@ function buildRound(cityIdx, cycle){
 }
 /* Spread regions out: each region's cities are spaced evenly through the cycle,
    so a day mixes continents instead of landing on the same area. */
-function cycleOrder(cycle, level){
-  const pool=POOLS[level], salt=SALT[level];
+function cycleOrder(cycle, level, pool=POOLS[level]){
+  const salt=SALT[level];
   const r=rng(1000+cycle*7919+salt), groups={};
   shuffled(pool.length,2000+cycle*104729+salt).map(k=>pool[k]).forEach(i=>(groups[CITIES[i][4]]??=[]).push(i));
   const keyed=[];
   for(const g of Object.values(groups)){const off=r();g.forEach((i,k)=>keyed.push([(k+off)/g.length,i]))}
   return keyed.sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
 }
+/* New schedule: when a cycle starts again, the cities from the second half of the previous cycle
+   go to the back of the queue, so the same capital is always at least half a cycle apart. */
+const orderCache={};
+function spacedOrder(c, level){
+  const key=level+c; if(orderCache[key]) return orderCache[key];
+  const pool=POOLS2[level], days=Math.floor(pool.length/PER_DAY), half=Math.floor(days/2);
+  let recent;
+  if(c===0){ recent=new Set(); for(let d=Math.max(0,NEW_SCHEDULE_FROM-half); d<NEW_SCHEDULE_FROM; d++) dailySet(d,level).forEach(r=>recent.add(capIndex(r.c))) }
+  else recent=new Set(spacedOrder(c-1,level).slice((days-half)*PER_DAY, days*PER_DAY));
+  const base=cycleOrder(c+100, level, pool);
+  return orderCache[key]=[...base.filter(i=>!recent.has(i)), ...base.filter(i=>recent.has(i))];
+}
 function dailySet(d, level){
-  const pool=POOLS[level], salt=SALT[level], days=Math.floor(pool.length/PER_DAY);
-  const cycle = Math.floor(d / days), slot = d % days;
-  const today = cycleOrder(cycle, level).slice(slot*PER_DAY, slot*PER_DAY+PER_DAY);
+  const salt=SALT[level], fresh=d>=NEW_SCHEDULE_FROM;
+  const pool=(fresh?POOLS2:POOLS)[level], days=Math.floor(pool.length/PER_DAY), dd=fresh?d-NEW_SCHEDULE_FROM:d;
+  const cycle = Math.floor(dd / days), slot = dd % days;
+  const today = (fresh?spacedOrder(cycle, level):cycleOrder(cycle, level)).slice(slot*PER_DAY, slot*PER_DAY+PER_DAY);
+  const factSet = fresh ? cycle+1 : cycle;             // the old schedule used fact set 1 already, so start with set 2
   const mix = shuffled(today.length, 3000+d+salt);     // shuffle the order within the day
-  const rounds = mix.map(j=>({...buildRound(today[j], cycle), region:CITIES[today[j]][4]}));
+  const rounds = mix.map(j=>({...buildRound(today[j], factSet), region:CITIES[today[j]][4]}));
   if(level==="easy") rounds.forEach((rd,j)=>{
     // Easy: 3 wrong answers from the other famous capitals that look like the answer on the letter tiles,
     // so counting tiles never gives it away. Best match first:
