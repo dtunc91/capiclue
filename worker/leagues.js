@@ -155,6 +155,11 @@ export async function leagueRoutes(request, env, url) {
     return json({ code, expires });
   }
 
+  if (p === "/api/player/history" && m === "GET") {    // this player's finished games from all their devices, for streaks and stats
+    const rows = await env.DB.prepare("SELECT day, level, score FROM scores WHERE player=? ORDER BY day DESC LIMIT 1200").bind(me.id).all();
+    return json({ games: rows.results });
+  }
+
   if (p === "/api/player/backup" && m === "POST") {    // personal backup code; making a new one replaces the old one
     const code = randomString(12, CODE_CHARS);
     await env.DB.prepare("INSERT INTO backup_codes (player, code_hash, created) VALUES (?,?,?) ON CONFLICT(player) DO UPDATE SET code_hash=excluded.code_hash, created=excluded.created")

@@ -65,7 +65,7 @@ async function stats(request, env, url) {
   const days = Math.min(Math.max(parseInt(url.searchParams.get("days") || "7", 10) || 7, 1), 365);
   const since = new Date(Date.now() - (days - 1) * 864e5).toISOString().slice(0, 10);
   const q = (sql) => env.DB.prepare(sql).bind(since);
-  const [daily, funnel, results, scores, shares, reminders, lucky, visits, countries, levels, lgActions, lgTotals, lgSetup, lgDaily] = await env.DB.batch([
+  const [daily, funnel, results, scores, shares, reminders, lucky, visits, countries, levels, lgActions, lgTotals, lgSetup, lgDaily, sources, visitState, streaks] = await env.DB.batch([
     q(`SELECT day,
          SUM(ev='visit') visits, SUM(ev='visit' AND ret=1) returning_visits,
          COUNT(DISTINCT CASE WHEN ev='start' THEN gid END) games_started,
@@ -92,9 +92,17 @@ async function stats(request, env, url) {
          (SELECT COUNT(*) FROM league_rounds) rounds_finished`),
     env.DB.prepare(`SELECT COALESCE(days,'all') days, length, COUNT(*) n FROM leagues GROUP BY 1, 2`),
     q(`SELECT day, COUNT(DISTINCT player) players, COUNT(*) games FROM scores WHERE day>=? AND player IN (SELECT player FROM members) GROUP BY day ORDER BY day`),
+    // where visits come from (tagged share links, invites, referring sites) and how many of them start a game
+    q(`SELECT COALESCE(app,'unknown') source, SUM(ev='visit') visits, SUM(ev='visit' AND result='new') new_visits, COUNT(DISTINCT CASE WHEN ev='start' THEN gid END) started
+       FROM events WHERE day>=? AND ev IN ('visit','start') GROUP BY 1 ORDER BY visits DESC`),
+    // visits by whether today's game was already played on that device
+    q(`SELECT COALESCE(result,'unknown') state, COUNT(*) n FROM events WHERE day>=? AND ev='visit' GROUP BY 1`),
+    // streak length at the end of each finished game
+    q(`SELECT CAST(substr(result,2) AS INTEGER) streak, COUNT(*) n FROM events WHERE day>=? AND ev='finish' AND result LIKE 's%' GROUP BY 1`),
   ]);
   const r = (x) => x.results;
   return json({ days, since, daily: r(daily), funnel: r(funnel), results: r(results), scores: r(scores),
     shares: r(shares), reminders: r(reminders), lucky: r(lucky), visits: r(visits), countries: r(countries), levels: r(levels),
+    sources: r(sources), visitState: r(visitState), streaks: r(streaks),
     leagues: { actions: r(lgActions), totals: r(lgTotals)[0] || {}, setup: r(lgSetup), daily: r(lgDaily) } });
 }

@@ -211,6 +211,25 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .level-note{margin:0 0 16px;font-size:.9rem;color:var(--soft);min-height:1.4em}
 .lg-status{display:block;margin:-6px 0 14px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;color:var(--soft);text-align:inherit;cursor:pointer}
 .lg-status b{color:var(--ink)}
+.streakline{display:block;margin:0 0 8px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);text-align:inherit;cursor:pointer}
+.streakline u{font-weight:500;color:var(--soft)}
+.streakline[hidden]{display:none}
+.final-main .streakline{margin:10px auto 4px;text-align:center}
+.ms-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.ms-tile{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:12px;background:var(--paper);text-align:center}
+.ms-tile b{font-size:1.4rem;line-height:1.2}
+.ms-tile span{font-size:.75rem;color:var(--soft)}
+.ms-days{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;margin-bottom:12px}
+.ms-days i{aspect-ratio:1;border-radius:4px;background:var(--line)}
+.ms-days i.on{background:var(--amber)}
+.ms-days i.today{outline:2px solid var(--ink);outline-offset:1px}
+.ms-table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:.9rem}
+.ms-table th{font-size:.75rem;color:var(--soft);font-weight:600;text-align:right}
+.ms-table td{padding:6px 0;border-top:1px solid var(--line);text-align:right}
+.ms-table td:first-child{text-align:left;font-weight:700}
+.ms-bar{display:grid;grid-template-columns:52px 1fr 28px;gap:8px;align-items:center;font-size:.85rem;margin-bottom:4px}
+.ms-bar i{display:block;height:12px;border-radius:6px;background:var(--amber)}
+.ms-bar b{text-align:right}
 .lg-nudge{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;padding:10px 12px;border-radius:12px;border:2px dashed var(--amber);background:var(--card)}
 .lg-nudge p{margin:0;flex:1;font-size:.88rem;line-height:1.4;color:var(--soft)}
 .lg-nudge b{color:var(--ink)}
@@ -428,6 +447,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
         <button type="button" role="radio" data-level="hard" data-i18n="level_hard">Hard</button>
       </div>
       <p class="level-note" id="levelNote"></p>
+      <button type="button" class="streakline home" id="homeStreak" hidden></button>
       <button type="button" class="lg-status" id="lgStatus" hidden></button>
       <div class="lg-nudge" id="lgNudge" hidden><p></p><button type="button" class="lg-nudge-go" id="lgNudgeGo"></button><button type="button" class="lg-nudge-x" id="lgNudgeX" aria-label="Hide">×</button></div>
       <div class="hero-cta"><button id="playBtn" class="cta" type="button">Guess the city</button><span class="enterhint desk" data-i18n="enter_hint">or press <kbd>Enter</kbd></span></div>
@@ -562,6 +582,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <h2 class="final-label" id="finalTitle">Today’s score</h2>
     <div class="bigscore"><span id="finalScore">0</span><small>/100</small></div>
     <div class="summary" id="summary"></div>
+    <button type="button" class="streakline" id="finalStreak"></button>
     <p class="share-label" data-i18n="share_label">Share my score</p>
     <div class="sharegrid" id="shareGrid" aria-label="Share my score on" data-i18n-attr="aria-label:share_on"></div>
     <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share" data-i18n-attr="aria-label:share_more"></div>
@@ -1154,7 +1175,7 @@ const I18N = {
     "ig_link_copied": "Link copied. Now share the card.",
     "ig_link_failed": "Couldn’t copy. Type capiclue.com into the Link sticker.",
     "remind_event": "🌍 Capiclue: 5 new capitals",
-    "remind_details": "Today’s five mystery capitals are ready. Play at https://capiclue.com",
+    "remind_details": "Today’s five mystery capitals are ready. Play at https://capiclue.com/?r=cal",
     "region_Europe": "Europe",
     "region_Asia": "Asia",
     "region_Africa": "Africa",
@@ -1279,6 +1300,24 @@ const I18N = {
     "lg_nick_elsewhere": "Already have a nickname on another device? <b>Use it here instead</b>",
     "lg_new_device_short": "<b>🔑 Already have a nickname?</b> Get back in with your backup code, a code from your other device, or one from your league’s creator.",
     "lg_backup_btn": "🔑 Backup code",
+    "streak_days": "🔥 {n}-day streak",
+    "streak_first": "🔥 Day 1 of your streak",
+    "streak_keep": "🔥 {n}-day streak: play today to keep it",
+    "stats_link": "Your stats",
+    "stats_title": "📊 Your stats",
+    "stats_days": "Days played",
+    "stats_current": "Current streak",
+    "stats_best_streak": "Best streak",
+    "stats_avg": "Average score",
+    "stats_best": "Best score",
+    "stats_perfect": "Perfect 100s",
+    "stats_levels": "By level",
+    "stats_games": "Games",
+    "stats_spread": "Your scores",
+    "stats_last14": "Last 14 days",
+    "stats_empty": "Finish today’s game to start your stats and streak.",
+    "stats_note": "Saved on this device.",
+    "stats_note_linked": "Includes games from your other linked devices.",
     "lg_nudge": "🔑 <b>New:</b> save a backup code, so you can always get back to {name} and your leagues, even on a new browser.",
     "lg_nudge_go": "Get my code",
     "lg_nudge_hide": "Hide",
@@ -1449,6 +1488,21 @@ const STATS_ON = location.protocol==="https:" && location.hostname.endsWith("cap
 const statsDevice = matchMedia("(pointer:coarse)").matches ? "phone" : "desktop";
 const statsInstalled = matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
 let statsReturning = false;
+/* Where this visit came from: a tagged share link (?r=wa), an invite, or the referring site. Read before the address bar is tidied. */
+const visitSource = (()=>{
+  const q=new URLSearchParams(location.search);
+  const r=(q.get("r")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,12);
+  if(r) return "s_"+r;
+  if(q.has("join")) return "invite";
+  if(q.has("link")) return "device";
+  let host=""; try{ host=document.referrer?new URL(document.referrer).hostname.replace(/^www\./,""):"" }catch(e){}
+  if(!host||host.endsWith("capiclue.com")) return statsInstalled?"homescreen":"direct";
+  const known=[["google","google"],["bing","bing"],["duckduckgo","duckduckgo"],["yahoo","yahoo"],["ecosia","ecosia"],["reddit","reddit"],["facebook","facebook"],
+    ["instagram","instagram"],["t.co","x"],["twitter","x"],["x.com","x"],["linkedin","linkedin"],["slack","slack"],["whatsapp","whatsapp"],["tiktok","tiktok"],
+    ["teams","teams"],["getmeoutofhere","getmeoutofhere"],["chatgpt","chatgpt"],["perplexity","perplexity"]];
+  for(const [k,v] of known) if(host.includes(k)) return v;
+  return "other";
+})();
 const newGameId = () => { const a=new Uint32Array(2); crypto.getRandomValues(a); return a[0].toString(36)+a[1].toString(36) };
 function track(ev, data={}){
   const body = JSON.stringify({ ev, ...data, ret:statsReturning, inst:statsInstalled, dev:statsDevice });
@@ -1470,6 +1524,65 @@ if(new URLSearchParams(location.search).has("reset")){
 function save(){ try{ localStorage.setItem(saveKey(level), JSON.stringify({date:dayKey, scores, clueNo:done?0:clueNo, wrongs:done?[]:wrongs, gid})) }catch(e){} }
 function loadSaved(l=level){ try{ const s=JSON.parse(localStorage.getItem(saveKey(l))); return s&&s.date===dayKey?s:null }catch(e){ return null } }
 const total = () => scores.reduce((a,b)=>a+b,0);
+/* Has today's game been played on this device? "played" (any level finished), "partial" or "new". */
+function todayState(){
+  let st="new";
+  for(const l of Object.keys(LEVELS)){ const sv=loadSaved(l); if(sv?.scores?.length>=PER_DAY) return "played"; if(sv&&(sv.scores?.length||sv.clueNo)) st="partial" }
+  return st;
+}
+
+function renderHomeStreak(){
+  const el=$("homeStreak"); if(!el) return; const sk=streakInfo();
+  if(!sk.days){ el.hidden=true; return }
+  el.innerHTML=sk.current>=1&&!sk.playedToday?t("streak_keep",{n:sk.current}):`${sk.current>=1?t("streak_days",{n:sk.current})+" · ":""}<u>${t("stats_link")}</u>`;
+  el.hidden=false;
+}
+async function syncHistory(){   // league players: add games from their other devices
+  if(!player) return;
+  try{ (await lgApi("/api/player/history")).games.forEach(g=>{ if(LEVELS[g.level]) recordGame(g.day,g.level,g.score) }) }catch(e){}
+}
+function renderMyStats(){
+  const h=loadHistory(), sk=streakInfo(), games=[];
+  Object.entries(h).forEach(([d,ls])=>Object.entries(ls).forEach(([l,sc])=>games.push({d,l,sc})));
+  const avg=a=>a.length?Math.round(a.reduce((x,g)=>x+g.sc,0)/a.length):"–", best=a=>a.length?Math.max(...a.map(g=>g.sc)):"–";
+  const tile=(n,l)=>`<div class="ms-tile"><b>${n}</b><span>${l}</span></div>`;
+  const spread=[["100",g=>g.sc===100],["80–95",g=>g.sc>=80&&g.sc<100],["60–75",g=>g.sc>=60&&g.sc<80],["40–55",g=>g.sc>=40&&g.sc<60],["0–35",g=>g.sc<40]];
+  const max=Math.max(1,...spread.map(([,f])=>games.filter(f).length));
+  const last14=[...Array(14)].map((_,i)=>dayShift(dayKey,i-13)).map(d=>`<i class="${h[d]&&Object.keys(h[d]).length?"on":""}${d===dayKey?" today":""}" title="${d}"></i>`).join("");
+  lgBody.innerHTML=`<h2 id="lgTitle">${t("stats_title")}</h2>
+    ${games.length?`<div class="ms-tiles">${tile(sk.days,t("stats_days"))}${tile("🔥 "+sk.current,t("stats_current"))}${tile(sk.best,t("stats_best_streak"))}
+      ${tile(avg(games),t("stats_avg"))}${tile(best(games),t("stats_best"))}${tile(games.filter(g=>g.sc===100).length,t("stats_perfect"))}</div>
+    <p class="lg-legend">${t("stats_last14")}</p><div class="ms-days">${last14}</div>
+    <p class="lg-legend">${t("stats_levels")}</p>
+    <table class="ms-table"><tr><th></th><th>${t("stats_games")}</th><th>${t("stats_avg")}</th><th>${t("stats_best")}</th></tr>
+      ${Object.keys(LEVELS).map(l=>{ const a=games.filter(g=>g.l===l); return a.length?`<tr><td>${LEVELS[l]}</td><td>${a.length}</td><td>${avg(a)}</td><td>${best(a)}</td></tr>`:"" }).join("")}</table>
+    <p class="lg-legend">${t("stats_spread")}</p>
+    ${spread.map(([lab,f])=>{ const n=games.filter(f).length; return `<div class="ms-bar"><span>${lab}</span><i style="width:${Math.max(2,n/max*100)}%"></i><b>${n}</b></div>` }).join("")}
+    <p class="lg-hint">${t(player?"stats_note_linked":"stats_note")}</p>`
+    :`<p class="lg-sub">${t("stats_empty")}</p>`}
+    <button type="button" class="lg-linkbtn" id="lgX" style="display:block;margin:12px auto 0">${t("lg_close")}</button>`;
+  $("lgX").onclick=lgClose;
+}
+
+/* ---------- STREAKS & PERSONAL STATS ----------
+   Every finished game is kept on this device as {day: {level: score}}. League players also get
+   the games they played on their other devices. A streak counts days in a row with at least one finished game. */
+const HISTORY_KEY="capiclue-history";
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY))||{} }catch(e){ return {} } }
+function recordGame(day,lv,score){
+  const h=loadHistory(); (h[day]??={}); if(h[day][lv]!=null) return;   // the first finished game of the day counts
+  h[day][lv]=score; try{ localStorage.setItem(HISTORY_KEY,JSON.stringify(h)) }catch(e){}
+}
+function backfillHistory(){ Object.keys(LEVELS).forEach(l=>{ const sv=loadSaved(l); if(sv?.scores?.length>=PER_DAY) recordGame(dayKey,l,sv.scores.reduce((a,b)=>a+b,0)) }) }
+const dayShift=(key,n)=>{ const [y,m,d]=key.split("-").map(Number); const x=new Date(y,m-1,d+n); return localDayKey(x) };
+function streakInfo(){
+  const h=loadHistory(), played=k=>h[k]&&Object.keys(h[k]).length>0;
+  let cur=0, k=played(dayKey)?dayKey:dayShift(dayKey,-1);
+  while(played(k)){ cur++; k=dayShift(k,-1) }
+  const days=Object.keys(h).filter(played).sort(); let best=0, run=0, prev=null;
+  for(const d of days){ run=(prev&&dayShift(prev,1)===d)?run+1:1; best=Math.max(best,run); prev=d }
+  return {current:cur, best:Math.max(best,cur), playedToday:played(dayKey), days:days.length};
+}
 const emojis = () => scores.map(s=>({20:"🟩",15:"🟨",10:"🟧",5:"🟥"}[s]||"⬛")).join(" ");
 const finePointer = matchMedia("(pointer:fine)").matches;
 
@@ -1543,14 +1656,14 @@ function openGame(){
   const saved=loadSaved(); scores=saved?saved.scores:[]; idx=scores.length;
   gid=saved?.gid||null;
   if(!gid&&idx<PER_DAY){   // first time today on this level: give the game a random id (keeps saved progress exactly as it was)
-    gid=newGameId(); if(!scores.length&&!saved?.clueNo) track("start",{level,gid});
+    gid=newGameId(); if(!scores.length&&!saved?.clueNo) track("start",{level,gid,app:visitSource});
     try{ localStorage.setItem(saveKey(level), JSON.stringify({date:dayKey, scores, clueNo:saved?.clueNo||0, wrongs:saved?.wrongs||[], gid})) }catch(e){}
   }
   $("final").classList.add("hidden"); $("board").classList.remove("hidden"); $("game").classList.remove("finalmode");
   if(idx>=PER_DAY) return showFinal();
   loadCity(saved?saved.clueNo:0, saved?.wrongs||[]);
 }
-function goHome(){ hideSuggest(); showScreen("home"); $("playBtn").focus({preventScroll:true}) }
+function goHome(){ hideSuggest(); renderHomeStreak(); showScreen("home"); $("playBtn").focus({preventScroll:true}) }
 function leaveGame(){ if(location.hash==="#play") history.back(); else goHome() }
 $("playBtn").addEventListener("click",()=>{ history.pushState(null,"","#play"); openGame() });
 ["brand","homeTop","backHome"].forEach(id=>$(id).addEventListener("click",leaveGame));
@@ -1732,7 +1845,8 @@ $("lucky").addEventListener("click",()=>{
 $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
 $("next").addEventListener("click",()=>{
   if(idx<PER_DAY-1){idx++;loadCity();window.scrollTo({top:0,behavior:"smooth"});return}
-  track("finish",{level,gid,score:total()});
+  recordGame(dayKey,level,total());
+  track("finish",{level,gid,score:total(),result:"s"+Math.min(streakInfo().current,99)});
   syncLeagueScores();
   showFinal();
 });
@@ -1745,6 +1859,7 @@ function showFinal(){
   $("finalTitle").textContent=t("final_title",{level:LEVELS[level]});
   $("finalScore").textContent=total();
   $("summary").textContent=emojis();
+  const sk=streakInfo(); $("finalStreak").innerHTML=`${t(sk.current>=2?"streak_days":"streak_first",{n:sk.current})} · <u>${t("stats_link")}</u>`;
   tick();
   renderShare();
   renderLeagueCard();
@@ -1758,7 +1873,10 @@ function showFinal(){
 /* ---------- SHARING ---------- */
 const SITE = "https://capiclue.com";
 /* Share text uses the date (e.g. "31 Oct") rather than a day number, so nobody feels they joined late. */
-function shareText(){ const d=new Date().toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"}); return t("share_text",{date:d,level:LEVELS[level],pts:total(),emojis:emojis(),site:SITE}) }
+/* Shared links carry a short tag (capiclue.com/?r=wa) so the stats can show which shares bring people in. */
+const shareLink = app => `${SITE}/?r=${app}`;
+function shareText(app="copy"){ const d=new Date().toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"}), st=streakInfo().current;
+  return t("share_text",{date:d,level:LEVELS[level],pts:total(),emojis:emojis()+(st>=2?`  🔥${st}`:""),site:shareLink(app)}) }
 /* One button per app. Phones get the apps people use there; computers get the ones that work in a browser. */
 const IS_PHONE = matchMedia("(pointer:coarse)").matches;
 const ICON = {
@@ -1776,19 +1894,19 @@ const ICON = {
 /* Main row: WhatsApp, Messages (phones), X, Instagram, Copy, More.
    "More" opens the phone's own share menu (every other app). Where there is none, it reveals Telegram, Facebook etc. */
 function shareTargets(){
-  const msg=encodeURIComponent(shareText()), u=encodeURIComponent(SITE);
-  const tgText=encodeURIComponent(shareText().replace("\n"+SITE,""));
+  const msg=a=>encodeURIComponent(shareText(a)), u=a=>encodeURIComponent(shareLink(a));
+  const tgText=encodeURIComponent(shareText("tg").replace("\n"+shareLink("tg"),""));
   const all=[
-    {k:"wa",   label:"WhatsApp",  bg:"#25D366", href:`https://wa.me/?text=${msg}`},
-    {k:"sms",  label:t("app_messages"),  bg:"#34C759", href:`sms:?&body=${msg}`, phoneOnly:true},
-    {k:"x",    label:"X",         bg:"#000000", href:`https://twitter.com/intent/tweet?text=${msg}`},
+    {k:"wa",   label:"WhatsApp",  bg:"#25D366", href:`https://wa.me/?text=${msg("wa")}`},
+    {k:"sms",  label:t("app_messages"),  bg:"#34C759", href:`sms:?&body=${msg("sms")}`, phoneOnly:true},
+    {k:"x",    label:"X",         bg:"#000000", href:`https://twitter.com/intent/tweet?text=${msg("x")}`},
     {k:"ig",   label:"Instagram", bg:"linear-gradient(45deg,#F58529,#DD2A7B 50%,#8134AF)", act:"instagram"},
     {k:"copy", label:t("app_copy"),      bg:"var(--ink)", fg:"var(--paper)", act:"copy"},
     {k:"more", label:t("app_more"),      bg:"var(--soft)", act:"more"},
     // Only shown after tapping More on devices without a built-in share menu (mostly computers):
-    {k:"tg",   label:"Telegram",  bg:"#229ED9", href:`https://t.me/share/url?url=${u}&text=${tgText}`, extra:true},
-    {k:"fb",   label:"Facebook",  bg:"#1877F2", href:`https://www.facebook.com/sharer/sharer.php?u=${u}`, extra:true},
-    {k:"msg",  label:"Messenger", bg:"linear-gradient(45deg,#0099FF,#A033FF 60%,#FF5280)", href:`fb-messenger://share/?link=${u}`, extra:true, phoneOnly:true},
+    {k:"tg",   label:"Telegram",  bg:"#229ED9", href:`https://t.me/share/url?url=${u("tg")}&text=${tgText}`, extra:true},
+    {k:"fb",   label:"Facebook",  bg:"#1877F2", href:`https://www.facebook.com/sharer/sharer.php?u=${u("fb")}`, extra:true},
+    {k:"msg",  label:"Messenger", bg:"linear-gradient(45deg,#0099FF,#A033FF 60%,#FF5280)", href:`fb-messenger://share/?link=${u("msgr")}`, extra:true, phoneOnly:true},
   ];
   return all.filter(x=>!x.phoneOnly||IS_PHONE);
 }
@@ -1817,7 +1935,7 @@ function updateRemindLinks(){
   const day=`${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}`, end=`${remindTime.slice(0,2)}1000`;
   const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
   const q=new URLSearchParams({action:"TEMPLATE", text:t("remind_event"),
-    details:t("remind_details"), location:"https://capiclue.com",
+    details:t("remind_details"), location:shareLink("cal"),
     dates:`${day}T${remindTime}00/${day}T${end}`, recur:"RRULE:FREQ=DAILY"});
   if(tz) q.set("ctz",tz);
   $("remindGoogle").href="https://calendar.google.com/calendar/render?"+q.toString();
@@ -1901,7 +2019,7 @@ $("igShare").addEventListener("click",async()=>{
 });
 $("igCopy").addEventListener("click",()=>track("share",{level,app:"ig_link"}));
 $("igCopy").addEventListener("click",async()=>{
-  try{ await navigator.clipboard.writeText(SITE); $("igNote").textContent=t("ig_link_copied"); }
+  try{ await navigator.clipboard.writeText(shareLink("ig")); $("igNote").textContent=t("ig_link_copied"); }
   catch(e){ $("igNote").textContent=t("ig_link_failed"); }
 });
 $("igClose").addEventListener("click",()=>$("igSheet").close());
@@ -1912,14 +2030,14 @@ function saveScoreCard(){   // fallback: save the picture so it can be posted fr
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   return true;
 }
-async function copyScore(){ try{ await navigator.clipboard.writeText(shareText()); return true }catch(e){ return false } }
+async function copyScore(){ try{ await navigator.clipboard.writeText(shareText("copy")); return true }catch(e){ return false } }
 ["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",e=>{ const a=e.target.closest("[data-app]"); if(a) track("share",{level,app:a.dataset.app}) }));
 ["shareGrid","shareExtra"].forEach(id=>$(id).addEventListener("click",async e=>{
   const b=e.target.closest("button[data-act]"); if(!b) return;
   const act=b.dataset.act, note=$("shareNote");
   if(act==="copy"){ note.textContent=await copyScore()?t("copied"):t("copy_failed") }
   else if(act==="more"){
-    if(IS_PHONE&&navigator.share){ try{ await navigator.share({text:shareText()}) }catch(err){} }
+    if(IS_PHONE&&navigator.share){ try{ await navigator.share({text:shareText("share")}) }catch(err){} }
     else $("shareExtra").classList.toggle("hidden");
   }
   else if(act==="instagram") openInstagramSheet();
@@ -1987,6 +2105,9 @@ async function renderLeagueStatus(){
   }catch(e){}
 }
 $("lgStatus").onclick=()=>lgOpen();
+$("homeStreak").onclick=()=>lgOpen({name:"mystats"});
+$("finalStreak").onclick=()=>lgOpen({name:"mystats"});
+lgSheet.addEventListener("close",()=>renderHomeStreak());
 /* One-time reminder for players who joined leagues before backup codes existed */
 const NUDGE_KEY="capiclue-backup-nudge";
 function lgBackupNudge(show){
@@ -2068,6 +2189,7 @@ async function lgRender(){
   if(v.name==="table") return lgRenderTable(v);
   if(v.name==="device") return lgRenderDevice();
   if(v.name==="backup") return lgRenderBackup(v);
+  if(v.name==="mystats") return renderMyStats();
   if(v.name==="claim") return lgRenderClaim(v.code);
   // list
   lgBody.innerHTML=`<h2 id="lgTitle">${t("lg_title")}</h2><p class="lg-sub">${t("lg_loading")}</p>`;
@@ -2293,7 +2415,7 @@ async function renderLeagueCard(){
 /* ----- invite links: capiclue.com/?join=CODE ----- */
 const lgJoinCode=(new URLSearchParams(location.search).get("join")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
 const lgLinkCode=(new URLSearchParams(location.search).get("link")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8);
-if(lgJoinCode||lgLinkCode) history.replaceState(null,"",location.pathname+location.hash);   // keep codes out of the address bar
+if(lgJoinCode||lgLinkCode||new URLSearchParams(location.search).has("r")) history.replaceState(null,"",location.pathname+location.hash);   // keep codes out of the address bar
 
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
@@ -2340,8 +2462,10 @@ inp.addEventListener("blur", ()=>setTimeout(hideSuggest, 120));
 applyStaticWording();
 init();
 try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
-track("visit",{level});
-syncLeagueScores().finally(renderLeagueStatus);
+backfillHistory();
+track("visit",{level,app:visitSource,result:todayState()});
+renderHomeStreak();
+syncLeagueScores().finally(()=>{ renderLeagueStatus(); syncHistory().then(renderHomeStreak) });
 if(lgLinkCode) lgOpen({name:"claim",code:lgLinkCode});
 else if(lgJoinCode) lgOpen({name:"join",code:lgJoinCode});
 if(location.hash==="#play") openGame();

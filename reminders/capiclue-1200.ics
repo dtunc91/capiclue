@@ -12,7 +12,7 @@ RRULE:FREQ=DAILY
 SUMMARY:🌍 Capiclue: 5 new capitals
 DESCRIPTION:Today’s five mystery capitals are ready. Play at https://capi
  clue.com
-URL:https://capiclue.com/
+URL:https://capiclue.com/?r=cal
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Capiclue: 5 new capitals are ready
