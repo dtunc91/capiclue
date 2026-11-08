@@ -1,6 +1,8 @@
 # Product Hunt launch: Capiclue
 
 **Planned launch:** Sunday 15 November 2026, going live at 12:01 am US Pacific time (8:01 am UK time).
+
+**Status (8 Nov):** listing submitted and scheduled; first comment, makers, categories and shoutouts done. No video (decided not needed).
 This folder is kept off the website (see `.assetsignore`).
 
 ## Listing
