@@ -6,3 +6,4 @@ wrangler.jsonc
 worker
 node_modules
 .wrangler
+marketing
