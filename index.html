@@ -1243,6 +1243,7 @@ const I18N = {
     "lg_claim_title": "Continue on this device",
     "lg_claim_sub": "Type your <b>backup code</b>, the code from your other device (🏆 → Play on another device), or a code from your league’s creator.",
     "lg_claim_ph": "e.g. K7P2-9XQM",
+    "lg_code_wrong": "That code looks incomplete ({n} letters and numbers). Codes have 8, or 12 for a backup code. Spaces and dashes don’t matter.",
     "lg_claim_btn": "Continue",
     "lg_claim_as": "Continue as <b>{name}</b> on this device?",
     "lg_claim_switch": "This device is currently playing as <b>{old}</b>. It will switch to <b>{name}</b>.",
@@ -2317,10 +2318,10 @@ async function lgRenderClaim(code){
   if(!code){
     lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
       <h2 id="lgTitle">${t("lg_claim_title")}</h2><p class="lg-sub">${t("lg_claim_sub")}</p>
-      <form id="lgClaimForm"><input class="lg-input lg-codein" id="lgCodeIn" maxlength="14" autocapitalize="characters" autocomplete="one-time-code" placeholder="${lgEsc(t("lg_claim_ph"))}" aria-label="${lgEsc(t("lg_claim_title"))}">
+      <form id="lgClaimForm"><input class="lg-input lg-codein" id="lgCodeIn" maxlength="40" autocapitalize="characters" autocomplete="one-time-code" placeholder="${lgEsc(t("lg_claim_ph"))}" aria-label="${lgEsc(t("lg_claim_title"))}">
       <button class="cta" type="submit">${t("lg_claim_btn")}</button><p class="lg-err" id="lgErr" aria-live="polite"></p></form>`;
     $("lgBack").onclick=()=>lgOpen(); $("lgCodeIn").focus();
-    $("lgClaimForm").onsubmit=e=>{ e.preventDefault(); const c=$("lgCodeIn").value.toUpperCase().replace(/[^A-Z0-9]/g,""); if(c.length===8||c.length===12) lgOpen({name:"claim",code:c}); else $("lgErr").textContent=t("lg_device_expired") };
+    $("lgClaimForm").onsubmit=e=>{ e.preventDefault(); const c=$("lgCodeIn").value.toUpperCase().replace(/[^A-Z0-9]/g,""); if(c.length===8||c.length===12) lgOpen({name:"claim",code:c}); else $("lgErr").textContent=t("lg_code_wrong",{n:c.length}) };
     return;
   }
   lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
