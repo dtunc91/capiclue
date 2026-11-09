@@ -1448,14 +1448,46 @@ function spacedOrder(c, level){
   const base=cycleOrder(c+100, level, pool);
   return orderCache[key]=[...base.filter(i=>!recent.has(i)), ...base.filter(i=>recent.has(i))];
 }
-function dailySet(d, level){
-  const salt=SALT[level], fresh=d>=NEW_SCHEDULE_FROM;
-  const pool=(fresh?POOLS2:POOLS)[level], days=Math.floor(pool.length/PER_DAY), dd=fresh?d-NEW_SCHEDULE_FROM:d;
+/* Which five cities a level has on day d, and the fact set (0–3) each would normally use. */
+function dayCities(d, level){
+  const fresh=d>=NEW_SCHEDULE_FROM, pool=(fresh?POOLS2:POOLS)[level], days=Math.floor(pool.length/PER_DAY), dd=fresh?d-NEW_SCHEDULE_FROM:d;
   const cycle = Math.floor(dd / days), slot = dd % days;
   const today = (fresh?spacedOrder(cycle, level):cycleOrder(cycle, level)).slice(slot*PER_DAY, slot*PER_DAY+PER_DAY);
-  const factSet = fresh ? cycle+1 : cycle;             // the old schedule used fact set 1 already, so start with set 2
+  return {today, factSet: fresh ? cycle+1 : cycle};   // the old schedule used fact set 1 already, so start with set 2
+}
+/* From 10 November 2026: when the same capital is on more than one level, each level gets a different set of facts
+   (every capital has 4 sets of 3), so its first fact is never the same. Hard keeps its set, then Medium, then Easy
+   picks one not used that day, and if possible not used by another level in the past week either. */
+const FACT_MIX_FROM = 10;
+const LEVEL_ORDER = ["hard","medium","easy"], FACT_OFFSET = {hard:0, medium:1, easy:2};
+const factPlan = {}, factHistory = {hard:{}, medium:{}, easy:{}};   // level -> city -> fact sets used so far, in order
+let factPlannedTo = FACT_MIX_FROM - 1;
+function factGroups(d){ while(factPlannedTo < d) planFacts(++factPlannedTo); return factPlan[d] }
+function planFacts(d){
+  const recent={};   // city -> fact sets other levels used for it in the past 7 days
+  for(let k=1;k<=7&&d-k>=FACT_MIX_FROM;k++){ const g=factPlan[d-k]; for(const lv in g) for(const c in g[lv]) (recent[c]??=new Set()).add(lv+":"+g[lv][c]) }
+  const out={}, usedToday={};
+  for(const lv of LEVEL_ORDER){
+    const {today, factSet}=dayCities(d, lv); out[lv]={};
+    for(const c of today){
+      const n=Math.floor(CITIES[c][3].length/3), start=(factSet+FACT_OFFSET[lv])%n, taken=usedToday[c]??=new Set();
+      const own=factHistory[lv][c]??=[], ownRecent=new Set(own.slice(-(n-1)));          // this level works through all sets before repeating
+      const other=g=>[...(recent[c]||[])].some(k=>!k.startsWith(lv+":")&&+k.split(":")[1]===g);
+      const order=[...Array(n)].map((_,i)=>(start+i)%n), free=g=>!taken.has(g);
+      const last=own[own.length-1];
+      // never the same day; then avoid what another level showed this week; then this level's recent sets
+      const g=order.find(g=>free(g)&&!other(g)&&!ownRecent.has(g)) ?? order.find(g=>free(g)&&!other(g)&&g!==last)
+           ?? order.find(g=>free(g)&&!other(g)) ?? order.find(g=>free(g)&&!ownRecent.has(g)) ?? order.find(free) ?? start;
+      taken.add(g); own.push(g); out[lv][c]=g;
+    }
+  }
+  factPlan[d]=out;
+}
+function dailySet(d, level){
+  const salt=SALT[level], {today, factSet}=dayCities(d, level), pool=(d>=NEW_SCHEDULE_FROM?POOLS2:POOLS)[level];
   const mix = shuffled(today.length, 3000+d+salt);     // shuffle the order within the day
-  const rounds = mix.map(j=>({...buildRound(today[j], factSet), region:CITIES[today[j]][4]}));
+  const groupOf = i => d>=FACT_MIX_FROM ? factGroups(d)[level][i] : factSet;
+  const rounds = mix.map(j=>({...buildRound(today[j], groupOf(today[j])), region:CITIES[today[j]][4]}));
   if(level==="easy") rounds.forEach((rd,j)=>{
     // Easy: 3 wrong answers from the other famous capitals that look like the answer on the letter tiles,
     // so counting tiles never gives it away. Best match first:
