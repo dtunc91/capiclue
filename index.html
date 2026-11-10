@@ -212,6 +212,9 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .level-note{margin:0 0 16px;font-size:.9rem;color:var(--soft);min-height:1.4em}
 .lg-status{display:block;margin:-6px 0 14px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;color:var(--soft);text-align:inherit;cursor:pointer}
 .lg-status b{color:var(--ink)}
+.coffee{display:block;margin:14px auto 0;font-size:.9rem;color:var(--soft);text-decoration:none;text-align:center}
+.coffee b{color:var(--ink);text-decoration:underline}
+.coffee-thanks{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:var(--card);border:2px solid var(--amber);font-weight:600}
 .streakline{display:block;margin:0 0 8px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);text-align:inherit;cursor:pointer}
 .streakline u{font-weight:500;color:var(--soft)}
 .streakline[hidden]{display:none}
@@ -484,7 +487,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <span class="logo small"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span>
     <p data-i18n="tagline_dot">The capital city guessing game built on fun facts.</p>
     <p class="foot-meta"><span data-i18n="footer_also">Also from us:</span> <a href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=footer" target="_blank" rel="noopener">✈️ Get Me Out of Here</a><span data-i18n="footer_gmooh">: the cheapest flights to anywhere from your airport.</span></p>
-    <p class="foot-meta">© <span id="year">2026</span> Capiclue · <a href="/privacy" data-i18n="privacy_link">Privacy</a> · <a href="/how-to-play" data-i18n="howto_link">How to play</a> · <a href="/daily-geography-games" data-i18n="games_link">Geography games</a></p>
+    <p class="foot-meta">© <span id="year">2026</span> Capiclue · <a href="/privacy" data-i18n="privacy_link">Privacy</a> · <a href="/how-to-play" data-i18n="howto_link">How to play</a> · <a href="/daily-geography-games" data-i18n="games_link">Geography games</a> · <a href="https://buy.stripe.com/00wbJ1bKu85de5l0382Ji00" target="_blank" rel="noopener" id="coffeeFoot" data-i18n="coffee_foot">☕ Buy me a coffee</a></p>
   </footer>
 </section>
 
@@ -591,6 +594,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <p class="share-note" id="shareNote" aria-live="polite"></p>
     <div class="leaguecard" id="leagueCard" hidden></div>
     <button type="button" class="remindbtn" id="remindBtn" data-i18n="remind_btn">📅 Remind me daily</button>
+    <a class="coffee" id="coffeeLink" href="https://buy.stripe.com/00wbJ1bKu85de5l0382Ji00" target="_blank" rel="noopener" data-i18n="coffee_cta">☕ Enjoying Capiclue? <b>Buy me a coffee</b></a>
     <p class="countdown" id="finalNote"></p>
     <button id="backHome" class="link" type="button" data-i18n="back_home">Back to homepage</button>
     </div>
@@ -1053,6 +1057,9 @@ const I18N = {
     "about_p3": "No sign-up, no download: it works on any phone, tablet or computer.",
     "about_p4": "Start a private league with friends or colleagues and see who wins the round. Just a nickname, no email needed.",
     "howto_link": "How to play",
+    "coffee_cta": "☕ Enjoying Capiclue? <b>Buy me a coffee</b>",
+    "coffee_foot": "☕ Buy me a coffee",
+    "coffee_thanks": "☕ Thank you so much for the coffee! It really helps keep Capiclue going.",
     "games_link": "Geography games",
     "about_p5": "Read the full <a href=\"/how-to-play\">how to play guide</a>, or find more <a href=\"/daily-geography-games\">daily geography games</a>.",
     "tagline_dot": "The capital city guessing game built on fun facts.",
@@ -2144,6 +2151,9 @@ async function renderLeagueStatus(){
 }
 $("lgStatus").onclick=()=>lgOpen();
 $("homeStreak").onclick=()=>lgOpen({name:"mystats"});
+$("coffeeLink").addEventListener("click",()=>track("share",{level,app:"coffee"}));
+$("coffeeFoot").addEventListener("click",()=>track("share",{level,app:"coffee_foot"}));
+if(visitSource==="s_thanks"){ const n=document.createElement("p"); n.className="coffee-thanks"; n.textContent=t("coffee_thanks"); $("homeStatus").after(n) }
 $("finalStreak").onclick=()=>lgOpen({name:"mystats"});
 lgSheet.addEventListener("close",()=>renderHomeStreak());
 /* One-time reminder for players who joined leagues before backup codes existed */

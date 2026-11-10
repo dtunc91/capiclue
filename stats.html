@@ -95,7 +95,7 @@ const $=id=>document.getElementById(id);
 let key=""; try{ key=sessionStorage.getItem("capiclue-stats-key")||"" }catch(e){}
 let days=7;
 const LV=["easy","medium","hard"], LVN={easy:"Easy",medium:"Medium",hard:"Hard"};
-const APP={wa:"WhatsApp",sms:"Messages",x:"X",ig:"Instagram (panel opened)",ig_card:"Instagram card shared",ig_link:"Instagram link copied",copy:"Copy",more:"More",tg:"Telegram",fb:"Facebook",msg:"Messenger"};
+const APP={coffee:"☕ Coffee link (results)",coffee_foot:"☕ Coffee link (footer)",wa:"WhatsApp",sms:"Messages",x:"X",ig:"Instagram (panel opened)",ig_card:"Instagram card shared",ig_link:"Instagram link copied",copy:"Copy",more:"More",tg:"Telegram",fb:"Facebook",msg:"Messenger"};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
 const sum=(arr,f)=>arr.reduce((s,x)=>s+(+f(x)||0),0);
@@ -153,7 +153,7 @@ function render(d){
   const SRC={direct:"Direct / typed",homescreen:"Home-screen app",invite:"League invite link",device:"Device link",google:"Google",bing:"Bing",duckduckgo:"DuckDuckGo",yahoo:"Yahoo",ecosia:"Ecosia",
     reddit:"Reddit",facebook:"Facebook",instagram:"Instagram",x:"X",linkedin:"LinkedIn",slack:"Slack",whatsapp:"WhatsApp (web)",tiktok:"TikTok",teams:"Teams",getmeoutofhere:"Get Me Out of Here",
     chatgpt:"ChatGPT",perplexity:"Perplexity",other:"Other websites",unknown:"Before tracking started"};
-  const srcName=s=>s.startsWith("s_")?`Shared link: ${({cal:"Calendar reminder",share:"Phone share menu",ig:"Instagram",msgr:"Messenger",tg:"Telegram",fb:"Facebook",sms:"Messages",wa:"WhatsApp",x:"X",copy:"Copied text"})[s.slice(2)]||s.slice(2)}`:(SRC[s]||s);
+  const srcName=s=>s.startsWith("s_")?`Shared link: ${({thanks:"Back after buying a coffee ☕",cal:"Calendar reminder",share:"Phone share menu",ig:"Instagram",msgr:"Messenger",tg:"Telegram",fb:"Facebook",sms:"Messages",wa:"WhatsApp",x:"X",copy:"Copied text"})[s.slice(2)]||s.slice(2)}`:(SRC[s]||s);
   $("sources").innerHTML=table(["Source","Visits","Not played yet","Games started","Start rate"],
     (d.sources||[]).filter(x=>x.visits||x.started).map(x=>[srcName(x.source),x.visits,x.new_visits,x.started,x.new_visits?pct(Math.min(x.started,x.new_visits),x.new_visits):"–"]),[1,2,3,4]);
   const VS={new:"Hadn’t played yet",partial:"Mid-game",played:"Already played today",unknown:"Before tracking started"};
