@@ -12,5 +12,7 @@
   "d1_databases": [
     { "binding": "DB", "database_name": "capiclue-analytics", "database_id": "add92ebd-8235-4511-b9c2-b0b60c633251" }
   ],
+  // every hour on the hour: send the daily reminder notifications that are due (worker/push.js)
+  "triggers": { "crons": ["0 * * * *"] },
   "observability": { "enabled": true }
 }

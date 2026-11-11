@@ -215,6 +215,14 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .coffee{display:block;margin:14px auto 0;font-size:.9rem;color:var(--soft);text-decoration:none;text-align:center}
 .coffee b{color:var(--ink);text-decoration:underline}
 .coffee-thanks{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:var(--card);border:2px solid var(--amber);font-weight:600}
+.push-box{margin:6px 0 4px;padding:12px 14px;border-radius:12px;border:2px solid var(--amber);background:var(--card)}
+.push-box .remind-label{margin-top:0}
+.push-tag{font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--amber);color:#1D2B45;vertical-align:1px}
+.push-text{margin:4px 0 8px;font-size:.92rem;color:var(--soft)}
+.push-evening{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;margin:0 0 10px;cursor:pointer}
+.push-evening input{flex:none;width:18px;height:18px;margin:2px 0 0;padding:0;accent-color:var(--ink)}
+.push-evening[hidden],.push-box [hidden]{display:none!important}
+.push-note{margin:8px 0 0;font-size:.88rem;color:var(--soft)}
 .streakline{display:block;margin:0 0 8px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);text-align:inherit;cursor:pointer}
 .streakline u{font-weight:500;color:var(--soft)}
 .streakline[hidden]{display:none}
@@ -515,7 +523,15 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <button type="button" role="radio" data-t="1800">18:00</button>
     <button type="button" role="radio" data-t="2000">20:00</button>
   </div>
-  <p class="remind-label" data-i18n="remind_add">Add to</p>
+  <div class="push-box" id="pushBox" hidden>
+    <p class="remind-label"><span data-i18n="push_title">🔔 Notifications</span> <span class="push-tag" data-i18n="push_rec">recommended</span></p>
+    <p class="push-text" id="pushText"></p>
+    <label class="push-evening" id="pushEveningRow"><input type="checkbox" id="pushEvening" checked> <span data-i18n="push_evening">⏳ Also remind me at 20:00 if my streak is about to end</span></label>
+    <button type="button" class="cta" id="pushOn"></button>
+    <button type="button" class="link" id="pushOff" hidden data-i18n="push_off">Turn off notifications</button>
+    <p class="push-note" id="pushNote" aria-live="polite"></p>
+  </div>
+  <p class="remind-label" id="calLabel" data-i18n="remind_add">Add to</p>
   <a class="cta remind-cal" id="remindApple" data-i18n="remind_apple">Apple / Outlook calendar</a>
   <a class="remind-cal remind-google" id="remindGoogle" target="_blank" rel="noopener" data-i18n="remind_google">Google Calendar</a>
   <p class="remind-foot" data-i18n="remind_foot">It repeats every day at your local time. You can change or delete it any time in your calendar.</p>
@@ -593,7 +609,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share" data-i18n-attr="aria-label:share_more"></div>
     <p class="share-note" id="shareNote" aria-live="polite"></p>
     <div class="leaguecard" id="leagueCard" hidden></div>
-    <button type="button" class="remindbtn" id="remindBtn" data-i18n="remind_btn">📅 Remind me daily</button>
+    <button type="button" class="remindbtn" id="remindBtn" data-i18n="remind_btn">🔔 Remind me daily</button>
     <a class="coffee" id="coffeeLink" href="https://buy.stripe.com/00wbJ1bKu85de5l0382Ji00" target="_blank" rel="noopener" data-i18n="coffee_cta">☕ Enjoying Capiclue? <b>Buy me a coffee</b></a>
     <p class="countdown" id="finalNote"></p>
     <button id="backHome" class="link" type="button" data-i18n="back_home">Back to homepage</button>
@@ -1075,6 +1091,7 @@ const I18N = {
     "close": "Close",
     "remind_title": "Daily reminder",
     "remind_sub": "Add a daily event to your calendar so you never miss the new capitals.",
+    "remind_sub_push": "Pick a time, then choose how you’d like to be reminded.",
     "remind_at": "Remind me at",
     "remind_add": "Add to",
     "remind_apple": "Apple / Outlook calendar",
@@ -1096,7 +1113,22 @@ const I18N = {
     "lucky_btn": "🍀 Lucky guess",
     "next_city": "Next city",
     "share_label": "Share my score",
-    "remind_btn": "📅 Remind me daily",
+    "remind_btn": "🔔 Remind me daily",
+    "push_title": "🔔 Notifications",
+    "push_rec": "recommended",
+    "push_evening": "⏳ Also remind me at 20:00 if my streak is about to end",
+    "push_text": "Get a notification at the time above when the new capitals are ready. We won’t send it if you’ve already played.",
+    "push_on": "Turn on notifications",
+    "push_save": "Save new time",
+    "push_off": "Turn off notifications",
+    "push_is_on": "🔔 Notifications are on at {time}.",
+    "push_done": "Done! You’ll get a reminder at {time}.",
+    "push_off_done": "Notifications are off.",
+    "push_denied": "Notifications are blocked for capiclue.com. You can allow them in your browser or phone settings.",
+    "push_ios": "📲 On iPhone, notifications work once Capiclue is on your Home Screen: tap <b>Share</b>, then <b>Add to Home Screen</b>, and open Capiclue from there.",
+    "push_error": "Couldn’t turn on notifications. Please try again.",
+    "remind_or_cal": "Or add it to your calendar",
+    "remind_btn_on": "🔔 Reminders on · {time}",
     "back_home": "Back to homepage",
     "todays_cities": "Today’s cities",
     "promo_sub": "Cheapest flights from where you are",
@@ -1890,7 +1922,7 @@ $("lucky").addEventListener("click",()=>{
 $("skip").addEventListener("click",()=>{$("wrong").textContent="";nextClue()});
 $("next").addEventListener("click",()=>{
   if(idx<PER_DAY-1){idx++;loadCity();window.scrollTo({top:0,behavior:"smooth"});return}
-  recordGame(dayKey,level,total());
+  recordGame(dayKey,level,total()); pushPlayed();
   track("finish",{level,gid,score:total(),result:"s"+Math.min(streakInfo().current,99)});
   syncLeagueScores();
   showFinal();
@@ -1988,6 +2020,7 @@ function updateRemindLinks(){
 $("remindBtn").addEventListener("click",()=>{
   updateRemindLinks();
   $("remindInApp").hidden=!/iPhone|iPad|iPod/.test(navigator.userAgent);
+  renderPushBox();
   $("remindSheet").showModal();
 });
 $("remindTimes").addEventListener("click",e=>{ const b=e.target.closest("button[data-t]"); if(b){ remindTime=b.dataset.t; updateRemindLinks() } });
@@ -1995,6 +2028,67 @@ $("remindGoogle").addEventListener("click",()=>setTimeout(()=>$("remindSheet").c
 $("remindGoogle").addEventListener("click",()=>track("remind",{app:"google",result:"t"+remindTime}));
 $("remindApple").addEventListener("click",()=>track("remind",{app:"apple",result:"t"+remindTime}));
 $("remindClose").addEventListener("click",()=>$("remindSheet").close());
+
+/* ---------- DAILY REMINDER NOTIFICATIONS (web push) ----------
+   The phone/browser gives us an anonymous push address; the server (worker/push.js) sends the reminder at the
+   chosen hour in the player's time zone, skips days they already played, and at 20:00 warns them if a streak
+   of 2+ days is about to end. On iPhone this only works from the Home Screen app. */
+const PUSH_KEY="capiclue-push";
+const pushSupported=()=>"serviceWorker" in navigator && "PushManager" in window && "Notification" in window && (location.protocol==="https:"||location.hostname==="127.0.0.1");
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
+function pushPrefs(){ try{ return JSON.parse(localStorage.getItem(PUSH_KEY)) }catch(e){ return null } }
+const fmtHour=h=>String(h).padStart(2,"0")+":00";
+function lastPlayedDay(){ const h=loadHistory(); return Object.keys(h).filter(k=>Object.keys(h[k]).length).sort().pop()||null }
+function urlB64ToBytes(s){ const b=atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)); return Uint8Array.from(b,c=>c.charCodeAt(0)) }
+async function pushSubscription(){ if(!pushSupported()) return null; try{ const reg=await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription() }catch(e){ return null } }
+async function postJSON(path,data){ const r=await fetch(path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(data)}); const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||t("push_error")); return j }
+function renderRemindBtn(){ const pr=pushPrefs(); $("remindBtn").textContent=pr?t("remind_btn_on",{time:fmtHour(pr.hour)}):t("remind_btn") }
+function renderPushBox(note=""){
+  const box=$("pushBox"), pr=pushPrefs(), ios=isIOS&&!statsInstalled&&!pushSupported();
+  box.hidden=!(pushSupported()||ios);
+  $("remindSheet").querySelector(".remind-sub").textContent=box.hidden?t("remind_sub"):t("remind_sub_push");
+  $("calLabel").textContent=box.hidden?t("remind_add"):t("remind_or_cal");
+  if(box.hidden) return;
+  if(ios){ $("pushText").innerHTML=t("push_ios"); ["pushOn","pushOff","pushEveningRow"].forEach(id=>$(id).hidden=true); $("pushNote").textContent=""; return }
+  $("pushOn").hidden=false; $("pushEveningRow").hidden=false;
+  if(pr){ $("pushText").textContent=t("push_is_on",{time:fmtHour(pr.hour)}); $("pushOn").textContent=t("push_save"); $("pushOff").hidden=false; $("pushEvening").checked=!!pr.evening }
+  else { $("pushText").textContent=t("push_text"); $("pushOn").textContent=t("push_on"); $("pushOff").hidden=true }
+  $("pushNote").textContent=note||(Notification.permission==="denied"?t("push_denied"):"");
+}
+async function pushSubscribe(hour, evening){
+  const reg=await navigator.serviceWorker.ready;
+  let sub=await reg.pushManager.getSubscription();
+  if(!sub){ const {key}=await (await fetch("/api/push/key")).json(); sub=await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:urlB64ToBytes(key)}) }
+  await postJSON("/api/push/subscribe",{sub:sub.toJSON(), hour, evening, tz:Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC", lastPlayed:lastPlayedDay(), streak:streakInfo().current});
+  try{ localStorage.setItem(PUSH_KEY,JSON.stringify({hour,evening})) }catch(e){}
+}
+$("pushOn").addEventListener("click",async()=>{
+  const hour=parseInt(remindTime.slice(0,2),10), evening=$("pushEvening").checked;
+  $("pushOn").disabled=true;
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=="granted"){ renderPushBox(t("push_denied")); return }
+    await pushSubscribe(hour,evening);
+    track("remind",{app:"push",result:"t"+remindTime});
+    renderPushBox(t("push_done",{time:fmtHour(hour)})); renderRemindBtn();
+  }catch(e){ renderPushBox(t("push_error")) }
+  finally{ $("pushOn").disabled=false }
+});
+$("pushOff").addEventListener("click",async()=>{
+  try{ const sub=await pushSubscription(); if(sub){ await postJSON("/api/push/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{}); await sub.unsubscribe() } }catch(e){}
+  try{ localStorage.removeItem(PUSH_KEY) }catch(e){}
+  track("remind",{app:"push_off"});
+  renderPushBox(t("push_off_done")); renderRemindBtn();
+});
+/* Tell the server when you last played, so it never reminds you on a day you've already played. */
+async function pushPlayed(){
+  const pr=pushPrefs(); if(!pr) return;
+  const sub=await pushSubscription(); if(!sub) return;
+  const day=lastPlayedDay(); if(!day) return;
+  try{ const r=await postJSON("/api/push/played",{endpoint:sub.endpoint, day, streak:streakInfo().current});
+    if(r.known===false) await pushSubscribe(pr.hour, pr.evening);   // the server forgot this device: add it back
+  }catch(e){}
+}
 $("remindSheet").addEventListener("click",e=>{ if(e.target===$("remindSheet")) $("remindSheet").close() });
 
 /* ---------- SCORE CARD PICTURE for Instagram (Stories, posts and messages accept images, not text) ---------- */
@@ -2510,7 +2604,7 @@ inp.addEventListener("blur", ()=>setTimeout(hideSuggest, 120));
 applyStaticWording();
 init();
 try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
-backfillHistory();
+backfillHistory(); renderRemindBtn(); pushPlayed();
 track("visit",{level,app:visitSource,result:todayState()});
 renderHomeStreak();
 syncLeagueScores().finally(()=>{ renderLeagueStatus(); syncHistory().then(renderHomeStreak) });

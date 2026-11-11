@@ -81,6 +81,7 @@ td.num,th.num{text-align:right}
       <section><h2>Level switches</h2><p class="sub">Times players tapped each level.</p><div id="levels"></div></section>
       <section><h2>Where visitors come from</h2><p class="sub">Shared links (tagged by app), invites and other websites. “Start rate” counts visitors who hadn’t played yet today.</p><div class="scroll" id="sources"></div></section>
       <section><h2>Had they already played?</h2><p class="sub">Visits by whether today’s game was already done on that device.</p><div id="visitState"></div></section>
+      <section><h2>🔔 Reminder notifications</h2><p class="sub">Devices with daily reminders switched on now, by chosen time.</p><div id="push"></div></section>
       <section><h2>🔥 Streaks</h2><p class="sub">Streak length when a game was finished.</p><div id="streaks"></div></section>
       <section><h2>🏆 Leagues now</h2><p class="sub">All time, totals only.</p><div id="lgTotals"></div></section>
       <section><h2>🏆 League activity</h2><p class="sub">In the chosen period.</p><div id="lgActions"></div></section>
@@ -147,13 +148,13 @@ function render(d){
   $("visits").innerHTML=bars([["Phone",vs(x=>x.dev==="phone")],["Computer",vs(x=>x.dev==="desktop")],["Home-screen app",vs(x=>x.inst===1)],["Returning",vs(x=>x.ret===1)],["First visit",vs(x=>x.ret===0)]]);
   let names; try{ names=new Intl.DisplayNames(["en"],{type:"region"}) }catch(e){}
   $("countries").innerHTML=bars(d.countries.map(x=>[x.country?(names?.of(x.country.toUpperCase())||x.country.toUpperCase()):"Unknown",x.n]));
-  $("reminders").innerHTML=bars(d.reminders.map(x=>[`${x.app==="apple"?"Apple/Outlook":"Google"} ${String(x.time||"").replace(/^t(\d\d)(\d\d)$/,"$1:$2")}`,x.n]));
+  $("reminders").innerHTML=bars(d.reminders.map(x=>[`${({apple:"Apple/Outlook",google:"Google",push:"🔔 Notifications",push_off:"🔕 Notifications turned off"})[x.app]||x.app} ${String(x.time||"").replace(/^t(\d\d)(\d\d)$/,"$1:$2")}`,x.n]));
   $("levels").innerHTML=bars(LV.map(lv=>[LVN[lv],(d.levels.find(x=>x.level===lv)||{}).n||0]));
   // sources, already played, streaks
   const SRC={direct:"Direct / typed",homescreen:"Home-screen app",invite:"League invite link",device:"Device link",google:"Google",bing:"Bing",duckduckgo:"DuckDuckGo",yahoo:"Yahoo",ecosia:"Ecosia",
     reddit:"Reddit",facebook:"Facebook",instagram:"Instagram",x:"X",linkedin:"LinkedIn",slack:"Slack",whatsapp:"WhatsApp (web)",tiktok:"TikTok",teams:"Teams",getmeoutofhere:"Get Me Out of Here",
     chatgpt:"ChatGPT",perplexity:"Perplexity",other:"Other websites",unknown:"Before tracking started"};
-  const srcName=s=>s.startsWith("s_")?`Shared link: ${({thanks:"Back after buying a coffee ☕",cal:"Calendar reminder",share:"Phone share menu",ig:"Instagram",msgr:"Messenger",tg:"Telegram",fb:"Facebook",sms:"Messages",wa:"WhatsApp",x:"X",copy:"Copied text"})[s.slice(2)]||s.slice(2)}`:(SRC[s]||s);
+  const srcName=s=>s.startsWith("s_")?`Shared link: ${({push:"🔔 Daily reminder notification",push_evening:"⏳ Streak reminder notification",thanks:"Back after buying a coffee ☕",cal:"Calendar reminder",share:"Phone share menu",ig:"Instagram",msgr:"Messenger",tg:"Telegram",fb:"Facebook",sms:"Messages",wa:"WhatsApp",x:"X",copy:"Copied text"})[s.slice(2)]||s.slice(2)}`:(SRC[s]||s);
   $("sources").innerHTML=table(["Source","Visits","Not played yet","Games started","Start rate"],
     (d.sources||[]).filter(x=>x.visits||x.started).map(x=>[srcName(x.source),x.visits,x.new_visits,x.started,x.new_visits?pct(Math.min(x.started,x.new_visits),x.new_visits):"–"]),[1,2,3,4]);
   const VS={new:"Hadn’t played yet",partial:"Mid-game",played:"Already played today",unknown:"Before tracking started"};
@@ -161,6 +162,8 @@ function render(d){
   $("visitState").innerHTML=bars(["new","partial","played","unknown"].map(k=>{const n=((d.visitState||[]).find(x=>x.state===k)||{}).n||0;return [VS[k],n,`${n} · ${pct(n,vsTotal)}`]}).filter(r=>r[1]));
   const SK=[["Day 1",x=>x.streak<=1],["2–3 days",x=>x.streak>=2&&x.streak<=3],["4–6 days",x=>x.streak>=4&&x.streak<=6],["7–13 days",x=>x.streak>=7&&x.streak<=13],["14+ days",x=>x.streak>=14]];
   $("streaks").innerHTML=(d.streaks||[]).length?bars(SK.map(([l,f])=>[l,sum(d.streaks.filter(f),x=>x.n)])):'<p class="empty">No data yet.</p>';
+  const P=d.push||[], pTotal=sum(P,x=>x.n);
+  $("push").innerHTML=pTotal?`<p class="sub" style="margin:0 0 8px">${pTotal} devices · ${sum(P,x=>x.evening)} with the 20:00 streak reminder</p>`+bars(P.map(x=>[String(x.hour).padStart(2,"0")+":00",x.n])):'<p class="empty">No reminders yet.</p>';
   // leagues
   const L=d.leagues||{actions:[],totals:{},setup:[],daily:[]}, T=L.totals;
   $("lgTotals").innerHTML=T.leagues?table(["",""],[["Leagues",T.leagues],["Players in leagues",T.players],["Average players per league",(T.memberships/T.leagues).toFixed(1)],

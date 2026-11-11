@@ -4,6 +4,7 @@
    - everything else : the normal website files, unchanged */
 
 import { leagueRoutes } from "./leagues.js";
+import { pushRoutes, sendDueReminders } from "./push.js";
 
 const EVENTS = new Set(["visit", "start", "city", "finish", "lucky", "share", "remind", "install", "level", "league"]);
 const LEVELS = new Set(["easy", "medium", "hard"]);
@@ -18,8 +19,16 @@ export default {
       try { return await leagueRoutes(request, env, url); }
       catch (e) { return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), { status: 500, headers: { "Content-Type": "application/json" } }); }
     }
+    if (url.pathname.startsWith("/api/push/")) {
+      try { return await pushRoutes(request, env, url); }
+      catch (e) { return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), { status: 500, headers: { "Content-Type": "application/json" } }); }
+    }
     if (url.pathname.startsWith("/api/")) return new Response("Not found", { status: 404 });
     return env.ASSETS.fetch(request);
+  },
+  // every hour: send daily reminders that are due (see worker/push.js)
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sendDueReminders(env));
   },
 };
 
@@ -65,7 +74,7 @@ async function stats(request, env, url) {
   const days = Math.min(Math.max(parseInt(url.searchParams.get("days") || "7", 10) || 7, 1), 365);
   const since = new Date(Date.now() - (days - 1) * 864e5).toISOString().slice(0, 10);
   const q = (sql) => env.DB.prepare(sql).bind(since);
-  const [daily, funnel, results, scores, shares, reminders, lucky, visits, countries, levels, lgActions, lgTotals, lgSetup, lgDaily, sources, visitState, streaks] = await env.DB.batch([
+  const [daily, funnel, results, scores, shares, reminders, lucky, visits, countries, levels, lgActions, lgTotals, lgSetup, lgDaily, sources, visitState, streaks, pushSubs] = await env.DB.batch([
     q(`SELECT day,
          SUM(ev='visit') visits, SUM(ev='visit' AND ret=1) returning_visits,
          COUNT(DISTINCT CASE WHEN ev='start' THEN gid END) games_started,
@@ -99,10 +108,12 @@ async function stats(request, env, url) {
     q(`SELECT COALESCE(result,'unknown') state, COUNT(*) n FROM events WHERE day>=? AND ev='visit' GROUP BY 1`),
     // streak length at the end of each finished game
     q(`SELECT CAST(substr(result,2) AS INTEGER) streak, COUNT(*) n FROM events WHERE day>=? AND ev='finish' AND result LIKE 's%' GROUP BY 1`),
+    // devices with daily reminder notifications switched on (all time), by chosen hour
+    env.DB.prepare(`SELECT hour, SUM(evening) evening, COUNT(*) n FROM push_subs GROUP BY hour ORDER BY hour`),
   ]);
   const r = (x) => x.results;
   return json({ days, since, daily: r(daily), funnel: r(funnel), results: r(results), scores: r(scores),
     shares: r(shares), reminders: r(reminders), lucky: r(lucky), visits: r(visits), countries: r(countries), levels: r(levels),
-    sources: r(sources), visitState: r(visitState), streaks: r(streaks),
+    sources: r(sources), push: r(pushSubs), visitState: r(visitState), streaks: r(streaks),
     leagues: { actions: r(lgActions), totals: r(lgTotals)[0] || {}, setup: r(lgSetup), daily: r(lgDaily) } });
 }
