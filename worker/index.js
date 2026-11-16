@@ -37,6 +37,7 @@ async function languagePage(request, env, lang) {
       } } })
     .on("#heroTitle", { element(el) { if (ui.hero_fresh) el.setInnerContent(ui.hero_fresh, { html: true }); } })
     .on("[data-lang-btn]", { element(el) { el.setInnerContent(lang.toUpperCase()); } })
+    .on('a[href="/how-to-play"], a[href="/privacy"]', { element(el) { el.setAttribute("href", `/${lang}` + el.getAttribute("href")); } })
     .transform(page);
   const headers = new Headers(res.headers);
   headers.set("Content-Language", lang);
@@ -54,6 +55,7 @@ export default {
     const lm = url.pathname.match(/^\/(tr|es)(\/.*)?$/);
     if (lm) {
       if (lm[2] === "/" ) return languagePage(request, env, lm[1]);
+      if (/^\/(how-to-play|privacy)(\.html)?\/?$/.test(lm[2] || "")) return env.ASSETS.fetch(request);   // translated guide and privacy pages (tr/…, es/…)
       return Response.redirect(new URL(`/${lm[1]}/${url.search}${url.hash}`, url).toString(), 301);   // /tr, /tr/anything → /tr/
     }
     if (url.pathname === "/api/event" && request.method === "POST") return saveEvent(request, env, ctx);
