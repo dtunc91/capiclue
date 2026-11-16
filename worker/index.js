@@ -44,6 +44,9 @@ async function saveEvent(request, env, ctx) {
     if (text.length > 1500) return ok;
     const d = JSON.parse(text);
     if (!EVENTS.has(d.ev)) return ok;
+    // visits from cloud servers are bots (scrapers, checkers). iCloud Private Relay (Akamai, Cloudflare, Fastly) and VPNs stay counted.
+    const org = String((request.cf && request.cf.asOrganization) || "");
+    if (d.ev === "visit" && /amazon|aws|google cloud|azure|digitalocean|ovh|hetzner|scaleway|online s\.a\.s|linode|oracle|alibaba|tencent|contabo|vultr|choopa/i.test(org)) return ok;
     const now = Date.now();
     const row = [
       now, new Date(now).toISOString().slice(0, 10), d.ev,

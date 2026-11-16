@@ -223,6 +223,18 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .push-evening input{flex:none;width:18px;height:18px;margin:2px 0 0;padding:0;accent-color:var(--ink)}
 .push-evening[hidden],.push-box [hidden]{display:none!important}
 .push-note{margin:8px 0 0;font-size:.88rem;color:var(--soft)}
+.quick{display:flex;gap:8px;margin:16px 0 0}
+.quick[hidden],.quick-choices[hidden],.nextlevel[hidden]{display:none}
+.quick-in{flex:1;min-width:0;font:inherit;font-size:1rem;padding:11px 14px;border-radius:10px;border:2px solid #3B4D70;background:#2A3C5F;color:#fff}
+.quick-in::placeholder{color:#A9B6CC}
+.quick-in:focus{outline:none;border-color:#F4B942}
+.quick-go{flex:none;padding:11px 18px;border-radius:10px;border:0;background:#F4B942;color:#1D2B45;font:inherit;font-weight:800;cursor:pointer}
+.quick-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 0}
+.quick-choices button{padding:11px 10px;border-radius:10px;border:2px solid #3B4D70;background:#2A3C5F;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.quick-choices button:hover,.quick-go:hover{filter:brightness(1.1)}
+.nextlevel{display:flex;flex-direction:column;align-items:center;gap:2px;margin:12px auto 4px;padding:12px 18px;border-radius:12px;border:2px solid var(--ink);background:var(--card);color:var(--ink);font:inherit;font-weight:800;cursor:pointer;max-width:420px;width:100%}
+.nextlevel small{font-weight:500;font-size:.82rem;color:var(--soft)}
+.nextlevel:hover{border-color:var(--amber)}
 .streakline{display:block;margin:0 0 8px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);text-align:inherit;cursor:pointer}
 .streakline u{font-weight:500;color:var(--soft)}
 .streakline[hidden]{display:none}
@@ -475,6 +487,12 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
       <p class="teaser-label" id="homeDay" data-i18n="first_fact">Today’s first fact</p>
       <p class="teaser-fact" id="homeFact"></p>
       <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
+      <form class="quick" id="quickForm" hidden autocomplete="off">
+        <input class="quick-in" id="quickGuess" list="quickNames" enterkeyhint="go" autocapitalize="words" spellcheck="false" placeholder="Type your guess" data-i18n-attr="placeholder:quick_ph;aria-label:quick_label" aria-label="Your guess for the first city">
+        <button type="submit" class="quick-go" data-i18n="quick_go">Guess</button>
+      </form>
+      <datalist id="quickNames"></datalist>
+      <div class="quick-choices" id="quickChoices" hidden role="group" aria-label="Pick the capital" data-i18n-attr="aria-label:choices_label"></div>
     </div>
   </div>
   <div class="points desk">
@@ -604,6 +622,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <div class="bigscore"><span id="finalScore">0</span><small>/100</small></div>
     <div class="summary" id="summary"></div>
     <button type="button" class="streakline" id="finalStreak"></button>
+    <button type="button" class="nextlevel" id="nextLevel" hidden></button>
     <p class="share-label" data-i18n="share_label">Share my score</p>
     <div class="sharegrid" id="shareGrid" aria-label="Share my score on" data-i18n-attr="aria-label:share_on"></div>
     <div class="sharegrid extra hidden" id="shareExtra" aria-label="More ways to share" data-i18n-attr="aria-label:share_more"></div>
@@ -1061,6 +1080,11 @@ const I18N = {
     "enter_hint": "or press <kbd>Enter</kbd>",
     "install_btn": "Install",
     "first_fact": "Today’s first fact",
+    "quick_ph": "Type your guess",
+    "quick_label": "Your guess for the first city",
+    "quick_go": "Guess",
+    "next_level": "🎚️ Ready for more? Play {level} →",
+    "next_level_sub": "{level} has its own five cities today.",
     "point1_t": "💡 Facts, not maps",
     "point1_d": "Every clue is a surprising piece of trivia about the city.",
     "point2_t": "🏆 Up to 100 points",
@@ -1718,9 +1742,37 @@ function renderHome(){
     $("playBtn").textContent=started?t("continue"):t("play_fresh");
     $("heroTitle").innerHTML=started?t("hero_progress"):t("hero_fresh");
   }
+  renderQuick(n===0&&!saved?.clueNo);
   $("homeCountdown").classList.toggle("hidden",n<PER_DAY);
   tick();
 }
+/* Home page: answer the first city straight from the card. The guess goes into the game exactly as if
+   it had been typed there (same scoring), so a quick visitor is playing before deciding to. */
+function renderQuick(fresh){
+  const form=$("quickForm"), box=$("quickChoices");
+  form.hidden=!fresh||level==="easy"; box.hidden=!fresh||level!=="easy";
+  if(fresh&&level==="easy") box.innerHTML=set[0].options.map((o,k)=>`<button type="button" data-qk="${k}">${o}</button>`).join("");
+  else box.innerHTML="";
+}
+/* Results: offer the next level that isn't finished today (Easy → Medium → Hard, then any left). */
+function renderNextLevel(){
+  const order=["easy","medium","hard"], open=l=>(loadSaved(l)?.scores.length||0)<PER_DAY;
+  const next=order.slice(order.indexOf(level)+1).find(open)||order.find(l=>l!==level&&open(l));
+  const b=$("nextLevel"); b.hidden=!next; if(!next) return;
+  b.dataset.level=next; b.innerHTML=`${t("next_level",{level:LEVELS[next]})}<small>${t("next_level_sub",{level:LEVELS[next]})}</small>`;
+}
+$("nextLevel").addEventListener("click",()=>{ const nl=$("nextLevel").dataset.level; if(!nl) return;
+  level=nl; try{ localStorage.setItem("capiclue-level",level) }catch(e){}
+  track("level",{level,result:"next"}); init(); openGame(); window.scrollTo(0,0) });
+function playFromHome(after){ history.pushState(null,"","#play"); openGame(); after() }
+$("quickForm").addEventListener("submit",e=>{ e.preventDefault();
+  const g=$("quickGuess").value.trim(); if(!g){ $("quickGuess").focus(); return }
+  $("quickGuess").value=""; track("level",{level,result:"quick"});
+  playFromHome(()=>submitGuess(g)) });
+$("quickChoices").addEventListener("click",e=>{ const b=e.target.closest("button[data-qk]"); if(!b) return;
+  track("level",{level,result:"quick"});
+  playFromHome(()=>$("choices").querySelector(`button[data-k="${b.dataset.qk}"]`)?.click()) });
+
 function showScreen(name){
   $("home").classList.toggle("hidden",name!=="home");
   $("game").classList.toggle("hidden",name!=="game");
@@ -1936,6 +1988,7 @@ function showFinal(){
   $("finalTitle").textContent=t("final_title",{level:LEVELS[level]});
   $("finalScore").textContent=total();
   $("summary").textContent=emojis();
+  renderNextLevel();
   const sk=streakInfo(); $("finalStreak").innerHTML=`${t(sk.current>=2?"streak_days":"streak_first",{n:sk.current})} · <u>${t("stats_link")}</u>`;
   tick();
   renderShare();
@@ -2562,6 +2615,7 @@ if(lgJoinCode||lgLinkCode||new URLSearchParams(location.search).has("r")) histor
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
 const NAMES = [...new Set(CITIES.map(c=>c[0]))].sort((a,b)=>a.localeCompare(b));
+$("quickNames").innerHTML=NAMES.map(n=>`<option value="${n}"></option>`).join("");
 const box = $("suggest"), inp = $("guess");
 let options = [], active = -1;
 function matches(q){
@@ -2605,7 +2659,12 @@ applyStaticWording();
 init();
 try{ const first=localStorage.getItem("capiclue-first-day"); if(!first) localStorage.setItem("capiclue-first-day",dayKey); statsReturning=!!first&&first!==dayKey }catch(e){}
 backfillHistory(); renderRemindBtn(); pushPlayed();
-track("visit",{level,app:visitSource,result:todayState()});
+/* A visit counts once the page sees a person: a tap, click, key, scroll or mouse movement.
+   Automated browsers (link checkers, scrapers) load the page but never do any of these. */
+(()=>{ if(navigator.webdriver) return;
+  const data={level,app:visitSource,result:todayState()}, kinds=["pointerdown","pointermove","keydown","touchstart","scroll","wheel"];
+  const go=()=>{ kinds.forEach(k=>removeEventListener(k,go,true)); track("visit",data) };
+  kinds.forEach(k=>addEventListener(k,go,{capture:true,passive:true})) })();
 renderHomeStreak();
 syncLeagueScores().finally(()=>{ renderLeagueStatus(); syncHistory().then(renderHomeStreak) });
 if(lgLinkCode) lgOpen({name:"claim",code:lgLinkCode});
