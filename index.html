@@ -223,7 +223,8 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .push-evening input{flex:none;width:18px;height:18px;margin:2px 0 0;padding:0;accent-color:var(--ink)}
 .push-evening[hidden],.push-box [hidden]{display:none!important}
 .push-note{margin:8px 0 0;font-size:.88rem;color:var(--soft)}
-.quick{display:flex;gap:8px;margin:16px 0 0}
+.quick{display:flex;gap:8px;margin:16px 0 0;position:relative}
+.quick .suggest{color:var(--ink)}
 .quick[hidden],.quick-choices[hidden],.nextlevel[hidden]{display:none}
 .quick-in{flex:1;min-width:0;font:inherit;font-size:1rem;padding:11px 14px;border-radius:10px;border:2px solid #3B4D70;background:#2A3C5F;color:#fff}
 .quick-in::placeholder{color:#A9B6CC}
@@ -488,10 +489,10 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
       <p class="teaser-fact" id="homeFact"></p>
       <div class="tiles teaser-tiles" id="homeTiles" aria-hidden="true"></div>
       <form class="quick" id="quickForm" hidden autocomplete="off">
-        <input class="quick-in" id="quickGuess" list="quickNames" enterkeyhint="go" autocapitalize="words" spellcheck="false" placeholder="Type your guess" data-i18n-attr="placeholder:quick_ph;aria-label:quick_label" aria-label="Your guess for the first city">
+        <input class="quick-in" id="quickGuess" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="quickSuggest" aria-expanded="false" placeholder="Type your guess" data-i18n-attr="placeholder:quick_ph;aria-label:quick_label" aria-label="Your guess for the first city">
         <button type="submit" class="quick-go" data-i18n="quick_go">Guess</button>
+        <ul class="suggest hidden" id="quickSuggest" role="listbox"></ul>
       </form>
-      <datalist id="quickNames"></datalist>
       <div class="quick-choices" id="quickChoices" hidden role="group" aria-label="Pick the capital" data-i18n-attr="aria-label:choices_label"></div>
     </div>
   </div>
@@ -1749,6 +1750,7 @@ function renderHome(){
 /* Home page: answer the first city straight from the card. The guess goes into the game exactly as if
    it had been typed there (same scoring), so a quick visitor is playing before deciding to. */
 function renderQuick(fresh){
+  fresh=fresh&&finePointer;   // computers only: on phones the card stays as it was, with "Guess the city" below
   const form=$("quickForm"), box=$("quickChoices");
   form.hidden=!fresh||level==="easy"; box.hidden=!fresh||level!=="easy";
   if(fresh&&level==="easy") box.innerHTML=set[0].options.map((o,k)=>`<button type="button" data-qk="${k}">${o}</button>`).join("");
@@ -2615,9 +2617,6 @@ if(lgJoinCode||lgLinkCode||new URLSearchParams(location.search).has("r")) histor
 /* ---------- DROPDOWN SUGGESTIONS while typing ----------
    Lists matching capital names (all 193, so it doesn't reveal today's answer). */
 const NAMES = [...new Set(CITIES.map(c=>c[0]))].sort((a,b)=>a.localeCompare(b));
-$("quickNames").innerHTML=NAMES.map(n=>`<option value="${n}"></option>`).join("");
-const box = $("suggest"), inp = $("guess");
-let options = [], active = -1;
 function matches(q){
   const n = norm(q); if(!n) return [];
   const starts = NAMES.filter(x=>norm(x).startsWith(n) || x.split(/[\s-]/).some(w=>norm(w).startsWith(n)));
@@ -2625,35 +2624,43 @@ function matches(q){
   return [...starts, ...inside].slice(0, 6);
 }
 function esc(s){ return s.replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])) }
-function renderSuggest(){
-  options = matches(inp.value); active = -1;
-  if(!options.length || done){ hideSuggest(); return }
-  const q = inp.value.trim().toLowerCase();
-  box.innerHTML = options.map((name,i)=>{
-    const at = name.toLowerCase().indexOf(q);
-    const label = at>=0 && q ? esc(name.slice(0,at))+"<mark>"+esc(name.slice(at,at+q.length))+"</mark>"+esc(name.slice(at+q.length)) : esc(name);
-    return `<li role="option" id="opt${i}" data-i="${i}">${label}</li>`;
-  }).join("");
-  box.classList.remove("hidden"); inp.setAttribute("aria-expanded","true");
+/* The suggestion list under a guess box. Used by the game and by the home card on computers. */
+function attachSuggest(inp, box, isOff){
+  let options = [], active = -1;
+  function hide(){ box.classList.add("hidden"); box.innerHTML=""; inp.setAttribute("aria-expanded","false"); inp.removeAttribute("aria-activedescendant"); active=-1 }
+  function render(){
+    options = matches(inp.value); active = -1;
+    if(!options.length || isOff()){ hide(); return }
+    const q = inp.value.trim().toLowerCase();
+    box.innerHTML = options.map((name,i)=>{
+      const at = name.toLowerCase().indexOf(q);
+      const label = at>=0 && q ? esc(name.slice(0,at))+"<mark>"+esc(name.slice(at,at+q.length))+"</mark>"+esc(name.slice(at+q.length)) : esc(name);
+      return `<li role="option" id="${box.id}-o${i}" data-i="${i}">${label}</li>`;
+    }).join("");
+    box.classList.remove("hidden"); inp.setAttribute("aria-expanded","true");
+  }
+  function pick(i){ inp.value = options[i]; hide(); inp.focus() }
+  function highlight(i){
+    active = (i + options.length) % options.length;
+    [...box.children].forEach((li,j)=>li.classList.toggle("active", j===active));
+    inp.setAttribute("aria-activedescendant", box.id+"-o"+active);
+    box.children[active].scrollIntoView({block:"nearest"});
+  }
+  inp.addEventListener("input", render);
+  inp.addEventListener("keydown", e=>{
+    if(box.classList.contains("hidden")) return;
+    if(e.key==="ArrowDown"){ e.preventDefault(); highlight(active+1) }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); highlight(active-1) }
+    else if(e.key==="Enter" && active>=0){ e.preventDefault(); pick(active) }
+    else if(e.key==="Escape"){ hide() }
+  });
+  box.addEventListener("mousedown", e=>{ const li=e.target.closest("li"); if(li){ e.preventDefault(); pick(+li.dataset.i) } });
+  inp.addEventListener("blur", ()=>setTimeout(hide, 120));
+  return {hide};
 }
-function hideSuggest(){ box.classList.add("hidden"); box.innerHTML=""; inp.setAttribute("aria-expanded","false"); inp.removeAttribute("aria-activedescendant"); active=-1 }
-function pick(i){ inp.value = options[i]; hideSuggest(); inp.focus() }
-function highlight(i){
-  active = (i + options.length) % options.length;
-  [...box.children].forEach((li,j)=>li.classList.toggle("active", j===active));
-  inp.setAttribute("aria-activedescendant", "opt"+active);
-  box.children[active].scrollIntoView({block:"nearest"});
-}
-inp.addEventListener("input", renderSuggest);
-inp.addEventListener("keydown", e=>{
-  if(box.classList.contains("hidden")) return;
-  if(e.key==="ArrowDown"){ e.preventDefault(); highlight(active+1) }
-  else if(e.key==="ArrowUp"){ e.preventDefault(); highlight(active-1) }
-  else if(e.key==="Enter" && active>=0){ e.preventDefault(); pick(active) }
-  else if(e.key==="Escape"){ hideSuggest() }
-});
-box.addEventListener("mousedown", e=>{ const li=e.target.closest("li"); if(li){ e.preventDefault(); pick(+li.dataset.i) } });
-inp.addEventListener("blur", ()=>setTimeout(hideSuggest, 120));
+const gameSuggest = attachSuggest($("guess"), $("suggest"), ()=>done);
+const homeSuggest = attachSuggest($("quickGuess"), $("quickSuggest"), ()=>false);
+function hideSuggest(){ gameSuggest.hide(); homeSuggest.hide() }
 
 applyStaticWording();
 init();
