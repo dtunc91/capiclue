@@ -7,6 +7,10 @@
 <title>Capiclue – Guess the Capital City from Fun Facts | Daily Geography Game</title>
 <meta name="description" content="Capiclue is a free daily capital city guessing game built on fun facts. Read surprising trivia about a mystery capital and guess the city – the fewer facts you need, the more points you score. Five new cities every day.">
 <link rel="canonical" href="https://capiclue.com/">
+<link rel="alternate" hreflang="en" href="https://capiclue.com/">
+<link rel="alternate" hreflang="tr" href="https://capiclue.com/tr/">
+<link rel="alternate" hreflang="es" href="https://capiclue.com/es/">
+<link rel="alternate" hreflang="x-default" href="https://capiclue.com/">
 <meta name="theme-color" content="#1D2B45">
 <script>try{var t=localStorage.getItem("capiclue-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -236,6 +240,14 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .nextlevel{display:flex;flex-direction:column;align-items:center;gap:2px;margin:12px auto 4px;padding:12px 18px;border-radius:12px;border:2px solid var(--ink);background:var(--card);color:var(--ink);font:inherit;font-weight:800;cursor:pointer;max-width:420px;width:100%}
 .nextlevel small{font-weight:500;font-size:.82rem;color:var(--soft)}
 .nextlevel:hover{border-color:var(--amber)}
+.langbtn{font-family:"DM Mono",ui-monospace,monospace;font-size:.78rem;font-weight:700;letter-spacing:.02em}
+.langmenu a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600}
+.langmenu a b{font-family:"DM Mono",ui-monospace,monospace;font-size:.78rem;width:2.2em;color:var(--soft)}
+.langmenu a:hover,.langmenu a:focus,.langmenu a[aria-checked="true"]{background:var(--paper)}
+.langsuggest{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 12px;padding:9px 12px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-size:.92rem}
+.langsuggest[hidden]{display:none}
+.langsuggest a{font-weight:800;color:var(--ink)}
+.langsuggest button{margin-left:auto;background:none;border:0;font-size:1.2rem;line-height:1;color:var(--soft);cursor:pointer;padding:2px 4px}
 .streakline{display:block;margin:0 0 8px;padding:0;background:none;border:0;font:inherit;font-size:.9rem;font-weight:700;color:var(--ink);text-align:inherit;cursor:pointer}
 .streakline u{font-weight:500;color:var(--soft)}
 .streakline[hidden]{display:none}
@@ -460,7 +472,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="home">
   <div class="topbar">
     <div class="brandh"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></div>
-    <span class="topright"><button class="help leaguebtn" type="button" aria-label="Leagues" data-i18n-attr="aria-label:lg_btn" data-leagues-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
+    <span class="topright"><button class="help leaguebtn" type="button" aria-label="Leagues" data-i18n-attr="aria-label:lg_btn" data-leagues-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button><button class="help langbtn" type="button" aria-label="Language" data-i18n-attr="aria-label:lang_btn" aria-haspopup="true" data-lang-btn>EN</button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
   </div>
   <div class="hero">
     <div class="hero-text">
@@ -472,6 +484,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
         <button type="button" role="radio" data-level="hard" data-i18n="level_hard">Hard</button>
       </div>
       <p class="level-note" id="levelNote"></p>
+      <p class="langsuggest" id="langSuggest" hidden><span id="langSuggestText"></span> <a id="langSuggestGo" href="/"></a> <button type="button" id="langSuggestX" aria-label="Hide">×</button></p>
       <button type="button" class="streakline home" id="homeStreak" hidden></button>
       <button type="button" class="lg-status" id="lgStatus" hidden></button>
       <div class="lg-nudge" id="lgNudge" hidden><p></p><button type="button" class="lg-nudge-go" id="lgNudgeGo"></button><button type="button" class="lg-nudge-x" id="lgNudgeX" aria-label="Hide">×</button></div>
@@ -514,7 +527,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
     <span class="logo small"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span>
     <p data-i18n="tagline_dot">The capital city guessing game built on fun facts.</p>
     <p class="foot-meta"><span data-i18n="footer_also">Also from us:</span> <a href="https://getmeoutofhere.live/?utm_source=capiclue&amp;utm_medium=referral&amp;utm_campaign=footer" target="_blank" rel="noopener">✈️ Get Me Out of Here</a><span data-i18n="footer_gmooh">: the cheapest flights to anywhere from your airport.</span></p>
-    <p class="foot-meta">© <span id="year">2026</span> Capiclue · <a href="/privacy" data-i18n="privacy_link">Privacy</a> · <a href="/how-to-play" data-i18n="howto_link">How to play</a> · <a href="/daily-geography-games" data-i18n="games_link">Geography games</a> · <a href="https://buy.stripe.com/00wbJ1bKu85de5l0382Ji00" target="_blank" rel="noopener" id="coffeeFoot" data-i18n="coffee_foot">☕ Buy me a coffee</a></p>
+    <p class="foot-meta">© <span id="year">2026</span> Capiclue · <a href="/privacy" data-i18n="privacy_link">Privacy</a> · <a href="/how-to-play" data-i18n="howto_link">How to play</a> · <a href="/daily-geography-games" data-i18n="games_link">Geography games</a> · <a href="/" hreflang="en" lang="en">English</a> · <a href="/tr/" hreflang="tr" lang="tr">Türkçe</a> · <a href="/es/" hreflang="es" lang="es">Español</a> · <a href="https://buy.stripe.com/00wbJ1bKu85de5l0382Ji00" target="_blank" rel="noopener" id="coffeeFoot" data-i18n="coffee_foot">☕ Buy me a coffee</a></p>
   </footer>
 </section>
 
@@ -578,7 +591,7 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 <section id="game" class="hidden">
   <div class="topbar">
     <button class="brand" id="brand" type="button" aria-label="Capiclue home" data-i18n-attr="aria-label:brand_home"><span class="logo"><span class="mark" aria-hidden="true"><span>C</span></span><span class="word">Capiclue</span></span></button>
-    <span class="topright"><button class="homebtn" id="homeTop" type="button" data-i18n="home_btn">← Home</button><button class="help leaguebtn" type="button" aria-label="Leagues" data-i18n-attr="aria-label:lg_btn" data-leagues-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
+    <span class="topright"><button class="homebtn" id="homeTop" type="button" data-i18n="home_btn">← Home</button><button class="help leaguebtn" type="button" aria-label="Leagues" data-i18n-attr="aria-label:lg_btn" data-leagues-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button><button class="help langbtn" type="button" aria-label="Language" data-i18n-attr="aria-label:lang_btn" aria-haspopup="true" data-lang-btn>EN</button><button class="help themebtn" type="button" aria-label="Change colours" data-i18n-attr="aria-label:theme_btn" aria-haspopup="true" data-theme-btn><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button><button class="help" id="helpBtn2" type="button" aria-label="How to play" data-i18n-attr="aria-label:help_btn">?</button></span>
   </div>
 
   <div class="gamegrid">
@@ -649,6 +662,11 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
   </aside>
   </div>
 </section>
+<div class="thememenu langmenu hidden" id="langMenu" role="menu" aria-label="Language" data-i18n-attr="aria-label:lang_btn">
+  <a role="menuitemradio" href="/" data-lang-choice="en" hreflang="en" lang="en"><b>EN</b><span>English</span></a>
+  <a role="menuitemradio" href="/tr/" data-lang-choice="tr" hreflang="tr" lang="tr"><b>TR</b><span>Türkçe</span></a>
+  <a role="menuitemradio" href="/es/" data-lang-choice="es" hreflang="es" lang="es"><b>ES</b><span>Español</span></a>
+</div>
 <div class="thememenu hidden" id="themeMenu" role="menu" aria-label="Colours" data-i18n-attr="aria-label:colours">
   <button type="button" role="menuitemradio" data-theme-choice="light"><i style="background:#E9EEF2"></i><span data-i18n="theme_classic">Classic</span></button>
   <button type="button" role="menuitemradio" data-theme-choice="bright"><i style="background:#FFFFFF"></i><span data-i18n="theme_bright">Bright</span></button>
@@ -1068,6 +1086,18 @@ Object.assign(EXTRA,{
 });
 CITIES.forEach(c=>{const e=EXTRA[c[0]];if(!e)throw new Error("missing "+c[0]);const f=c[3];c[3]=[f[0],f[1],f[2],...e.slice(0,6),e[6],e[7],f[3]]});
 
+/* ---------- OTHER LANGUAGES ----------
+   capiclue.com/tr/ and /es/ are this same page; the server adds that language's word list (i18n/tr.json, i18n/es.json)
+   as window.CAPICLUE_LANG_DATA. The daily cities are the same in every language, so scores, streaks and leagues are shared.
+   c[5] keeps the English name, which the level lists use, and which players can still type as an answer. */
+const LANG_DATA = window.CAPICLUE_LANG_DATA || null;
+CITIES.forEach(c=>{ c[5]=c[0];
+  const d=LANG_DATA?.cities?.[c[0]]; if(!d) return;
+  if(d.name){ c[2]=[...new Set([...(d.alts||[]), ...c[2], c[0]])]; c[0]=d.name }
+  if(d.country) c[1]=d.country;
+  if(Array.isArray(d.facts)&&d.facts.length===c[3].length) c[3]=d.facts;
+});
+
 
 /* ---------- WORDING ----------
    Every word players see lives here, so new languages (e.g. Spanish "es", Turkish "tr") can be added by
@@ -1081,6 +1111,11 @@ const I18N = {
     "enter_hint": "or press <kbd>Enter</kbd>",
     "install_btn": "Install",
     "first_fact": "Today’s first fact",
+    "lang_btn": "Language",
+    "meta_title": "Capiclue – Guess the Capital City from Fun Facts | Daily Geography Game",
+    "meta_desc": "Capiclue is a free daily capital city guessing game built on fun facts. Read surprising trivia about a mystery capital and guess the city – the fewer facts you need, the more points you score. Five new cities every day.",
+    "og_title": "Capiclue – Guess the Capital City from Fun Facts",
+    "og_desc": "A daily capital city guessing game built on surprising fun facts. Five mystery capitals, new every day.",
     "quick_ph": "Type your guess",
     "quick_label": "Your guess for the first city",
     "quick_go": "Guess",
@@ -1410,7 +1445,9 @@ const I18N = {
   }
 };
 const LOCALES = { en: "en-GB" };          // date format per language
-let LANG = "en";
+if(LANG_DATA){ I18N[LANG_DATA.lang]=LANG_DATA.ui; LOCALES[LANG_DATA.lang]=LANG_DATA.locale }
+let LANG = LANG_DATA?.lang || "en";
+const LANG_PATH = LANG==="en" ? "/" : `/${LANG}/`;     // this language's address, used in shared links
 function t(key, vars){
   let s = I18N[LANG]?.[key] ?? I18N.en[key];
   if(s == null){ console.warn("Missing wording:", key); return key; }
@@ -1431,7 +1468,7 @@ const POINTS = [20, 15, 10, 5];   // per clue; 5 cities x 20 = 100
 /* ---------- DAILY SCHEDULE ----------
    Every capital appears once before any repeats (one "cycle").
    Each new cycle shuffles the order again and uses the next set of 3 facts. */
-const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z]/g,"");
+const norm = s => s.replace(/ı/g,"i").replace(/İ/g,"i").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z]/g,"");
 const $ = id => document.getElementById(id);
 
 function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -1467,7 +1504,7 @@ const EASY_ADDED = [
   "Rabat","Accra","Abuja","Pretoria","Dakar","Kampala",
   "Brasilia","Quito","Montevideo","San Jose","Santo Domingo","Suva"
 ];
-const capIndex = name => { const i=CITIES.findIndex(c=>c[0]===name); if(i<0) throw new Error("Unknown capital in level list: "+name); return i };
+const capIndex = name => { const i=CITIES.findIndex(c=>c[5]===name||c[0]===name); if(i<0) throw new Error("Unknown capital in level list: "+name); return i };
 const POOLS = {
   easy:   EASY_CAPITALS.map(capIndex).sort((a,b)=>a-b),
   medium: [...EASY_CAPITALS,...MEDIUM_EXTRA].map(capIndex).sort((a,b)=>a-b),
@@ -1607,7 +1644,7 @@ const visitSource = (()=>{
 })();
 const newGameId = () => { const a=new Uint32Array(2); crypto.getRandomValues(a); return a[0].toString(36)+a[1].toString(36) };
 function track(ev, data={}){
-  const body = JSON.stringify({ ev, ...data, ret:statsReturning, inst:statsInstalled, dev:statsDevice });
+  const body = JSON.stringify({ ev, ...data, ret:statsReturning, inst:statsInstalled, dev:statsDevice, lang:LANG });
   if(!STATS_ON){ (window.__statsLog ||= []).push(JSON.parse(body)); return }   // local testing: keep in memory only
   try{ navigator.sendBeacon?.("/api/event", body) || fetch("/api/event",{method:"POST",body,keepalive:true}).catch(()=>{}) }catch(e){}
 }
@@ -1818,6 +1855,27 @@ function setTheme(t){
   try{ localStorage.setItem("capiclue-theme",t) }catch(e){}
   document.querySelector('meta[name="theme-color"]').content = t==="bright"?"#FFFFFF":t==="dark"?"#111827":"#1D2B45";
 }
+/* ---------- LANGUAGE: the button opens English / Türkçe / Español; each is its own address (/, /tr/, /es/). ---------- */
+const langMenu=$("langMenu"), LANG_NAMES={en:"English",tr:"Türkçe",es:"Español"};
+document.querySelectorAll("[data-lang-btn]").forEach(btn=>{ btn.textContent=LANG.toUpperCase();
+  btn.addEventListener("click",e=>{ e.stopPropagation();
+    if(!langMenu.classList.contains("hidden")) return langMenu.classList.add("hidden");
+    const r=btn.getBoundingClientRect(); langMenu.style.top=(r.bottom+scrollY+8)+"px"; langMenu.style.left=Math.max(12, r.right+scrollX-180)+"px";
+    langMenu.querySelectorAll("a").forEach(a=>a.setAttribute("aria-checked",a.dataset.langChoice===LANG));
+    langMenu.classList.remove("hidden"); langMenu.querySelector('[aria-checked="true"]')?.focus() }) });
+langMenu.addEventListener("click",e=>{ const a=e.target.closest("[data-lang-choice]"); if(!a) return;
+  try{ localStorage.setItem("capiclue-lang",a.dataset.langChoice) }catch(err){}
+  a.href=(a.dataset.langChoice==="en"?"/":`/${a.dataset.langChoice}/`)+location.hash });
+document.addEventListener("click",e=>{ if(!langMenu.contains(e.target)) langMenu.classList.add("hidden") });
+/* A phone or computer set to Turkish or Spanish gets a one-time offer on the English page. Nobody is moved automatically. */
+(()=>{ let saved=null; try{ saved=localStorage.getItem("capiclue-lang") }catch(e){}
+  const want=(navigator.languages||[navigator.language||""]).map(l=>String(l).slice(0,2).toLowerCase()).find(l=>l==="tr"||l==="es");
+  if(LANG!=="en"||saved||!want) return;
+  const offer={tr:["🇹🇷 Türkçe oynamak ister misin?","Türkçe oyna"],es:["🇪🇸 ¿Prefieres jugar en español?","Jugar en español"]}[want];
+  $("langSuggestText").textContent=offer[0]; $("langSuggestGo").textContent=offer[1]; $("langSuggestGo").href=`/${want}/`;
+  $("langSuggestGo").setAttribute("lang",want); $("langSuggest").setAttribute("lang",want); $("langSuggest").hidden=false;
+  $("langSuggestGo").addEventListener("click",()=>{ try{ localStorage.setItem("capiclue-lang",want) }catch(e){} });
+  $("langSuggestX").addEventListener("click",()=>{ try{ localStorage.setItem("capiclue-lang","en") }catch(e){} $("langSuggest").hidden=true }); })();
 const themeMenu=$("themeMenu");
 function closeThemeMenu(){ themeMenu.classList.add("hidden") }
 document.querySelectorAll("[data-theme-btn]").forEach(btn=>btn.addEventListener("click",e=>{
@@ -2006,7 +2064,7 @@ function showFinal(){
 const SITE = "https://capiclue.com";
 /* Share text uses the date (e.g. "31 Oct") rather than a day number, so nobody feels they joined late. */
 /* Shared links carry a short tag (capiclue.com/?r=wa) so the stats can show which shares bring people in. */
-const shareLink = app => `${SITE}/?r=${app}`;
+const shareLink = app => `${SITE}${LANG_PATH}?r=${app}`;
 function shareText(app="copy"){ const d=new Date().toLocaleDateString(LOCALES[LANG]||"en-GB",{day:"numeric",month:"short"}), st=streakInfo().current;
   return t("share_text",{date:d,level:LEVELS[level],pts:total(),emojis:emojis()+(st>=2?`  🔥${st}`:""),site:shareLink(app)}) }
 /* One button per app. Phones get the apps people use there; computers get the ones that work in a browser. */
@@ -2253,7 +2311,8 @@ async function lgApi(path,data){
   if(!r.ok) throw new Error(j.error||t("lg_error"));
   return j;
 }
-function lgOrdinal(n){ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]) }
+function lgOrdinal(n){ if(LANG==="tr") return n+"."; if(LANG==="es") return n+".º";
+  const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]) }
 function lgRank(rows,key){   // sort by score, players without a score go last; equal scores share a rank
   const played=rows.filter(r=>r[key]!=null).sort((a,b)=>b[key]-a[key]||a.name.localeCompare(b.name));
   let rank=0,prev=null; played.forEach((r,i)=>{ if(r[key]!==prev){ rank=i+1; prev=r[key] } r.rank=rank });
@@ -2418,7 +2477,7 @@ async function lgRenderDevice(){
   clearInterval(lgDeviceTimer);
   lgBody.innerHTML=`<p class="lg-sub">${t("lg_loading")}</p>`;
   let r; try{ r=await lgApi("/api/player/link",{}) }catch(err){ lgBody.innerHTML=`<p class="lg-err">${lgEsc(err.message)}</p><button class="cta" id="lgBack">${t("lg_back")}</button>`; $("lgBack").onclick=()=>lgOpen(); return }
-  const link=`${location.origin}/?link=${r.code}`, pretty=r.code.slice(0,4)+"-"+r.code.slice(4);
+  const link=`${location.origin}${LANG_PATH}?link=${r.code}`, pretty=r.code.slice(0,4)+"-"+r.code.slice(4);
   lgBody.innerHTML=`<div class="lg-head"><button type="button" class="lg-linkbtn" id="lgBack">${t("lg_back")}</button></div>
     <h2 id="lgTitle">${t("lg_device_title")}</h2>
     <p class="lg-sub">${t("lg_device_sub",{name:lgEsc(player.name)})}</p>
@@ -2575,7 +2634,7 @@ async function lgRenderTable(v){
   lgBody.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>lgOpen({...v,level:b.dataset.lv,justCreated:false}));
   lgBody.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>lgOpen({...v,period:b.dataset.p,justCreated:false}));
   $("lgInvite").onclick=async()=>{
-    const link=`${location.origin}/?join=${d.code}`, text=t("lg_invite_text",{name:d.name,link});
+    const link=`${location.origin}${LANG_PATH}?join=${d.code}`, text=t("lg_invite_text",{name:d.name,link});
     track("share",{level,app:"league_invite"});
     if(IS_PHONE&&navigator.share){ try{ await navigator.share({text}) }catch(e){} return }
     try{ await navigator.clipboard.writeText(text); $("lgNote").textContent=t("lg_link_copied") }catch(e){ $("lgNote").textContent=link }

@@ -5,6 +5,44 @@
 
 import { leagueRoutes } from "./leagues.js";
 import { pushRoutes, sendDueReminders } from "./push.js";
+import tr from "../i18n/tr.json";
+import es from "../i18n/es.json";
+
+/* Other languages: capiclue.com/tr/ and /es/ serve the same game page, rewritten so that Google and players get it in
+   that language straight away (title, description, all fixed wording), with the word list for the game added. */
+const LANGS = { tr, es };
+const escapeHtml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+async function languagePage(request, env, lang) {
+  const L = LANGS[lang], ui = L.ui, url = new URL(request.url);
+  const page = await env.ASSETS.fetch(new Request(new URL("/", url).toString(), { headers: request.headers }));
+  if (!page.ok) return page;
+  const home = `https://capiclue.com/${lang}/`;
+  const setAttr = (attr, value) => ({ element(el) { if (value) el.setAttribute(attr, value); } });
+  const data = JSON.stringify(L).replace(/</g, "\\u003c");
+  const res = new HTMLRewriter()
+    .on("html", setAttr("lang", lang))
+    .on("title", { element(el) { if (ui.meta_title) el.setInnerContent(ui.meta_title); } })
+    .on('meta[name="description"]', setAttr("content", ui.meta_desc))
+    .on('meta[property="og:title"]', setAttr("content", ui.og_title))
+    .on('meta[name="twitter:title"]', setAttr("content", ui.og_title))
+    .on('meta[property="og:description"]', setAttr("content", ui.og_desc))
+    .on('meta[name="twitter:description"]', setAttr("content", ui.og_desc))
+    .on('meta[property="og:url"]', setAttr("content", home))
+    .on('link[rel="canonical"]', setAttr("href", home))
+    .on("head", { element(el) { el.append(`<script>window.CAPICLUE_LANG_DATA=${data}</script>`, { html: true }); } })
+    .on("[data-i18n]", { element(el) { const k = el.getAttribute("data-i18n"); if (ui[k] != null) el.setInnerContent(ui[k], { html: true }); } })
+    .on("[data-i18n-attr]", { element(el) {
+      for (const pair of (el.getAttribute("data-i18n-attr") || "").split(";")) {
+        const [attr, k] = pair.split(":"); if (attr && ui[k] != null) el.setAttribute(attr, ui[k]);
+      } } })
+    .on("#heroTitle", { element(el) { if (ui.hero_fresh) el.setInnerContent(ui.hero_fresh, { html: true }); } })
+    .on("[data-lang-btn]", { element(el) { el.setInnerContent(lang.toUpperCase()); } })
+    .transform(page);
+  const headers = new Headers(res.headers);
+  headers.set("Content-Language", lang);
+  headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+  return new Response(res.body, { status: res.status, headers });
+}
 
 const EVENTS = new Set(["visit", "start", "city", "finish", "lucky", "share", "remind", "install", "level", "league"]);
 const LEVELS = new Set(["easy", "medium", "hard"]);
@@ -13,6 +51,11 @@ const WORD = /^[a-z0-9_-]{1,24}$/;
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const lm = url.pathname.match(/^\/(tr|es)(\/.*)?$/);
+    if (lm) {
+      if (lm[2] === "/" ) return languagePage(request, env, lm[1]);
+      return Response.redirect(new URL(`/${lm[1]}/${url.search}${url.hash}`, url).toString(), 301);   // /tr, /tr/anything → /tr/
+    }
     if (url.pathname === "/api/event" && request.method === "POST") return saveEvent(request, env, ctx);
     if (url.pathname === "/api/stats" && request.method === "GET") return stats(request, env, url);
     if (url.pathname === "/api/player" || url.pathname.startsWith("/api/player/") || url.pathname.startsWith("/api/league") || url.pathname === "/api/score") {
@@ -54,9 +97,10 @@ async function saveEvent(request, env, ctx) {
       int(d.city, 1, 5), int(d.facts, 1, 4), word(d.result), int(d.score, 0, 100), word(d.app),
       word(d.gid), flag(d.ret), flag(d.inst), d.dev === "phone" || d.dev === "desktop" ? d.dev : null,
       word((request.cf && request.cf.country) ? String(request.cf.country).toLowerCase() : null),
+      d.lang === "tr" || d.lang === "es" ? d.lang : "en",
     ];
     ctx.waitUntil(env.DB.prepare(
-      "INSERT INTO events (ts,day,ev,level,city,facts,result,score,app,gid,ret,inst,dev,country) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+      "INSERT INTO events (ts,day,ev,level,city,facts,result,score,app,gid,ret,inst,dev,country,lang) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
     ).bind(...row).run().catch(() => {}));
   } catch (e) { /* ignore bad input */ }
   return ok;
