@@ -317,7 +317,10 @@ kbd{font-family:"DM Mono",ui-monospace,monospace;font-size:.8em;padding:1px 6px;
 .remind-foot{font-size:.85rem;color:var(--soft);margin:6px 0 4px;text-align:center}
 #remindClose{display:block;margin:0 auto}
 .homebtn{white-space:nowrap}
-@media (max-width:400px){ #game .brand .word{display:none} #game .topright{gap:8px} }
+/* phones: in a game the top bar has Home + 4 round buttons, so the logo keeps only its "C" tile */
+@media (max-width:640px){ #game .brand .word{display:none} #game .topright{gap:8px} #game .homebtn{margin-right:2px} }
+@media (max-width:360px){ .topright{gap:6px} .help{width:34px;height:34px} }
+@media (max-width:340px){ .brandh{font-size:1.4rem} .brandh .mark{--m:32px} .topright{gap:5px} .help{width:32px;height:32px} }
 .leaguesheet form{display:block;margin:0}
 .leaguesheet [hidden]{display:none!important}
 .leaguesheet{width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
